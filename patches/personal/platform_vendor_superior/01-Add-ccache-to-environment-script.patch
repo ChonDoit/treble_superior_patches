@@ -1,0 +1,35 @@
+From 425ebdb82c1997e2f30a5407c9c7e76c13e93ff0 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Tue, 12 Jul 2022 02:11:53 +0000
+Subject: [PATCH] Add CCache Check to Environment Setup
+
+---
+ build/envsetup.sh | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+ create mode 100644 build/envsetup.sh
+
+diff --git a/build/envsetup.sh b/build/envsetup.sh
+new file mode 100644
+index 00000000..2bf0cc3c
+--- /dev/null
++++ b/build/envsetup.sh
+@@ -0,0 +1,16 @@
++# Check and set ccache path on envsetup
++if [ -z ${CCACHE_EXEC} ]; then
++	ccache_path=$(which ccache)
++	if [ ! -z "$ccache_path" ]; then
++		mkdir /mnt/ccache
++		mount --bind ~/.ccache /mnt/ccache
++		export USE_CCACHE=1
++		export CCACHE_COMPRESS=1
++		export CCACHE_EXEC=/usr/bin/ccache
++		export CCACHE_DIR=/mnt/ccache
++		ccache -M 50G -F 0
++		echo "ccache found and CCACHE_EXEC has been set to : $ccache_path"
++	else
++		echo "ccache not found/installed!"
++	fi
++fi
+-- 
+2.34.1
+

@@ -1,0 +1,68 @@
+From 2aa225cf8dccb93d9d7d041f5606b3d996962025 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Thu, 18 Aug 2022 03:26:36 +0000
+Subject: [PATCH] Netflix
+
+---
+ rw-system.sh | 34 ++++++++++++++++++++++------------
+ 1 file changed, 22 insertions(+), 12 deletions(-)
+
+diff --git a/rw-system.sh b/rw-system.sh
+index d10cb9c..fb5a9a2 100644
+--- a/rw-system.sh
++++ b/rw-system.sh
+@@ -979,16 +979,32 @@ fi
+ 
+ resetprop_phh ro.bluetooth.library_name libbluetooth.so
+ 
+-if getprop ro.vendor.build.fingerprint |grep -iq xiaomi/cepheus -e xiaomi/nabu;then
+-    setprop ro.netflix.bsp_rev Q855-16947-1
++board="$(getprop ro.board.platform)"
++
++if [ "$board" = atoll ] || [ "$board" = sm6250 ]; then
++	setprop ro.netflix.bsp_rev Q6250-19132-1
++fi
++
++if [ "$board" = msmnile ]; then
++	setprop ro.netflix.bsp_rev Q855-16947-1
++fi
++
++if [ "$board" = sm6150 ]; then
++	setprop ro.netflix.bsp_rev Q6150-17263-1
+ fi
+ 
+-if getprop ro.vendor.build.fingerprint |grep -iq xiaomi/elish;then
+-    setprop ro.netflix.bsp_rev Q8250-19134-1
++if [ "$board" = mt6768 ]; then
++	setprop ro.netflix.bsp_rev MTK6768-19055-1
+ fi
+ 
+-if getprop ro.vendor.build.fingerprint |grep -qi redmi/curtana;then
+-    setprop ro.netflix.bsp_rev Q6250-19132-1
++if [ "$board" = lahaina ]; then
++	setprop ro.netflix.bsp_rev Q875-32774-1
++	resetprop_phh ro.config.media_vol_steps 25
++	resetprop_phh ro.config.media_vol_default 15
++fi
++
++if [ "$board" = universal8825 ];then
++	setprop ro.netflix.bsp_rev EXYNOS1280-34993-1
+ fi
+ 
+ if getprop ro.vendor.build.fingerprint |grep -qi Nokia/Phoenix;then
+@@ -998,12 +1014,6 @@ if getprop ro.vendor.build.fingerprint |grep -qi Nokia/Phoenix;then
+     setprop media.settings.xml "/vendor/etc/media_profiles_vendor.xml"
+ fi
+ 
+-if getprop ro.vendor.build.fingerprint |grep -iq xiaomi/renoir;then
+-    setprop ro.netflix.bsp_rev Q875-32774-1
+-    resetprop_phh ro.config.media_vol_steps 25
+-    resetprop_phh ro.config.media_vol_default 15
+-fi
+-
+ # Set props for Vsmart Live's fod
+ if getprop ro.vendor.build.fingerprint |grep -q vsmart/V620A_open;then
+     setprop persist.sys.fp.fod.location.X_Y 447,1812
+-- 
+2.17.1
+

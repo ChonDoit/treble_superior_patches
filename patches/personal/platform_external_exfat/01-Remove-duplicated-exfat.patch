@@ -1,0 +1,63 @@
+From 527ffd858590fb782a9878f43401b765a76cc6e4 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Tue, 1 Feb 2022 03:24:36 +0000
+Subject: [PATCH] Remove duplicated exfat binaries
+
+---
+ Android.bp | 36 ------------------------------------
+ 1 file changed, 36 deletions(-)
+
+diff --git a/Android.bp b/Android.bp
+index f26e30c..b71c66f 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -30,34 +30,6 @@ cc_defaults {
+     shared_libs: ["liblog"],
+ }
+ 
+-cc_library_static {
+-    name: "libexfat",
+-
+-    srcs: ["libexfat/*.c"],
+-    defaults: ["exfat_defaults"],
+-    local_include_dirs: ["libexfat"],
+-    export_include_dirs: ["libexfat"],
+-}
+-
+-
+-cc_binary {
+-    name: "mkfs.exfat",
+-
+-    srcs: ["mkfs/*.c"],
+-    defaults: ["exfat_defaults"],
+-    local_include_dirs: ["mkfs"],
+-    static_libs: ["libexfat"],
+-}
+-
+-cc_binary {
+-    name: "fsck.exfat",
+-
+-    srcs: ["fsck/main.c"],
+-    defaults: ["exfat_defaults"],
+-    local_include_dirs: ["fsck"],
+-    static_libs: ["libexfat"],
+-}
+-
+ cc_binary {
+     name: "dumpexfat",
+ 
+@@ -67,11 +39,3 @@ cc_binary {
+     static_libs: ["libexfat"],
+ }
+ 
+-cc_binary {
+-    name: "exfatlabel",
+-
+-    srcs: ["label/main.c"],
+-    defaults: ["exfat_defaults"],
+-    local_include_dirs: ["label"],
+-    static_libs: ["libexfat"],
+-}
+-- 
+2.17.1
+

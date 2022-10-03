@@ -1,0 +1,50 @@
+From 170bb34e305f07e627a8654e3366417c5101d5a4 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Tue, 30 Aug 2022 13:45:51 +0000
+Subject: [PATCH] Dont Handle apns and unset LD_PRELOAD
+
+---
+ base-pre.mk | 3 ---
+ base.mk     | 4 ----
+ vndk.rc     | 2 +-
+ 3 files changed, 1 insertion(+), 8 deletions(-)
+
+diff --git a/base-pre.mk b/base-pre.mk
+index 6a317e4..e69de29 100644
+--- a/base-pre.mk
++++ b/base-pre.mk
+@@ -1,3 +0,0 @@
+-#Use a more decent APN config
+-PRODUCT_COPY_FILES += \
+-	device/sample/etc/apns-full-conf.xml:system/etc/apns-conf.xml
+diff --git a/base.mk b/base.mk
+index 4437f94..ec047ce 100644
+--- a/base.mk
++++ b/base.mk
+@@ -8,10 +8,6 @@ PRODUCT_COPY_FILES := \
+ 	frameworks/native/data/etc/android.hardware.bluetooth_le.xml:system/etc/permissions/android.hardware.bluetooth_le.xml \
+ 	frameworks/native/data/etc/android.hardware.usb.host.xml:system/etc/permissions/android.hardware.usb.host.xml \
+ 
+-#Use a more decent APN config
+-PRODUCT_COPY_FILES += \
+-	device/sample/etc/apns-full-conf.xml:system/etc/apns-conf.xml
+-
+ BOARD_PLAT_PRIVATE_SEPOLICY_DIR += device/phh/treble/sepolicy
+ PRODUCT_PACKAGE_OVERLAYS += device/phh/treble/overlay
+ 
+diff --git a/vndk.rc b/vndk.rc
+index 33436eb..83b8832 100644
+--- a/vndk.rc
++++ b/vndk.rc
+@@ -3,7 +3,7 @@ on post-fs
+ 	exec - root -- /system/bin/rw-system.sh
+ 	mount none /system/etc/usb_audio_policy_configuration.xml /vendor/etc/usb_audio_policy_configuration.xml bind
+         setprop ro.vndk.version ${persist.sys.vndk}
+-	export LD_PRELOAD :
++	unset LD_PRELOAD
+ 
+ on property:vold.decrypt=trigger_restart_framework
+ 	exec - root -- /system/bin/phh-on-data.sh
+-- 
+2.17.1
+
