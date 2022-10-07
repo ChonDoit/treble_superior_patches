@@ -1,0 +1,25 @@
+From ac8dc322b38da3ba29101bab84a03e4b992f7817 Mon Sep 17 00:00:00 2001
+From: Raphael Mounier <mounierr07@gmail.com>
+Date: Sat, 1 Oct 2022 14:33:08 +0200
+Subject: [PATCH 01/18] Change name of sepolicy file
+
+Change  name of sepolicy file for EMUI9
+---
+ vndk-detect | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/vndk-detect b/vndk-detect
+index 1f4caf4..5666ddb 100644
+--- a/vndk-detect
++++ b/vndk-detect
+@@ -1,6 +1,6 @@
+ #!/system/bin/sh
+ 
+-grep -oE 'init_[0-9_]+' /vendor/etc/selinux/nonplat_sepolicy.cil | \
++grep -oE 'init_[0-9_]+' /vendor/etc/selinux/vendor_sepolicy.cil | \
+ 	uniq | \
+ 	sort -n | \
+ 	head -n 1 | \
+-- 
+2.25.1
+

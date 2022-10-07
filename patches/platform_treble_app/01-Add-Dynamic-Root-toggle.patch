@@ -1,0 +1,79 @@
+From 0cde83af055cad2e18b8033f1213ae51cc62d930 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Wed, 5 Oct 2022 15:25:29 +0000
+Subject: [PATCH] Add Dynamic Root
+
+---
+ app/src/main/java/me/phh/treble/app/Misc.kt         |  5 +++++
+ app/src/main/java/me/phh/treble/app/MiscSettings.kt |  1 +
+ app/src/main/res/xml/pref_misc.xml                  | 13 +++++++++++--
+ 3 files changed, 17 insertions(+), 2 deletions(-)
+
+diff --git a/app/src/main/java/me/phh/treble/app/Misc.kt b/app/src/main/java/me/phh/treble/app/Misc.kt
+index 0cdb728..df03057 100644
+--- a/app/src/main/java/me/phh/treble/app/Misc.kt
++++ b/app/src/main/java/me/phh/treble/app/Misc.kt
+@@ -257,6 +257,10 @@ object Misc: EntryStartup {
+                 val value = sp.getString(key, "00ff00")
+                 SystemProperties.set("persist.sys.phh.fod_color", value)
+             }
++	    MiscSettings.dynamicSuperuser -> {
++                val value = sp.getBoolean(key, false)
++                SystemProperties.set("persist.sys.phh.dynamic_superuser", if (value) "1" else "0")
++            }
+         }
+     }
+ 
+@@ -283,5 +287,6 @@ object Misc: EntryStartup {
+         spListener.onSharedPreferenceChanged(sp, MiscSettings.noHwcomposer)
+         spListener.onSharedPreferenceChanged(sp, MiscSettings.storageFUSE)
+         spListener.onSharedPreferenceChanged(sp, MiscSettings.dt2w)
++	spListener.onSharedPreferenceChanged(sp, MiscSettings.dynamicSuperuser)
+     }
+ }
+diff --git a/app/src/main/java/me/phh/treble/app/MiscSettings.kt b/app/src/main/java/me/phh/treble/app/MiscSettings.kt
+index ed83b03..0907ac1 100644
+--- a/app/src/main/java/me/phh/treble/app/MiscSettings.kt
++++ b/app/src/main/java/me/phh/treble/app/MiscSettings.kt
+@@ -38,6 +38,7 @@ object MiscSettings : Settings {
+     val dt2w = "key_misc_dt2w"
+     val restartSystemUI = "key_misc_restart_systemui"
+     val fodColor = "key_misc_fod_color"
++    val dynamicSuperuser = "key_misc_dynamic_superuser"
+ 
+     override fun enabled() = true
+ }
+diff --git a/app/src/main/res/xml/pref_misc.xml b/app/src/main/res/xml/pref_misc.xml
+index 9f67536..4a2b397 100644
+--- a/app/src/main/res/xml/pref_misc.xml
++++ b/app/src/main/res/xml/pref_misc.xml
+@@ -7,6 +7,17 @@
+ 		    android:action="android.intent.action.VIEW"
+ 		    android:data="https://github.com/sponsors/phhusson/" />
+ 	</Preference>
++	<PreferenceCategory android:title="Root Solutions">
++		<SwitchPreference
++	            android:defaultValue="0"
++	            android:key="key_misc_dynamic_superuser"
++	            android:title="Toggle Dynamic Superuser"
++		    android:summaryOn="Dynamic root is enabled"
++		    android:summaryOff="Dynamic root is disabled" />
++		<Preference android:title="Securize"
++		    android:key="key_misc_securize"
++		    android:summary="Permanently Remove root" />
++	</PreferenceCategory>
+ 	<PreferenceCategory android:title="Mobile network">
+ 		<ListPreference
+ 		    android:defaultValue="default"
+@@ -145,8 +156,6 @@
+ 		    android:entryValues="@array/pref_misc_fod_color_values"
+ 		    android:key="key_misc_fod_color"
+             android:title="Under-display fp color" />
+-		<Preference android:title="Securize"
+-            android:key="key_misc_securize" />
+ 		<Preference android:title="@string/remove_telephony_subsystem"
+             android:key="key_misc_removetelephony" />
+ 	</PreferenceCategory>
+-- 
+2.34.1
+

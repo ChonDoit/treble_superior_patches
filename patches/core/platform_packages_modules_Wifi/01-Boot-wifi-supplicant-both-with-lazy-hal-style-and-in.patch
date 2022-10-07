@@ -1,0 +1,27 @@
+From c4c912160284bff004e98a942a6de6646e979ef6 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sat, 1 Oct 2022 02:13:31 +0000
+Subject: [PATCH] Boot wifi supplicant both with lazy-hal style and init style
+
+Some Samsung Pie vendors can't do lazy-hal style init
+
+Change-Id: Ic56efcbb00ba9cdad7e2d31f2dacb13f4756df6e
+---
+ .../com/android/server/wifi/SupplicantStaIfaceHalHidlImpl.java   | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/service/java/com/android/server/wifi/SupplicantStaIfaceHalHidlImpl.java b/service/java/com/android/server/wifi/SupplicantStaIfaceHalHidlImpl.java
+index a1aeb9e906..c2def29d3d 100644
+--- a/service/java/com/android/server/wifi/SupplicantStaIfaceHalHidlImpl.java
++++ b/service/java/com/android/server/wifi/SupplicantStaIfaceHalHidlImpl.java
+@@ -713,6 +713,7 @@ public class SupplicantStaIfaceHalHidlImpl implements ISupplicantStaIfaceHal {
+         synchronized (mLock) {
+             if (isV1_1()) {
+                 Log.i(TAG, "Starting supplicant using HIDL");
++		mFrameworkFacade.startSupplicant();
+                 return startDaemon_V1_1();
+             } else {
+                 Log.i(TAG, "Starting supplicant using init");
+-- 
+2.34.1
+

@@ -1,0 +1,20 @@
+From 53e8034ca13a7e82beeba0f92d75495836ec0061 Mon Sep 17 00:00:00 2001
+From: Victor Bo <bvoid@yandex.ru>
+Date: Tue, 15 Sep 2020 21:26:45 -0400
+Subject: [PATCH] add offline charger sepolicy
+
+---
+ sepolicy/charger.te | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 sepolicy/charger.te
+
+diff --git a/sepolicy/charger.te b/sepolicy/charger.te
+new file mode 100644
+index 0000000..91cfb5c
+--- /dev/null
++++ b/sepolicy/charger.te
+@@ -0,0 +1 @@
++permissive charger;
+-- 
+2.25.1
+

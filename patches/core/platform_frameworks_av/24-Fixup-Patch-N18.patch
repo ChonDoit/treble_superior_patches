@@ -1,0 +1,25 @@
+From 8101fcfdba96540571c341da1c0277884e10a303 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sat, 1 Oct 2022 18:11:11 +0000
+Subject: [PATCH] Fixup! Restore Audio HAL v2.0
+
+---
+ media/libaudiohal/FactoryHalHidl.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/media/libaudiohal/FactoryHalHidl.cpp b/media/libaudiohal/FactoryHalHidl.cpp
+index 35bd7c817c..b4be2a3f5f 100644
+--- a/media/libaudiohal/FactoryHalHidl.cpp
++++ b/media/libaudiohal/FactoryHalHidl.cpp
+@@ -36,7 +36,7 @@ namespace {
+  */
+ #define CONC_VERSION(maj, min) #maj "." #min
+ #define DECLARE_VERSION(maj, min) std::make_pair(std::make_pair(maj, min), CONC_VERSION(maj, min))
+-static constexpr std::array<std::pair<std::pair<int, int>, const char*>, 5> sAudioHALVersions = {
++static constexpr std::array<std::pair<std::pair<int, int>, const char*>, 6> sAudioHALVersions = {
+     DECLARE_VERSION(7, 1),
+     DECLARE_VERSION(7, 0),
+     DECLARE_VERSION(6, 0),
+-- 
+2.34.1
+

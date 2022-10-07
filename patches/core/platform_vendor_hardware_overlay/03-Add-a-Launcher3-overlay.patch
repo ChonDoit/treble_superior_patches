@@ -1,0 +1,109 @@
+From a0aef1789552f2e7cbe8adb5dafc744c0781f89c Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Fri, 7 Oct 2022 03:52:19 +0000
+Subject: [PATCH] Add toggleable Launcher3 Overlay
+
+Motorola declares Moto Launcher as default recent provider on vendor overlay.
+Due this, any launcher which isn't declared trough overlay will not work as expected.
+Lets push a toggleable (with persist.sys.phh.launcher3=true or false) Launcher3 overlay to override it on roms where is the default launcher.
+
+---
+ Misc/Launcher3/Android.mk             |  8 ++++++++
+ Misc/Launcher3/AndroidManifest.xml    | 12 ++++++++++++
+ Misc/Launcher3/res/values/arrays.xml  |  9 +++++++++
+ Misc/Launcher3/res/values/bools.xml   |  5 +++++
+ Misc/Launcher3/res/values/strings.xml |  6 ++++++
+ overlay.mk                            |  1 +
+ 6 files changed, 41 insertions(+)
+ create mode 100644 Misc/Launcher3/Android.mk
+ create mode 100644 Misc/Launcher3/AndroidManifest.xml
+ create mode 100644 Misc/Launcher3/res/values/arrays.xml
+ create mode 100644 Misc/Launcher3/res/values/bools.xml
+ create mode 100644 Misc/Launcher3/res/values/strings.xml
+
+diff --git a/Misc/Launcher3/Android.mk b/Misc/Launcher3/Android.mk
+new file mode 100644
+index 0000000..1e3c766
+--- /dev/null
++++ b/Misc/Launcher3/Android.mk
+@@ -0,0 +1,8 @@
++LOCAL_PATH := $(call my-dir)
++include $(CLEAR_VARS)
++LOCAL_MODULE_TAGS := optional
++LOCAL_PACKAGE_NAME := treble-overlay-misc-launcher3
++LOCAL_MODULE_PATH := $(TARGET_OUT_PRODUCT)/overlay
++LOCAL_IS_RUNTIME_RESOURCE_OVERLAY := true
++LOCAL_PRIVATE_PLATFORM_APIS := true
++include $(BUILD_PACKAGE)
+\ No newline at end of file
+diff --git a/Misc/Launcher3/AndroidManifest.xml b/Misc/Launcher3/AndroidManifest.xml
+new file mode 100644
+index 0000000..71f598f
+--- /dev/null
++++ b/Misc/Launcher3/AndroidManifest.xml
+@@ -0,0 +1,12 @@
++<manifest
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    package="me.phh.treble.overlay.misc.launcher3"
++    android:versionCode="1"
++    android:versionName="1.0">>
++    <overlay
++        android:isStatic="true"
++        android:priority="0"
++        android:targetPackage="android"
++        android:requiredSystemPropertyName="persist.sys.phh.launcher3"
++        android:requiredSystemPropertyValue="true" />
++</manifest>
+diff --git a/Misc/Launcher3/res/values/arrays.xml b/Misc/Launcher3/res/values/arrays.xml
+new file mode 100644
+index 0000000..d2e5040
+--- /dev/null
++++ b/Misc/Launcher3/res/values/arrays.xml
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="utf-8"?>
++<resources>
++    <string-array name="vendor_required_apps_managed_device">
++		<item>com.android.launcher3</item>
++    </string-array>
++    <string-array name="vendor_required_apps_managed_user">
++		<item>com.android.launcher3</item>
++    </string-array>
++</resources>
+diff --git a/Misc/Launcher3/res/values/bools.xml b/Misc/Launcher3/res/values/bools.xml
+new file mode 100644
+index 0000000..ec2b6b6
+--- /dev/null
++++ b/Misc/Launcher3/res/values/bools.xml
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<resources>
++    <bool name="config_showGesturalNavigationHints">true</bool>
++    <bool name="config_swipe_up_gesture_setting_available">true</bool>
++</resources>
+diff --git a/Misc/Launcher3/res/values/strings.xml b/Misc/Launcher3/res/values/strings.xml
+new file mode 100644
+index 0000000..09a67bf
+--- /dev/null
++++ b/Misc/Launcher3/res/values/strings.xml
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<resources>
++    <string name="config_recentsComponentName">com.android.launcher3/com.android.quickstep.RecentsActivity</string>
++    <string name="config_secondaryHomePackage">com.android.launcher3</string>
++    <string name="config_defaultListenerAccessPackages">com.android.launcher3</string>
++</resources>
+diff --git a/overlay.mk b/overlay.mk
+index 80b1ff4..4125f01 100644
+--- a/overlay.mk
++++ b/overlay.mk
+@@ -72,6 +72,7 @@ PRODUCT_PACKAGES += \
+ 	treble-overlay-misc-aod \
+ 	treble-overlay-misc-aod-systemui \
+ 	treble-overlay-misc-dt2w \
++	treble-overlay-misc-launcher3 \
+ 	treble-overlay-misc-minimal-brightness \
+ 	treble-overlay-moto-e5 \
+ 	treble-overlay-moto-e5plus \
+-- 
+2.34.1
+
