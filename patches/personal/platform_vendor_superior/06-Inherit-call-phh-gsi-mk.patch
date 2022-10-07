@@ -1,0 +1,26 @@
+From 56b5fc29f9b0c586b543602b7eaced5243d84d53 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Fri, 7 Oct 2022 17:52:31 +0000
+Subject: [PATCH] Inherit call phh_gsi.mk
+
+---
+ config/common.mk | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/config/common.mk b/config/common.mk
+index a49019b5..e0b72954 100644
+--- a/config/common.mk
++++ b/config/common.mk
+@@ -14,6 +14,9 @@
+ 
+ PRODUCT_BRAND ?= SuperiorOS
+ 
++# PHH GSI
++$(call inherit-product, vendor/superior/config/phh_gsi.mk)
++
+ # Backup Tool
+ PRODUCT_COPY_FILES += \
+     vendor/superior/prebuilt/common/bin/backuptool.sh:install/bin/backuptool.sh \
+-- 
+2.34.1
+

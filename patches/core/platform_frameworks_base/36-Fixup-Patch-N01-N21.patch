@@ -1,7 +1,7 @@
 From 7773ded90f8d7f44ac6fa1d4aa54287b5e2b3186 Mon Sep 17 00:00:00 2001
 From: ChonDoit <thphantomblog@gmail.com>
 Date: Sun, 2 Oct 2022 14:02:33 +0000
-Subject: [PATCH] Fixup Patch N07 and N01
+Subject: [PATCH] Fixup Patch N01 and N21
 
 ---
  core/java/android/view/DisplayCutout.java        |  7 ++++---
