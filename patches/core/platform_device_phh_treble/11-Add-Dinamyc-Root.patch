@@ -21,7 +21,7 @@ index 50cfa4f..4420218 100644
  	device/phh/treble/rw-system.sh:system/bin/rw-system.sh \
  	device/phh/treble/phh-on-data.sh:system/bin/phh-on-data.sh \
  	device/phh/treble/phh-prop-handler.sh:system/bin/phh-prop-handler.sh \
-+    device/phh/treble/empty:system/xbin/empty \
++ 	device/phh/treble/empty:system/xbin/empty \
  	device/phh/treble/fixSPL/getSPL.arm:system/bin/getSPL
  
  PRODUCT_COPY_FILES += \
@@ -33,6 +33,7 @@ index 4371632..7a6be67 100644
      restartAudio
      exit
  fi
++
 +
 +phhroot() {
 +	blockdev --setrw /dev/block/mapper/system
@@ -66,7 +67,6 @@ index 4371632..7a6be67 100644
 +	fi
 +	exit
 +fi
-+   
 diff --git a/su/Android.mk b/su/Android.mk
 index 4d2e612..ce3bb87 100644
 --- a/su/Android.mk
@@ -14810,7 +14810,7 @@ index c150ace..33436eb 100644
  
 +on property:persist.sys.phh.dynamic_superuser=*
 +    exec u:r:phhsu_daemon:s0 root -- /system/bin/phh-prop-handler.sh "persist.sys.phh.dynamic_superuser"
-+   
++
  on property:init.svc.ril-proxy=stopped && property:persist.sys.phh.restart_ril=true
      start ril-proxy
  

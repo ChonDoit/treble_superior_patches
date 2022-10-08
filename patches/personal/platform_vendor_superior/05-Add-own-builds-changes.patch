@@ -14,6 +14,7 @@ index 00000000..54e575b8
 --- /dev/null
 +++ b/config/phh_gsi.mk
 @@ -0,0 +1,28 @@
++
 +# The Gapps
 +$(call inherit-product, vendor/gapps/config.mk)
 +
@@ -41,7 +42,6 @@ index 00000000..54e575b8
 +# APNS
 +PRODUCT_COPY_FILES += \
 +        vendor/superior/prebuilt/common/etc/apns-conf.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/apns-conf.xml
-+
 -- 
 2.34.1
 

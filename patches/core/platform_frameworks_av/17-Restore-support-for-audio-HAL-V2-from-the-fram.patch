@@ -1,45 +1,56 @@
-From 3d0e96fd724c2edea5039216e931d20cf358dbd4 Mon Sep 17 00:00:00 2001
-From: ChonDoit <thphantomblog@gmail.com>
-Date: Wed, 28 Sep 2022 23:55:21 -0300
-Subject: [PATCH] Restore support for audio HAL V2 from the framework
+From 09cd403bb4bd426f5c90a0152e4d710b9bc9193d Mon Sep 17 00:00:00 2001
+From: Pierre-Hugues Husson <phh@phh.me>
+Date: Mon, 11 Oct 2021 16:10:42 -0400
+Subject: [PATCH] Revert "Remove support for audio HAL V2 from the framework"
 
+This reverts commit cbf517f837f7bf8a59f3ff8aa1e0e3e19612e251.
+
+Also enable new extensions required to actually build
+
+Change-Id: Icfd638a91b22ffa6d2cd6d19a624e699a85a850a
 ---
  media/libaudiohal/Android.bp         |  1 +
- media/libaudiohal/FactoryHalHidl.cpp |  3 ++-
- media/libaudiohal/impl/Android.bp    | 19 +++++++++++++++++++
- 3 files changed, 22 insertions(+), 1 deletion(-)
+ media/libaudiohal/FactoryHalHidl.cpp |  5 +++--
+ media/libaudiohal/impl/Android.bp    | 18 ++++++++++++++++++
+ 3 files changed, 22 insertions(+), 2 deletions(-)
 
 diff --git a/media/libaudiohal/Android.bp b/media/libaudiohal/Android.bp
-index 5f63e8de04..cd166676e3 100644
+index 5f63e8de04..aa1d825d2f 100644
 --- a/media/libaudiohal/Android.bp
 +++ b/media/libaudiohal/Android.bp
 @@ -23,6 +23,7 @@ cc_library_shared {
      ],
  
      required: [
-+	"libaudiohal@2.0",
++        "libaudiohal@2.0",
          "libaudiohal@4.0",
          "libaudiohal@5.0",
          "libaudiohal@6.0",
 diff --git a/media/libaudiohal/FactoryHalHidl.cpp b/media/libaudiohal/FactoryHalHidl.cpp
-index 590fec5443..35bd7c817c 100644
+index 590fec5443..46b6bd757a 100644
 --- a/media/libaudiohal/FactoryHalHidl.cpp
 +++ b/media/libaudiohal/FactoryHalHidl.cpp
-@@ -41,7 +41,8 @@ static constexpr std::array<std::pair<std::pair<int, int>, const char*>, 5> sAud
+@@ -36,12 +36,13 @@ namespace {
+  */
+ #define CONC_VERSION(maj, min) #maj "." #min
+ #define DECLARE_VERSION(maj, min) std::make_pair(std::make_pair(maj, min), CONC_VERSION(maj, min))
+-static constexpr std::array<std::pair<std::pair<int, int>, const char*>, 5> sAudioHALVersions = {
++static constexpr std::array<std::pair<std::pair<int, int>, const char*>, 6> sAudioHALVersions = {
+     DECLARE_VERSION(7, 1),
      DECLARE_VERSION(7, 0),
      DECLARE_VERSION(6, 0),
      DECLARE_VERSION(5, 0),
 -    DECLARE_VERSION(4, 0)
 +    DECLARE_VERSION(4, 0),
-+    DECLARE_VERSION(2, 0),
++    DECLARE_VERSION(2, 0)
  };
  
  bool createHalService(const std::string& version, const std::string& interface,
 diff --git a/media/libaudiohal/impl/Android.bp b/media/libaudiohal/impl/Android.bp
-index d30883a95c..6815d9500d 100644
+index d30883a95c..7bba88ca0a 100644
 --- a/media/libaudiohal/impl/Android.bp
 +++ b/media/libaudiohal/impl/Android.bp
-@@ -68,6 +68,25 @@ cc_defaults {
+@@ -68,6 +68,24 @@ cc_defaults {
      ],
  }
  
@@ -61,10 +72,6 @@ index d30883a95c..6815d9500d 100644
 +    ]
 +}
 +
-+
  cc_library_shared {
      name: "libaudiohal@4.0",
      defaults: ["libaudiohal_default"],
--- 
-2.37.3
-

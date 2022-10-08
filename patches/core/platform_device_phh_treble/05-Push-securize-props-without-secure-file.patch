@@ -124,7 +124,7 @@ index 3a17730..5fb3677 100644
 +# FINGERPRINTS
 +copyprop ro.build.fingerprint ro.vendor.build.fingerprint
 +copyprop ro.bootimage.build.fingerprint ro.vendor.build.fingerprint
-+copyprop ro.system.build.fingerprint ro.vendor.build.fingerprint   
++copyprop ro.system.build.fingerprint ro.vendor.build.fingerprint
 +copyprop ro.product.build.fingerprint ro.vendor.build.fingerprint
 +copyprop ro.system_ext.build.fingerprint ro.vendor.build.fingerprint
 +

@@ -7,8 +7,8 @@ Subject: [PATCH] Allow hwc HAL to read hwc.exynos.vsync_mode prop
 `E libc    : Access denied finding property "hwc.exynos.vsync_mode"`
 ---
  sepolicy/property_contexts | 1 +
- sepolicy/samsung.te        | 6 ++++++
- 2 files changed, 7 insertions(+)
+ sepolicy/samsung.te        | 4 ++++
+ 2 files changed, 5 insertions(+)
 
 diff --git a/sepolicy/property_contexts b/sepolicy/property_contexts
 index 9f4314a..185a08b 100644
@@ -18,10 +18,10 @@ index 9f4314a..185a08b 100644
  persist.sys.sf.hs_mode         u:object_r:sf_hs_mode_prop:s0
 +hwc.exynos.vsync_mode      u:object_r:vendor_hwc_prop:s0
 diff --git a/sepolicy/samsung.te b/sepolicy/samsung.te
-index 344372c..160c742 100644
+index 344372c..673d551 100644
 --- a/sepolicy/samsung.te
 +++ b/sepolicy/samsung.te
-@@ -7,3 +7,9 @@ type hal_graphics_composer_default, domain;
+@@ -7,3 +7,7 @@ type hal_graphics_composer_default, domain;
  type sf_hs_mode_prop, property_type;
  
  get_prop(hal_graphics_composer_default, sf_hs_mode_prop);
@@ -29,8 +29,6 @@ index 344372c..160c742 100644
 +type vendor_hwc_prop, property_type;
 +
 +get_prop(hal_graphics_composer_default, vendor_hwc_prop);
-+   
-+   
 -- 
 2.17.1
 

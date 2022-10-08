@@ -12,14 +12,14 @@ The SVG Path parser will fail, triggering an exception.
 
 Fix it by catching it, and parsing mainBuiltInDisplayCutout instead
 ---
- core/java/android/view/DisplayCutout.java | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ core/java/android/view/DisplayCutout.java | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
 diff --git a/core/java/android/view/DisplayCutout.java b/core/java/android/view/DisplayCutout.java
-index 83a7b3f01a95..03eeda20db82 100644
+index 83a7b3f01a95..b386c3192f1c 100644
 --- a/core/java/android/view/DisplayCutout.java
 +++ b/core/java/android/view/DisplayCutout.java
-@@ -1055,11 +1055,19 @@ public final class DisplayCutout {
+@@ -1055,11 +1055,18 @@ public final class DisplayCutout {
      public static DisplayCutout fromResourcesRectApproximation(Resources res,
              String displayUniqueId, int physicalDisplayWidth, int physicalDisplayHeight,
              int displayWidth, int displayHeight) {
@@ -34,16 +34,15 @@ index 83a7b3f01a95..03eeda20db82 100644
 +                    physicalDisplayHeight, displayWidth, displayHeight, DENSITY_DEVICE_STABLE / (float) DENSITY_DEFAULT,
 +                    getWaterfallInsets(res, displayUniqueId)).second;
 +        } catch(Throwable t) {
-+            return pathAndDisplayCutoutFromSpec(getDisplayCutoutPath(res, displayUniqueId), physicalDisplayWidth, physicalDisplayHeight,
-+                    null,
-+                    displayWidth, displayHeight, DENSITY_DEVICE_STABLE / (float) DENSITY_DEFAULT,
-+                    getWaterfallInsets(res, displayUniqueId)).second;
++           return pathAndDisplayCutoutFromSpec(getDisplayCutoutPath(res, displayUniqueId),
++		    null, physicalDisplayWidth, physicalDisplayHeight,
++		    displayWidth, displayHeight,
++		    DENSITY_DEVICE_STABLE / (float) DENSITY_DEFAULT,
++		    getWaterfallInsets(res, displayUniqueId)).second;
 +        }
-+
-+
      }
  
      /**
 -- 
-2.37.3
+2.34.1
 

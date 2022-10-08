@@ -17,7 +17,7 @@ index 74501cd1f..28700cd39 100644
      gsi_skip_mount.cfg \
 -    init.gsi.rc \
 -    init.vndk-nodef.rc \
-+   init.gsi.rc	
++    init.gsi.rc
  
  # Support additional VNDK snapshots
  PRODUCT_EXTRA_VNDK_VERSIONS := \

@@ -28,7 +28,7 @@ index a6c7ede..4f9cd76 100644
 +# Disable debugging strict mode toasts
  persist.sys.strictmode.disable=true
 +
-+# 
++# HW Keys
  persist.sys.phh.mainkeys=0
  
 +# User profiles
@@ -43,7 +43,7 @@ index a6c7ede..4f9cd76 100644
  persist.wm.enable_remote_keyguard_animation=0
 +
 +# System props to enable Bluetooth Quality Report (BQR) feature
-+# BQR event mask configuration (14 or 30)
++# BQR event mask configuration (14 or 30 current known values)
 +persist.bluetooth.bqr.event_mask=14
 +
 +# BQR minimum report interval configuration

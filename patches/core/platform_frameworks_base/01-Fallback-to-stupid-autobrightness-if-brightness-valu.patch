@@ -1,7 +1,7 @@
 From 008c3b4640d1409179c55dacc17c3a8dee789cc0 Mon Sep 17 00:00:00 2001
 From: ChonDoit <thphantomblog@gmail.com>
 Date: Fri, 30 Sep 2022 00:34:19 -0300
-Subject: [PATCH] Fallback to stupid autobrightness if brightness values are
+Subject: [PATCH 1/2] Fallback to stupid autobrightness if brightness values are
  broken
 
 This is needed because of:
@@ -31,4 +31,31 @@ index a25ac210f9c8..946b9bca9dd8 100644
          }
 -- 
 2.37.3
+
+
+From 7773ded90f8d7f44ac6fa1d4aa54287b5e2b3186 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sun, 2 Oct 2022 14:02:33 +0000
+Subject: [PATCH 2/2] Fixup! Fallback to stupid autobrightness if brightness values are
+ broken
+
+---
+ .../server/display/DisplayDeviceConfig.java      |  2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/services/core/java/com/android/server/display/DisplayDeviceConfig.java b/services/core/java/com/android/server/display/DisplayDeviceConfig.java
+index 946b9bca9dd8..00933b89bbef 100644
+--- a/services/core/java/com/android/server/display/DisplayDeviceConfig.java
++++ b/services/core/java/com/android/server/display/DisplayDeviceConfig.java
+@@ -317,7 +317,7 @@ public class DisplayDeviceConfig {
+      * @return A configuration instance.
+      */
+     public static DisplayDeviceConfig create(Context context, boolean useConfigXml) {
+-        final DisplayDeviceConfig config;
++        DisplayDeviceConfig config;
+         if (useConfigXml) {
+             try {
+ 		config = getConfigFromGlobalXml(context);
+-- 
+2.34.1
 

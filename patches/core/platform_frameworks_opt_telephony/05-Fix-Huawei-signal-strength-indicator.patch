@@ -181,7 +181,7 @@ index c7244be82e..5df3f99896 100644
 From 7699295dfc6d744f5efbb7308a2525a1b21f23d0 Mon Sep 17 00:00:00 2001
 From: ChonDoit <thphantomblog@gmail.com>
 Date: Fri, 7 Oct 2022 12:30:36 +0000
-Subject: [PATCH 2/2] Fixup! Verbose RIL_UNSOL_SIGNAL_STRENGTH, ss
+Subject: [PATCH 2/2] Fixup! Fix Huawei signal strength indicator
 
 Change-Id: Icf71407db1afaf8c268542be355342ca85a22e5d
 ---
@@ -197,7 +197,7 @@ index 5df3f99896..c845246f77 100644
  		ss = mRil.fixupSignalStrength10(ssInitial);
  	}
 -
-+	
++
 +	// Note this is set to "verbose" because it happens frequently
 +	if (RIL.RILJ_LOGV) mRil.unsljLogvRet(RIL_UNSOL_SIGNAL_STRENGTH, ss);
          if (mRil.mSignalStrengthRegistrant != null) {
