@@ -1,7 +1,13 @@
 From 771612a08b792dd12cdec0d7faba0b2c3371bc8a Mon Sep 17 00:00:00 2001
 From: ChonDoit <thphantomblog@gmail.com>
 Date: Fri, 7 Oct 2022 03:32:01 +0000
-Subject: [PATCH] Allow encryptable fstab flag in any case
+Subject: [PATCH] Allow encryptable fstab flag at any case
+
+ChonDoe: Simple re-do from Ponces patch due fails on bash (?
+
+With FDE drop "encryptable" fstab flags isn't allowed anymore 
+for any except adoptable storage. Unencrypted device with old DFE 
+will leads to bootloop due this, lets allow it again at any case.
 
 ---
  fs_mgr/fs_mgr_fstab.cpp | 5 ++---
