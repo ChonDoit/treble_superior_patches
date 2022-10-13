@@ -1,0 +1,28 @@
+From 6d40f570fdc634761fa45ad26cad51b4222816df Mon Sep 17 00:00:00 2001
+From: Steve Kondik <shade@chemlab.org>
+Date: Wed, 1 May 2013 02:58:11 -0700
+Subject: [PATCH] camera: Don't segfault if we get a NULL parameter
+
+ * Values end up NULL on some drivers, don't crash.
+
+Change-Id: Ic897dbd4629cf3af98c85f93be202c382dde806b
+Signed-off-by: Pranav Vashi <neobuddy89@gmail.com>
+Signed-off-by: Joey Huab <joey@evolution-x.org>
+---
+ camera/CameraParameters.cpp | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/camera/CameraParameters.cpp b/camera/CameraParameters.cpp
+index e95c91cb98..99befa7968 100644
+--- a/camera/CameraParameters.cpp
++++ b/camera/CameraParameters.cpp
+@@ -238,6 +238,9 @@ void CameraParameters::unflatten(const String8 &params)
+ 
+ void CameraParameters::set(const char *key, const char *value)
+ {
++    if (key == NULL || value == NULL)
++        return;
++
+     // XXX i think i can do this with strspn()
+     if (strchr(key, '=') || strchr(key, ';')) {
+         //XXX ALOGE("Key \"%s\"contains invalid character (= or ;)", key);

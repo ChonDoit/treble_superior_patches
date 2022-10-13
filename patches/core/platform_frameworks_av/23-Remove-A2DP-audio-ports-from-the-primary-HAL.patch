@@ -56,7 +56,7 @@ index b474054cd3..0bc5e1475a 100644
 +                iter++;
 +            }
 +        }
-+    } 
++    }
      module->setDeclaredDevices(devicePorts);
  
      RouteTraits::Collection routes;

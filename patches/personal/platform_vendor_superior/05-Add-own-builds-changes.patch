@@ -36,7 +36,7 @@ index 00000000..54e575b8
 +        android.hardware.bluetooth.a2dp@1.0-impl \
 +        android.hardware.bluetooth.a2dp@1.0-service
 +
-+PRODUCT_PRODUCT_PROPERTIES += \
++PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
 +        dalvik.vm.dex2oat64.enabled=true
 +
 +# APNS
