@@ -1,0 +1,37 @@
+From a654bc9ca8665f6d9646ed05b6b831b29f0257c8 Mon Sep 17 00:00:00 2001
+From: Michael Bestas <mkbestas@gmail.com>
+Date: Sat, 3 Sep 2022 20:49:09 +0300
+Subject: [PATCH] Revert "Remove libavservices_minijail_vendor"
+
+Older device vendor blobs still depend on this.
+
+This reverts commit a03603523a5ec96c75153d39a2369c306f88fa70.
+
+Change-Id: I15a5d75a8731586e59a6600eb782332ab6844ad5
+Signed-off-by: Hung Phan <phandinhhungvp2001@gmail.com>
+---
+ services/minijail/Android.bp | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/services/minijail/Android.bp b/services/minijail/Android.bp
+index decc5feb70..ff29a9d2cb 100644
+--- a/services/minijail/Android.bp
++++ b/services/minijail/Android.bp
+@@ -36,6 +36,17 @@ cc_library_shared {
+     export_include_dirs: ["."],
+ }
+ 
++// By adding "vendor_available: true" to "libavservices_minijail", we don't
++// need to have "libavservices_minijail_vendor" any longer.
++// "libavservices_minijail_vendor" will be removed, once we replace it with
++// "libavservices_minijail" in all vendor modules. (b/146313710)
++cc_library_shared {
++    name: "libavservices_minijail_vendor",
++    vendor: true,
++    defaults: ["libavservices_minijail_defaults"],
++    export_include_dirs: ["."],
++}
++
+ // Unit tests.
+ cc_test {
+     name: "libavservices_minijail_unittest",
