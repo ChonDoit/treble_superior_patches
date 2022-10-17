@@ -1,7 +1,7 @@
 From 3c1d77cf273228d4acc67ec32b8bf06f1fb205b6 Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Sat, 22 Jan 2022 14:34:45 -0500
-Subject: [PATCH] Add my own OTA mechanism going over /data
+Subject: [PATCH 10/12] Add my own OTA mechanism going over /data
 
 Change-Id: I9cacff2d761affa0376b4bb8ca63353a9d95b5de
 ---
@@ -10,7 +10,7 @@ Change-Id: I9cacff2d761affa0376b4bb8ca63353a9d95b5de
  2 files changed, 65 insertions(+), 1 deletion(-)
 
 diff --git a/fs_mgr/libfiemap/image_manager.cpp b/fs_mgr/libfiemap/image_manager.cpp
-index c416f4df44a..b8eba80aac6 100644
+index c416f4df4..b8eba80aa 100644
 --- a/fs_mgr/libfiemap/image_manager.cpp
 +++ b/fs_mgr/libfiemap/image_manager.cpp
 @@ -156,7 +156,7 @@ bool ImageManager::MetadataDirIsTest() const {
@@ -23,7 +23,7 @@ index c416f4df44a..b8eba80aac6 100644
  
  FiemapStatus ImageManager::CreateBackingImage(
 diff --git a/init/selinux.cpp b/init/selinux.cpp
-index be8c5542f79..59d41e3731c 100644
+index be8c5542f..59d41e373 100644
 --- a/init/selinux.cpp
 +++ b/init/selinux.cpp
 @@ -62,6 +62,9 @@
@@ -131,3 +131,6 @@ index be8c5542f79..59d41e3731c 100644
  
      boot_clock::time_point start_time = boot_clock::now();
  
+-- 
+2.25.1
+

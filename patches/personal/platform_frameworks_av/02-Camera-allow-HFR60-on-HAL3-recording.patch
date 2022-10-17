@@ -1,0 +1,31 @@
+From 3f178b6a3e1aeef8a7dd4afaa72018a5acfd8845 Mon Sep 17 00:00:00 2001
+From: Manikanta Kanamarlapudi <kmanikan@codeaurora.org>
+Date: Mon, 30 Apr 2018 12:34:40 +0530
+Subject: [PATCH] libstagefright: Allow HFR-60 in HAL-3 recording
+
+Time stamp manipulation is needed to support HFR-60
+since timePerFrame and timePerCapture are different.
+Made changes for the same.
+
+CRs-Fixed: 2105921
+Change-Id: I0a23423ad980f70ed4ac3ada99c56e49033150dc
+Signed-off-by: Pranav Vashi <neobuddy89@gmail.com>
+Signed-off-by: Joey Huab <joey@evolution-x.org>
+Signed-off-by: dinhsan2000 <dinhsan200@gmail.com>
+---
+ media/libstagefright/bqhelper/GraphicBufferSource.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/media/libstagefright/bqhelper/GraphicBufferSource.cpp b/media/libstagefright/bqhelper/GraphicBufferSource.cpp
+index cff14ac185..2b603f65ba 100644
+--- a/media/libstagefright/bqhelper/GraphicBufferSource.cpp
++++ b/media/libstagefright/bqhelper/GraphicBufferSource.cpp
+@@ -811,7 +811,7 @@ bool GraphicBufferSource::calculateCodecTimestamp_l(
+ 
+     if (mCaptureFps > 0.
+             && (mFps > 2 * mCaptureFps
+-            || mCaptureFps > 2 * mFps)) {
++            || mCaptureFps > mFps)) {
+         // Time lapse or slow motion mode
+         if (mPrevCaptureUs < 0LL) {
+             // first capture

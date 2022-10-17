@@ -19,13 +19,13 @@ index bebd5161d7..a0ce6d257f 100644
              LOG_ALWAYS_FATAL("unknown state %s(%#x).", asString(state), state);
              break;
      }
-+    
++
 +    if (mActiveBuffers.size() > 0) {
 +        freeActiveBuffers();
 +    }
 
      Mutex::Autolock _l(mLock);
-+    
++
 +    if (mActiveBuffers.size() > 0) {
 +        freeActiveBuffers();
 +    }

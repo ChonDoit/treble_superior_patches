@@ -4,21 +4,25 @@ Date: Fri, 14 Oct 2022 13:48:00 +0000
 Subject: [PATCH] Add  own build changes
 
 ---
- config/phh_gsi.mk | 29 +++++++++++++++++++++++++++++
- 1 file changed, 29 insertions(+)
+ config/phh_gsi.mk | 33 +++++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
  create mode 100644 config/phh_gsi.mk
 
 diff --git a/config/phh_gsi.mk b/config/phh_gsi.mk
 new file mode 100644
-index 00000000..7f6b13ef
+index 00000000..e6c94156
 --- /dev/null
 +++ b/config/phh_gsi.mk
-@@ -0,0 +1,29 @@
+@@ -0,0 +1,33 @@
 +# The Gapps
 +$(call inherit-product, vendor/gapps/config.mk)
 +
 +# Own Gapps Flags
 +WITH_FULL_THEGAPPS := false
++
++# Secure Build
++PHH-SECURE_BUILD := false
++BOARD_EXT4_SHARE_DUP_BLOCKS := false
 +
 +# Don't Build Kernel
 +TARGET_NO_KERNEL := true
@@ -27,14 +31,13 @@ index 00000000..7f6b13ef
 +# Set Bootanimation at 720P
 +TARGET_BOOT_ANIMATION_RES := 720
 +
-+# Shared Block (RO)
-+BOARD_EXT4_SHARE_DUP_BLOCKS := false
-+
 +# Use CCache
 +USE_CCACHE := true
 +
-+# Exclude fuseblk sepolicy
-+BOARD_SEPOLICY_M4DEFS += board_excludes_fuseblk_sepolicy=true
++# Include common sepolicy (Not yet, must fix something)
++# TARGET_USES_PREBUILT_VENDOR_SEPOLICY := true
++# BOARD_SEPOLICY_M4DEFS += board_excludes_fuseblk_sepolicy=true
++# $(call inherit-product, device/superior/sepolicy/common/sepolicy.mk)
 +
 +PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
 +	persist.sys.binary_xml=false \
@@ -43,6 +46,7 @@ index 00000000..7f6b13ef
 +# APNS
 +PRODUCT_PACKAGES += \
 +        apns-conf.xml
++
 -- 
 2.34.1
 

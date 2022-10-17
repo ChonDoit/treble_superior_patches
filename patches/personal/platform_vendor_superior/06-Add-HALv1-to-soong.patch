@@ -1,7 +1,7 @@
 From 66640dff06176dea28846be0e8de6d5f9b1f1afe Mon Sep 17 00:00:00 2001
 From: ChonDoit <thphantomblog@gmail.com>
 Date: Fri, 14 Oct 2022 22:16:58 +0000
-Subject: [PATCH] Add HALv1 variables to soong
+Subject: [PATCH] Add HALv1 to soong
 
 | no_cameraserver
 | no_cameraserver_defaults
