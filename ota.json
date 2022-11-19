@@ -1,0 +1,26 @@
+{
+    "version": "v20221117",
+    "date": "1668700839",
+    "variants": [
+        {
+            "name": "treble_arm64_bgS-slim",
+            "size": 3105153024,
+            "url": "https://xiaomemeindex.com/system.img.xz"
+        }
+        {
+            "name": "treble_arm64_bgN-slim-lite",
+            "size": 3088470016,
+            "url": "https://xiaomemeindex.com/system.img.xz"
+        }
+        {
+            "name": "treble_arm64_bgN",
+            "size": 3115540480,
+            "url": "https://xiaomemeindex.com/system.img.xz"
+        }
+        {
+            "name": "treble_arm64_bgN-slim",
+            "size": 2557145088,
+            "url": "https://xiaomemeindex.com/system.img.xz"
+        }
+    ]
+}
