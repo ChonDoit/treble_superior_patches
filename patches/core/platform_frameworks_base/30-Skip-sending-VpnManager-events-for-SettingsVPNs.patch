@@ -1,0 +1,86 @@
+From 19739828ba63696c2f7ec4acd2e5726d98c4c9b6 Mon Sep 17 00:00:00 2001
+From: lucaslin <lucaslin@google.com>
+Date: Mon, 25 Jul 2022 15:07:52 +0800
+Subject: [PATCH] Skip sending VpnManager events for Settings VPNs
+
+This change early-exits from the sendEventToVpnManagerApp()
+method if the profile was not a VPN app.
+
+Otherwise the sendEventToVpnManagerApp() will call
+getRedactedNetworkCapabilities() which will call
+AppOpsManager#checkPackage() eventually.
+And AppOpsManager#checkPackage() will check if the given package
+is the same as the given uid. In this case, VPN sends
+"[Legacy VPN]" as the package and sends 1000 as the uid, but
+there is no package named "[Legacy VPN], so the SecurityException
+is thrown.
+
+Bug: 236315805
+Test: atest FrameworksNetTests:VpnTest
+Change-Id: I486398111106b1a9551fb29f92ba7b4fe85f68c1
+Merged-In: I486398111106b1a9551fb29f92ba7b4fe85f68c1
+Merged-In: I228f62a5e09017dbf985a614f2e42434238a220c
+(cherry picked from commit a7ec0cbe45dd75301b19290174ecf2da6421cf97)
+Merged-In: I486398111106b1a9551fb29f92ba7b4fe85f68c1
+---
+ .../java/com/android/server/connectivity/Vpn.java    | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/services/core/java/com/android/server/connectivity/Vpn.java b/services/core/java/com/android/server/connectivity/Vpn.java
+index 77d3392da9931..15aa07f406419 100644
+--- a/services/core/java/com/android/server/connectivity/Vpn.java
++++ b/services/core/java/com/android/server/connectivity/Vpn.java
+@@ -2944,7 +2944,7 @@ public void onSessionLost(@NonNull Network network, @Nullable Exception exceptio
+                             // All the above failures are configuration errors, and are terminal
+                             // TODO(b/230548427): Remove SDK check once VPN related stuff are
+                             //  decoupled from ConnectivityServiceTest.
+-                            if (SdkLevel.isAtLeastT()) {
++                            if (SdkLevel.isAtLeastT() && isVpnApp(mPackage)) {
+                                 sendEventToVpnManagerApp(VpnManager.CATEGORY_EVENT_IKE_ERROR,
+                                         VpnManager.ERROR_CLASS_NOT_RECOVERABLE,
+                                         ikeException.getErrorType(),
+@@ -2962,7 +2962,7 @@ public void onSessionLost(@NonNull Network network, @Nullable Exception exceptio
+                             // All the above failures are configuration errors, and are terminal
+                             // TODO(b/230548427): Remove SDK check once VPN related stuff are
+                             //  decoupled from ConnectivityServiceTest.
+-                            if (SdkLevel.isAtLeastT()) {
++                            if (SdkLevel.isAtLeastT() && isVpnApp(mPackage)) {
+                                 sendEventToVpnManagerApp(VpnManager.CATEGORY_EVENT_IKE_ERROR,
+                                         VpnManager.ERROR_CLASS_RECOVERABLE,
+                                         ikeException.getErrorType(),
+@@ -2981,7 +2981,7 @@ public void onSessionLost(@NonNull Network network, @Nullable Exception exceptio
+                 } else if (exception instanceof IkeNetworkLostException) {
+                     // TODO(b/230548427): Remove SDK check once VPN related stuff are
+                     //  decoupled from ConnectivityServiceTest.
+-                    if (SdkLevel.isAtLeastT()) {
++                    if (SdkLevel.isAtLeastT() && isVpnApp(mPackage)) {
+                         sendEventToVpnManagerApp(VpnManager.CATEGORY_EVENT_NETWORK_ERROR,
+                                 VpnManager.ERROR_CLASS_RECOVERABLE,
+                                 VpnManager.ERROR_CODE_NETWORK_LOST,
+@@ -2996,7 +2996,7 @@ public void onSessionLost(@NonNull Network network, @Nullable Exception exceptio
+                     if (exception.getCause() instanceof UnknownHostException) {
+                         // TODO(b/230548427): Remove SDK check once VPN related stuff are
+                         //  decoupled from ConnectivityServiceTest.
+-                        if (SdkLevel.isAtLeastT()) {
++                        if (SdkLevel.isAtLeastT() && isVpnApp(mPackage)) {
+                             sendEventToVpnManagerApp(VpnManager.CATEGORY_EVENT_NETWORK_ERROR,
+                                     VpnManager.ERROR_CLASS_RECOVERABLE,
+                                     VpnManager.ERROR_CODE_NETWORK_UNKNOWN_HOST,
+@@ -3010,7 +3010,7 @@ public void onSessionLost(@NonNull Network network, @Nullable Exception exceptio
+                     } else if (exception.getCause() instanceof IkeTimeoutException) {
+                         // TODO(b/230548427): Remove SDK check once VPN related stuff are
+                         //  decoupled from ConnectivityServiceTest.
+-                        if (SdkLevel.isAtLeastT()) {
++                        if (SdkLevel.isAtLeastT() && isVpnApp(mPackage)) {
+                             sendEventToVpnManagerApp(VpnManager.CATEGORY_EVENT_NETWORK_ERROR,
+                                     VpnManager.ERROR_CLASS_RECOVERABLE,
+                                     VpnManager.ERROR_CODE_NETWORK_PROTOCOL_TIMEOUT,
+@@ -3024,7 +3024,7 @@ public void onSessionLost(@NonNull Network network, @Nullable Exception exceptio
+                     } else if (exception.getCause() instanceof IOException) {
+                         // TODO(b/230548427): Remove SDK check once VPN related stuff are
+                         //  decoupled from ConnectivityServiceTest.
+-                        if (SdkLevel.isAtLeastT()) {
++                        if (SdkLevel.isAtLeastT() && isVpnApp(mPackage)) {
+                             sendEventToVpnManagerApp(VpnManager.CATEGORY_EVENT_NETWORK_ERROR,
+                                     VpnManager.ERROR_CLASS_RECOVERABLE,
+                                     VpnManager.ERROR_CODE_NETWORK_IO,

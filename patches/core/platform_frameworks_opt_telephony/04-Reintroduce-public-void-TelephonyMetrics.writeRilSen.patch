@@ -1,7 +1,7 @@
-From f899f91ee8a2fa51d7e220a5b689e58b495116e8 Mon Sep 17 00:00:00 2001
+From e74083ec8bb93e721f945ff1a3948103030a8fb7 Mon Sep 17 00:00:00 2001
 From: ironydelerium <42721860+ironydelerium@users.noreply.github.com>
 Date: Fri, 31 Dec 2021 02:20:28 -0800
-Subject: [PATCH 4/5] Reintroduce 'public void
+Subject: [PATCH] Reintroduce 'public void
  TelephonyMetrics.writeRilSendSms(int, int, int, int)'. (#8)
 
 The MediaTek IMS package for Android Q, at the very least (likely for the rest, too)
@@ -18,11 +18,11 @@ Co-authored-by: Sarah Vandomelen <sarah@sightworks.com>
  1 file changed, 13 insertions(+)
 
 diff --git a/src/java/com/android/internal/telephony/metrics/TelephonyMetrics.java b/src/java/com/android/internal/telephony/metrics/TelephonyMetrics.java
-index 7028d95061..2f16a50750 100644
+index 9479e77dc6..b6a47e3fe5 100644
 --- a/src/java/com/android/internal/telephony/metrics/TelephonyMetrics.java
 +++ b/src/java/com/android/internal/telephony/metrics/TelephonyMetrics.java
-@@ -2317,6 +2317,19 @@ public class TelephonyMetrics {
-         smsSession.increaseExpectedResponse();
+@@ -2333,6 +2333,19 @@ public class TelephonyMetrics {
+     	writeRilSendSms(phoneId, rilSerial, tech, format, 0);
      }
  
 +    /**
@@ -42,5 +42,5 @@ index 7028d95061..2f16a50750 100644
       * Write Send SMS event using ImsService. Expecting response from
       * {@link #writeOnSmsSolicitedResponse}.
 -- 
-2.25.1
+2.34.1
 

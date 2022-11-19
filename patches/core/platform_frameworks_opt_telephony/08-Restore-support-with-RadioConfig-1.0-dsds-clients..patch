@@ -1,0 +1,56 @@
+From a9eb43e99730b74d735e57d249e9946ea7e68a92 Mon Sep 17 00:00:00 2001
+From: Quallenauge <Hamsi2k@freenet.de>
+Date: Tue, 8 Feb 2022 22:18:04 +0100
+Subject: [PATCH 2/2] Restore support with RadioConfig@1.0 dsds clients.
+
+Add capability NET_CAPABILITY_NOT_VCN_MANAGED to the
+list of "supported" capabilities on
+PhoneSwitcherNetworkRequestListener.
+This is used to register an offer (see superclass
+NetworkFactoryImpl for details) on ConnectivityService.
+
+When the radio turns on, the ConnectivityService is
+trying to call onNetworkNeeded on them, if the offers
+provide all requested capabilities.
+
+The onNetworkNeeded() method on the
+PhoneSwitcherNetworkRequestListener class is used to
+set the different phones active or inactive which is
+used to enable the network.
+
+When calculating the matching offers, the ConnectivityService
+prints out (with some debugging information enabled):
+
+02-08 22:01:59.926  1676  1815 D ConnectivityService: offer.onNetworkNeeded() offer can't be satisfied offer=NetworkOffer [ Score Score(1000 ; KeepConnected : 0 ; Policies : EVER_VALIDATED&INVINCIBLE&IS_UNMETERED&IS_VALIDATED)Caps [ Tansports: CELLULAR Capabilities: MMS&SUPL&DUN&FOTA&IMS&CBS&IA&RCS&XCAP&EIMS&INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&MCX&ENTERPRISE Specifier: <android.net.MatchAllNetworkSpecifier@0>]]
+request=NetworkRequest [ REQUEST id=48, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10084 RequestorUid: 10084 RequestorPkg: com.android.statementservice] ]
+
+So currently NOT_VCN_MANAGED isn't there and therefore
+the phone switcher method isn't called.
+
+Interestingly, If phone using the RadioConfig@1.1
+the ril command HAL_COMMAND_PREFERRED_DATA is supported.
+
+With that, within the onEvaluate() method activates
+all phones at once, and doesn't enable them separately,
+which results in an enabled data connection.
+
+Change-Id: Ib920cbc8da35032cd659dea92de9bb5bf19dccd6
+---
+ src/java/com/android/internal/telephony/data/PhoneSwitcher.java | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/java/com/android/internal/telephony/data/PhoneSwitcher.java b/src/java/com/android/internal/telephony/data/PhoneSwitcher.java
+index 210082a4fb..9f558027a3 100644
+--- a/src/java/com/android/internal/telephony/data/PhoneSwitcher.java
++++ b/src/java/com/android/internal/telephony/data/PhoneSwitcher.java
+@@ -567,6 +567,7 @@ public class PhoneSwitcher extends Handler {
+                 .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VCN_MANAGED)
+                 .addCapability(NetworkCapabilities.NET_CAPABILITY_PRIORITIZE_LATENCY)
+                 .addCapability(NetworkCapabilities.NET_CAPABILITY_PRIORITIZE_BANDWIDTH)
++                .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VCN_MANAGED)
+                 .addEnterpriseId(NetworkCapabilities.NET_ENTERPRISE_ID_1)
+                 .addEnterpriseId(NetworkCapabilities.NET_ENTERPRISE_ID_2)
+                 .addEnterpriseId(NetworkCapabilities.NET_ENTERPRISE_ID_3)
+-- 
+2.34.1
+

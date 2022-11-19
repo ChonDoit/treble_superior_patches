@@ -1,7 +1,7 @@
-From 25ff8b2871e9fe5d70a18ef3214be5ca18aea4ee Mon Sep 17 00:00:00 2001
-From: root <root@instance-1.us-west4-b.c.groovy-legacy-364121.internal>
-Date: Sun, 9 Oct 2022 22:02:43 +0000
-Subject: [PATCH] Add System Wide Bluetooth HAL toggle
+From 01bde0b9e8c3234f40391af17d2625e8a45fb167 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Mon, 31 Oct 2022 19:25:25 -0300
+Subject: [PATCH] Add System Wide Bluetooth Hal Toggle
 
 ---
  app/src/main/java/me/phh/treble/app/Misc.kt         | 5 +++++
@@ -10,7 +10,7 @@ Subject: [PATCH] Add System Wide Bluetooth HAL toggle
  3 files changed, 12 insertions(+)
 
 diff --git a/app/src/main/java/me/phh/treble/app/Misc.kt b/app/src/main/java/me/phh/treble/app/Misc.kt
-index 2b74313..fa91f7b 100644
+index 20eedd9..3688045 100644
 --- a/app/src/main/java/me/phh/treble/app/Misc.kt
 +++ b/app/src/main/java/me/phh/treble/app/Misc.kt
 @@ -265,6 +265,10 @@ object Misc: EntryStartup {
@@ -26,40 +26,40 @@ index 2b74313..fa91f7b 100644
  
 @@ -293,5 +297,6 @@ object Misc: EntryStartup {
          spListener.onSharedPreferenceChanged(sp, MiscSettings.dt2w)
- 	spListener.onSharedPreferenceChanged(sp, MiscSettings.dynamicSuperuser)
- 	spListener.onSharedPreferenceChanged(sp, MiscSettings.launcher3)
-+	spListener.onSharedPreferenceChanged(sp, MiscSettings.sysbta)
+         spListener.onSharedPreferenceChanged(sp, MiscSettings.dynamicSuperuser)
+         spListener.onSharedPreferenceChanged(sp, MiscSettings.launcher3)
++        spListener.onSharedPreferenceChanged(sp, MiscSettings.sysbta)
      }
  }
 diff --git a/app/src/main/java/me/phh/treble/app/MiscSettings.kt b/app/src/main/java/me/phh/treble/app/MiscSettings.kt
-index 98e8944..10eac76 100644
+index 94c1dc1..706ae31 100644
 --- a/app/src/main/java/me/phh/treble/app/MiscSettings.kt
 +++ b/app/src/main/java/me/phh/treble/app/MiscSettings.kt
 @@ -40,6 +40,7 @@ object MiscSettings : Settings {
      val fodColor = "key_misc_fod_color"
      val dynamicSuperuser = "key_misc_dynamic_superuser"
-     val launcher3 = "key_misc_dynamic_launcher3"    
+     val launcher3 = "key_misc_dynamic_launcher3"
 +    val sysbta = "key_misc_dynamic_sysbta"
  
      override fun enabled() = true
  }
 diff --git a/app/src/main/res/xml/pref_misc.xml b/app/src/main/res/xml/pref_misc.xml
-index 6eb217f..e055a80 100644
+index 4ff853e..90de24d 100644
 --- a/app/src/main/res/xml/pref_misc.xml
 +++ b/app/src/main/res/xml/pref_misc.xml
-@@ -50,6 +50,12 @@
- 			android:entryValues="@array/pref_misc_bluetooth_values"
- 			android:key="key_misc_bluetooth"
- 			android:title="Bluetooth workarounds" />
-+		<SwitchPreference
-+	            android:defaultValue="1"
-+	            android:key="key_misc_dynamic_sysbta"
-+	            android:title="Use System Wide BT HAL"
-+		    android:summaryOn="Enabled"
-+		    android:summaryOff="Disabled />
- 		<SwitchPreference
+@@ -52,6 +52,12 @@
  			android:defaultValue="false"
  			android:key="key_misc_force_a2dp_offload_disable"
+ 		android:title="Force-disable A2DP offload" -->
++		<SwitchPreference
++			android:defaultValue="1"
++			android:key="key_misc_dynamic_sysbta"
++			android:title="Use System Wide BT HAL"
++			android:summaryOn="Enabled"
++			android:summaryOff="Disabled" />
+ 		<SwitchPreference
+ 			android:defaultValue="true"
+ 			android:key="key_misc_headset_devinput"
 -- 
-2.34.1
+2.38.1
 

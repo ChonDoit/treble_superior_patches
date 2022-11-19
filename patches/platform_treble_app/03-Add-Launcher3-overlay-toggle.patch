@@ -1,16 +1,18 @@
-From 3509cd73f3a88bdc4c61960154c86fa9353633d5 Mon Sep 17 00:00:00 2001
+From 97c6f3309202098b9a70c091689844811f7b92fe Mon Sep 17 00:00:00 2001
 From: ChonDoit <thphantomblog@gmail.com>
-Date: Wed, 5 Oct 2022 21:38:24 +0000
+Date: Mon, 31 Oct 2022 19:20:23 -0300
 Subject: [PATCH] Add Launcher3 Overlay Toggle
 
 ---
  app/src/main/java/me/phh/treble/app/Misc.kt         | 5 +++++
  app/src/main/java/me/phh/treble/app/MiscSettings.kt | 1 +
  app/src/main/res/xml/pref_misc.xml                  | 6 ++++++
- 3 files changed, 12 insertions(+)
+ {                                                   | 0
+ 4 files changed, 12 insertions(+)
+ create mode 100644 {
 
 diff --git a/app/src/main/java/me/phh/treble/app/Misc.kt b/app/src/main/java/me/phh/treble/app/Misc.kt
-index df03057..058e857 100644
+index df03057..20eedd9 100644
 --- a/app/src/main/java/me/phh/treble/app/Misc.kt
 +++ b/app/src/main/java/me/phh/treble/app/Misc.kt
 @@ -261,6 +261,10 @@ object Misc: EntryStartup {
@@ -27,12 +29,12 @@ index df03057..058e857 100644
 @@ -288,5 +292,6 @@ object Misc: EntryStartup {
          spListener.onSharedPreferenceChanged(sp, MiscSettings.storageFUSE)
          spListener.onSharedPreferenceChanged(sp, MiscSettings.dt2w)
- 	spListener.onSharedPreferenceChanged(sp, MiscSettings.dynamicSuperuser)
-+	spListener.onSharedPreferenceChanged(sp, MiscSettings.launcher3)
+         spListener.onSharedPreferenceChanged(sp, MiscSettings.dynamicSuperuser)
++        spListener.onSharedPreferenceChanged(sp, MiscSettings.launcher3)
      }
  }
 diff --git a/app/src/main/java/me/phh/treble/app/MiscSettings.kt b/app/src/main/java/me/phh/treble/app/MiscSettings.kt
-index 0907ac1..98e8944 100644
+index 0907ac1..94c1dc1 100644
 --- a/app/src/main/java/me/phh/treble/app/MiscSettings.kt
 +++ b/app/src/main/java/me/phh/treble/app/MiscSettings.kt
 @@ -39,6 +39,7 @@ object MiscSettings : Settings {
@@ -44,22 +46,22 @@ index 0907ac1..98e8944 100644
      override fun enabled() = true
  }
 diff --git a/app/src/main/res/xml/pref_misc.xml b/app/src/main/res/xml/pref_misc.xml
-index 78f8f09..18db0ab 100644
+index e49eeec..39e2ce0 100644
 --- a/app/src/main/res/xml/pref_misc.xml
 +++ b/app/src/main/res/xml/pref_misc.xml
-@@ -148,6 +148,12 @@
- 			android:entryValues="@array/pref_misc_max_aspect_ratio_pre_o_values"
- 			android:key="key_misc_max_aspect_ratio_pre_o"
- 			android:title="Compatibility max aspect ratio" />
+@@ -156,6 +156,12 @@
+     </PreferenceCategory>
+ 
+ 	<PreferenceCategory android:title="Others">
 +		<SwitchPreference
-+	            android:defaultValue="0"
-+	            android:key="key_misc_dynamic_launcher3"
-+	            android:title="Set Launcher3 as recent provider"
-+		    android:summaryOn="Enabled"
-+		    android:summaryOff="Requires a reboot" />
++			android:defaultValue="0"
++			android:key="key_misc_dynamic_launcher3"
++			android:title="Set Launcher3 as recent provider"
++			android:summaryOn="Enabled"
++			android:summaryOff="Requires a reboot" />
  		<SwitchPreference
  			android:defaultValue="false"
- 			android:key="key_misc_force_navbar_off"
+ 			android:key="key_misc_dt2w"
 -- 
-2.34.1
+2.38.1
 

@@ -1,0 +1,44 @@
+From ff099aa19a0ede4bdc5576fc1b50dffff5b1289d Mon Sep 17 00:00:00 2001
+From: Gaoxiang Chen <gaochen@codeaurora.org>
+Date: Wed, 21 Jun 2017 12:57:08 +0530
+Subject: [PATCH] Camera: Skip stream size check for whitelisted apps
+
+Issue:
+For quadracfa capture, Blob/YUV output streams need to be
+configured with custom dimensions which will not be available
+in advertised stream configurations map.
+
+Fix:
+Skip the stream size check for whitelisted apps to allow
+configuration of streams with custom dimensions.
+
+Setprop to be used:
+adb shell setprop persist.vendor.camera.privapp.list <pack1,pack2>
+
+Change-Id: Id94b40c94f42bf4579dc6d8bb6273003312ea669
+
+AdarshGrewal: Inline with CAF 12
+Signed-off-by: Anirudh Gupta <anirudhgupta109@aosip.dev>
+Signed-off-by: AdarshGrewal <adarshgrewal@gmail.com>
+Change-Id: I14cc1bc07faeae013906bda27a827bb7f1d72d11
+Signed-off-by: dinhsan2000 <dinhsan200@gmail.com>
+---
+ services/camera/libcameraservice/device3/Camera3Device.cpp | 5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/services/camera/libcameraservice/device3/Camera3Device.cpp b/services/camera/libcameraservice/device3/Camera3Device.cpp
+index 441aacf2bb..61678afee4 100644
+--- a/services/camera/libcameraservice/device3/Camera3Device.cpp
++++ b/services/camera/libcameraservice/device3/Camera3Device.cpp
+@@ -436,11 +436,6 @@ ssize_t Camera3Device::getJpegBufferSize(const CameraMetadata &info, uint32_t wi
+             (chosenMaxJpegResolution.width * chosenMaxJpegResolution.height);
+     ssize_t jpegBufferSize = scaleFactor * (maxJpegBufferSize - kMinJpegBufferSize) +
+             kMinJpegBufferSize;
+-    if (jpegBufferSize > maxJpegBufferSize) {
+-        ALOGI("%s: jpeg buffer size calculated is > maxJpeg bufferSize(%zd), clamping",
+-                  __FUNCTION__, maxJpegBufferSize);
+-        jpegBufferSize = maxJpegBufferSize;
+-    }
+     return jpegBufferSize;
+ }
+ 

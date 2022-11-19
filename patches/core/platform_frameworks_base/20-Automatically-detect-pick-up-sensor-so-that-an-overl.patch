@@ -1,8 +1,10 @@
 From f220494e338082d89c9c15c35bff0e2dea74f851 Mon Sep 17 00:00:00 2001
 From: ChonDoit <thphantomblog@gmail.com>
 Date: Fri, 30 Sep 2022 00:46:55 -0300
-Subject: [PATCH] Automatically detect pick up sensor, so that an overlay is
- required for the sole purpose of enabling pulse doze on pick up sensor
+Subject: [PATCH] Automatically detect pick up sensor
+
+So that an overlay is required for the sole purpose
+of enabling pulse doze on pick up sensor
 
 ---
  .../display/AmbientDisplayConfiguration.java    | 17 ++++++++++++++++-

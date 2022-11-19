@@ -1,0 +1,43 @@
+From 7350c9e4d294697891955e750e5a50f08bb215cc Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Tue, 15 Nov 2022 20:43:40 +0000
+Subject: [PATCH] Address AppLoxk sepolicy
+
+---
+ sepolicy/service.te       | 2 ++
+ sepolicy/service_contexts | 3 +++
+ sepolicy/system_server.te | 2 ++
+ 3 files changed, 7 insertions(+)
+ create mode 100644 sepolicy/service.te
+ create mode 100644 sepolicy/system_server.te
+
+diff --git a/sepolicy/service.te b/sepolicy/service.te
+new file mode 100644
+index 0000000..5715fbf
+--- /dev/null
++++ b/sepolicy/service.te
+@@ -0,0 +1,2 @@
++# App Lock
++type app_lock_service, system_api_service, system_server_service, service_manager_type;
+diff --git a/sepolicy/service_contexts b/sepolicy/service_contexts
+index 73c6722..5eb21fe 100644
+--- a/sepolicy/service_contexts
++++ b/sepolicy/service_contexts
+@@ -11,3 +11,6 @@ mtkIms                                    u:object_r:radio_service:s0
+ 
+ # Audio AIDL interface
+ android.hardware.bluetooth.audio.IBluetoothAudioProviderFactory/sysbta    u:object_r:hal_audio_service:s0
++
++# App Lock
++app_lock                                  u:object_r:app_lock_service:s0
+diff --git a/sepolicy/system_server.te b/sepolicy/system_server.te
+new file mode 100644
+index 0000000..caa158f
+--- /dev/null
++++ b/sepolicy/system_server.te
+@@ -0,0 +1,2 @@
++# App Lock
++add_service(system_server, app_lock_service);
+-- 
+2.25.1
+

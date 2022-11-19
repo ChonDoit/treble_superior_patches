@@ -1,0 +1,48 @@
+From 3aeef71f315ed2c0fe36422d036c5a4564893423 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Fri, 14 Oct 2022 13:48:00 +0000
+Subject: [PATCH] Add own build changes
+
+---
+ config/phh_gsi.mk | 29 +++++++++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
+ create mode 100644 config/phh_gsi.mk
+
+diff --git a/config/phh_gsi.mk b/config/phh_gsi.mk
+new file mode 100644
+index 00000000..d4f1d296
+--- /dev/null
++++ b/config/phh_gsi.mk
+@@ -0,0 +1,29 @@
++# The Gapps
++$(call inherit-product, vendor/gapps/config.mk)
++
++# Build
++SUPERIOR_BUILD := Treble
++
++# Own Gapps Flags
++WITH_FULL_THEGAPPS := false
++
++# Secure Build
++PHH-SECURE_BUILD := false
++BOARD_EXT4_SHARE_DUP_BLOCKS := false
++
++# Don't Build Kernel
++TARGET_NO_KERNEL := true
++
++# Use CCache
++USE_CCACHE := true
++
++# Include common sepolicy
++$(call inherit-product, device/superior/sepolicy/common/sepolicy.mk)
++
++PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
++	persist.sys.binary_xml=false \
++	dalvik.vm.dex2oat64.enabled=true \
++	ro.system.ota.json_url=https://github.com/ChonDoit/treble_superior_patches/raw/13/ota.json
++    
++# APN
++PRODUCT_PACKAGES += apns-conf.xml
+-- 
+2.25.1
+

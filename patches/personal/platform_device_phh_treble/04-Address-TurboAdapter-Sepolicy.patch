@@ -1,0 +1,60 @@
+From 53c730ebdd769b28710aaf759157a4e130b5acc1 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sat, 1 Oct 2022 03:27:22 +0000
+Subject: [PATCH] Adress Turbo Adapter Sepolicy
+
+---
+ sepolicy/hwservice.te       |  2 ++
+ sepolicy/hwservice_contexts |  1 +
+ sepolicy/seapp_contexts     |  1 +
+ sepolicy/turbo_adapter.te   | 14 ++++++++++++++
+ 4 files changed, 18 insertions(+)
+ create mode 100644 sepolicy/hwservice.te
+ create mode 100644 sepolicy/hwservice_contexts
+ create mode 100644 sepolicy/turbo_adapter.te
+
+diff --git a/sepolicy/hwservice.te b/sepolicy/hwservice.te
+new file mode 100644
+index 0000000..2ac49e3
+--- /dev/null
++++ b/sepolicy/hwservice.te
+@@ -0,0 +1,2 @@
++# Turbo Adapter
++type hal_turbo_adapter_hwservice, hwservice_manager_type;
+diff --git a/sepolicy/hwservice_contexts b/sepolicy/hwservice_contexts
+new file mode 100644
+index 0000000..20a0655
+--- /dev/null
++++ b/sepolicy/hwservice_contexts
+@@ -0,0 +1 @@
++vendor.google.google_battery::IGoogleBattery                            u:object_r:hal_turbo_adapter_hwservice:s0
+diff --git a/sepolicy/seapp_contexts b/sepolicy/seapp_contexts
+index ebf7fe4..f4775d5 100644
+--- a/sepolicy/seapp_contexts
++++ b/sepolicy/seapp_contexts
+@@ -1 +1,2 @@
+ user=_app seinfo=platform name=com.google.android.flipendo domain=flipendo type=app_data_file levelFrom=all
++user=_app seinfo=platform name=com.google.android.turboadapter domain=turbo_adapter type=app_data_file levelFrom=all
+diff --git a/sepolicy/turbo_adapter.te b/sepolicy/turbo_adapter.te
+new file mode 100644
+index 0000000..7e8ed2e
+--- /dev/null
++++ b/sepolicy/turbo_adapter.te
+@@ -0,0 +1,14 @@
++# Normal platform_apps cannot access PowerHAL, so we need to define our own domain. Unfortunately
++# this means that TurboAdapter doesn't get the platform_app permissions any more, so we need to
++# list everything that it needs here.
++
++type turbo_adapter, domain, coredomain;
++
++app_domain(turbo_adapter)
++
++# To use ServiceManager
++allow turbo_adapter app_api_service:service_manager find;
++allow turbo_adapter hal_turbo_adapter_hwservice:hwservice_manager find;
++
++# To find and call hal_power_default so turbo can obtain the service extension (IPowerExt)
++hal_client_domain(turbo_adapter, hal_power)
+-- 
+2.34.1
+

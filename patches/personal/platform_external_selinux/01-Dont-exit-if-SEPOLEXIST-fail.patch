@@ -1,0 +1,57 @@
+From 605e5efa8c3d49013bbd030922c79b5553241be1 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sun, 6 Nov 2022 03:20:27 +0000
+Subject: [PATCH] Don't Exit if SEPOL_EEXIST fail
+
+---
+ libsepol/cil/src/cil_build_ast.c | 6 +++---
+ libsepol/cil/src/cil_copy_ast.c  | 2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
+index 023fd6c7..7f5cfab8 100644
+--- a/libsepol/cil/src/cil_build_ast.c
++++ b/libsepol/cil/src/cil_build_ast.c
+@@ -2401,7 +2401,7 @@ int cil_gen_type(struct cil_db *db, struct cil_tree_node *parse_current, struct
+ 			cil_destroy_type(type);
+ 			type = NULL;
+ 		} else {
+-			goto exit;
++			cil_log(CIL_ERR, "Re-declaration, ignoring...");
+ 		}
+ 	}
+ 
+@@ -2454,7 +2454,7 @@ int cil_gen_typeattribute(struct cil_db *db, struct cil_tree_node *parse_current
+ 			cil_destroy_typeattribute(attr);
+ 			attr = NULL;
+ 		} else {
+-			goto exit;
++			cil_log(CIL_ERR, "Re-declaration, ignoring...");
+ 		}
+ 	}
+ 
+@@ -5560,7 +5560,7 @@ int cil_gen_optional(struct cil_db *db, struct cil_tree_node *parse_current, str
+ 			cil_destroy_optional(optional);
+ 			optional = NULL;
+ 		} else {
+-			goto exit;
++			cil_log(CIL_ERR, "Re-declaration, ignoring...");
+ 		}
+ 	}
+ 
+diff --git a/libsepol/cil/src/cil_copy_ast.c b/libsepol/cil/src/cil_copy_ast.c
+index a4ead9db..9aa25e7d 100644
+--- a/libsepol/cil/src/cil_copy_ast.c
++++ b/libsepol/cil/src/cil_copy_ast.c
+@@ -2052,7 +2052,7 @@ int __cil_copy_node_helper(struct cil_tree_node *orig, uint32_t *finished, void
+ 					data = NULL;
+ 					rc = SEPOL_OK;
+ 				} else {
+-					goto exit;
++					cil_log(CIL_ERR, "Re-declaration, ignoring...");
+ 				}
+ 			}
+ 
+-- 
+2.34.1
+

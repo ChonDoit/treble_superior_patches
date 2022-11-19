@@ -1,0 +1,62 @@
+From 41da845a0a7717adc91ac5b8de0c5266b96d1be4 Mon Sep 17 00:00:00 2001
+From: Shuzhen Wang <shuzhenwang@google.com>
+Date: Thu, 17 Mar 2022 00:11:20 +0000
+Subject: [PATCH] Camera: Call corresponding unlock for every lockAsync
+
+unlock needs to be called in both success and error conditions.
+
+Bug: 224986966
+Test: Vendor testing
+Change-Id: Ia664a256504243784c849fbfc82cf94d955258f0
+Signed-off-by: Hưng Phan <phandinhhungvp2001@gmail.com>
+Signed-off-by: dinhsan2000 <dinhsan200@gmail.com>
+---
+ .../libcameraservice/api2/CompositeStream.h   | 35 +++++++++++++++++++
+ 1 file changed, 35 insertions(+)
+
+diff --git a/services/camera/libcameraservice/api2/CompositeStream.h b/services/camera/libcameraservice/api2/CompositeStream.h
+index 600bd28c92..d32b71cf98 100644
+--- a/services/camera/libcameraservice/api2/CompositeStream.h
++++ b/services/camera/libcameraservice/api2/CompositeStream.h
+@@ -117,6 +117,41 @@ class CompositeStream : public camera3::Camera3StreamBufferListener {
+     // Composite streams should behave accordingly.
+     void enableErrorState();
+ 
++    // Utility class to lock and unlock a GraphicBuffer
++    class GraphicBufferLocker {
++    public:
++        GraphicBufferLocker(sp<GraphicBuffer> buffer) : _buffer(buffer) {}
++
++        status_t lockAsync(void** dstBuffer, int fenceFd) {
++            if (_buffer == nullptr) return BAD_VALUE;
++
++            status_t res = OK;
++            if (!_locked) {
++                status_t res =  _buffer->lockAsync(GRALLOC_USAGE_SW_WRITE_OFTEN,
++                        dstBuffer, fenceFd);
++                if (res == OK) {
++                    _locked = true;
++                }
++            }
++            return res;
++        }
++
++        ~GraphicBufferLocker() {
++            if (_locked && _buffer != nullptr) {
++                auto res = _buffer->unlock();
++                if (res != OK) {
++                    ALOGE("%s: Error trying to unlock buffer: %s (%d)", __FUNCTION__,
++                            strerror(-res), res);
++                }
++            }
++        }
++
++    private:
++        sp<GraphicBuffer> _buffer;
++        bool _locked = false;
++    };
++
++
+     wp<CameraDeviceBase>   mDevice;
+     wp<camera3::StatusTracker> mStatusTracker;
+     wp<hardware::camera2::ICameraDeviceCallbacks> mRemoteCallback;

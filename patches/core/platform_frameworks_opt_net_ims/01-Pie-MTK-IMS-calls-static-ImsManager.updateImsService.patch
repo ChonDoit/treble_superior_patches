@@ -1,10 +1,10 @@
-From 9e3d60beb1c6b52b5bb53fe2eeea7c199fa9c5b2 Mon Sep 17 00:00:00 2001
-From: ChonDoit <thphantomblog@gmail.com>
-Date: Sat, 1 Oct 2022 02:31:40 +0000
-Subject: [PATCH] Pie MTK IMS calls static 
+From 33d56a10cff544e55f14eb2be0ab832c373d1fd1 Mon Sep 17 00:00:00 2001
+From: Pierre-Hugues Husson <phh@phh.me>
+Date: Sun, 14 Nov 2021 13:47:29 -0500
+Subject: [PATCH] Pie MTK IMS calls static
  ImsManager.updateImsServiceConfig(Context,int,boolean). Bring it back
 
-Change-Id: I9a876896375faec7a00df0ddc2d85f210c8c7628
+Change-Id: I3dd66d436629d37c8ec795df6569736195ae570e
 ---
  src/java/com/android/ims/ImsManager.java | 8 ++++++++
  1 file changed, 8 insertions(+)
@@ -29,5 +29,5 @@ index c41426d..2c6d656 100644
       * Push configuration updates to the ImsService implementation.
       */
 -- 
-2.34.1
+2.25.1
 

@@ -1,4 +1,4 @@
-From 3e7ca291cc412bad89c086397f95299971589086 Mon Sep 17 00:00:00 2001
+From da64215d058c9eddb4c2449fd3127a818f005704 Mon Sep 17 00:00:00 2001
 From: ChonDoit <thphantomblog@gmail.com>
 Date: Wed, 28 Sep 2022 22:30:33 -0300
 Subject: [PATCH] Make rounded corners padding overridable with
@@ -11,7 +11,7 @@ Subject: [PATCH] Make rounded corners padding overridable with
  3 files changed, 14 insertions(+), 5 deletions(-)
 
 diff --git a/packages/SystemUI/src/com/android/systemui/qs/QuickStatusBarHeader.java b/packages/SystemUI/src/com/android/systemui/qs/QuickStatusBarHeader.java
-index f06db1fb888b..c9c507ba5790 100644
+index 421039fdd852..8923bbc83603 100644
 --- a/packages/SystemUI/src/com/android/systemui/qs/QuickStatusBarHeader.java
 +++ b/packages/SystemUI/src/com/android/systemui/qs/QuickStatusBarHeader.java
 @@ -22,6 +22,7 @@ import android.content.res.Configuration;
@@ -22,7 +22,7 @@ index f06db1fb888b..c9c507ba5790 100644
  import android.os.UserHandle;
  import android.provider.Settings;
  import android.util.AttributeSet;
-@@ -247,8 +248,10 @@ public class QuickStatusBarHeader extends FrameLayout {
+@@ -253,8 +254,10 @@ public class QuickStatusBarHeader extends FrameLayout {
  
          mConfigShowBatteryEstimate = resources.getBoolean(R.bool.config_showBatteryEstimateQSBH);
  
@@ -33,10 +33,10 @@ index f06db1fb888b..c9c507ba5790 100644
 +            mRoundedCornerPadding = resources.getDimensionPixelSize(
 +                    R.dimen.rounded_corner_content_padding);
  
-         int qsOffsetHeight = SystemBarUtils.getQuickQsOffsetHeight(mContext);
- 
+         mStatusBarPaddingStart = resources.getDimensionPixelSize(
+                 R.dimen.status_bar_padding_start);
 diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/KeyguardStatusBarView.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/KeyguardStatusBarView.java
-index ad1518ff76e8..94bac32458e1 100644
+index 5119b8f95aa8..7337966a147d 100644
 --- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/KeyguardStatusBarView.java
 +++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/KeyguardStatusBarView.java
 @@ -26,6 +26,7 @@ import android.content.res.Resources;
@@ -84,5 +84,5 @@ index f5462bc0fba5..f6f7aaf1a0ff 100644
          val minDotPadding = if (isPrivacyDotEnabled)
                  rotatedResources.getDimensionPixelSize(R.dimen.ongoing_appops_dot_min_padding)
 -- 
-2.37.3
+2.34.1
 

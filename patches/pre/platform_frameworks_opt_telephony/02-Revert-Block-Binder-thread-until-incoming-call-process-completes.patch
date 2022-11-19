@@ -1,0 +1,63 @@
+From 0f73ed424c5a5ac75466f0c216b8c807118992f7 Mon Sep 17 00:00:00 2001
+From: ExactExampl <exactxmpl@pixelexperience.org>
+Date: Tue, 11 Oct 2022 12:38:00 +0300
+Subject: [PATCH] Revert "Block Binder thread until incoming call process
+ completes"
+
+* Legacy IMS packages handling incoming calls in such a way that a blocked binder thread won`t allow to complete call setup,
+thus we have half dead incoming calls with unattached call session (caller can hear dialing tone whereas recipient got nothing)
+
+This reverts commit 75c3dc9ba272b43971f519caba0382f9871c7d9d.
+
+Change-Id: I55a8f3bbca4a2b9a6bc7511e9fe2d0884a8818e5
+---
+ .../imsphone/ImsPhoneCallTracker.java         | 22 ++-----------------
+ 1 file changed, 2 insertions(+), 20 deletions(-)
+
+diff --git a/src/java/com/android/internal/telephony/imsphone/ImsPhoneCallTracker.java b/src/java/com/android/internal/telephony/imsphone/ImsPhoneCallTracker.java
+index 37fd4cb3b0..967ea9b39d 100644
+--- a/src/java/com/android/internal/telephony/imsphone/ImsPhoneCallTracker.java
++++ b/src/java/com/android/internal/telephony/imsphone/ImsPhoneCallTracker.java
+@@ -138,9 +138,6 @@
+ import java.util.Optional;
+ import java.util.Queue;
+ import java.util.Set;
+-import java.util.concurrent.CancellationException;
+-import java.util.concurrent.CompletableFuture;
+-import java.util.concurrent.CompletionException;
+ import java.util.concurrent.ConcurrentHashMap;
+ import java.util.concurrent.ConcurrentLinkedQueue;
+ import java.util.concurrent.Executor;
+@@ -321,10 +318,8 @@ private void processIncomingCall(IImsCallSession c, Bundle extras) {
+ 
+         @Override
+         public void onIncomingCall(IImsCallSession c, Bundle extras) {
+-            // we want to ensure we block this binder thread until incoming call setup completes
+-            // as to avoid race conditions where the ImsService tries to update the state of the
+-            // call before the listeners have been attached.
+-            executeAndWait(()-> processIncomingCall(c, extras));
++            TelephonyUtils.runWithCleanCallingIdentity(()-> processIncomingCall(c, extras),
++                    mExecutor);
+         }
+ 
+         @Override
+@@ -338,19 +333,6 @@ public void onVoiceMessageCountUpdate(int count) {
+                 }
+             }, mExecutor);
+         }
+-
+-        /**
+-         * Schedule the given Runnable on mExecutor and block this thread until it finishes.
+-         * @param r The Runnable to run.
+-         */
+-        private void executeAndWait(Runnable r) {
+-            try {
+-                CompletableFuture.runAsync(
+-                        () -> TelephonyUtils.runWithCleanCallingIdentity(r), mExecutor).join();
+-            } catch (CancellationException | CompletionException e) {
+-                logw("Binder - exception: " + e.getMessage());
+-            }
+-        }
+     }
+ 
+     /**

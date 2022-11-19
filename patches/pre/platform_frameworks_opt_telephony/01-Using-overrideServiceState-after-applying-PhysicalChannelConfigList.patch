@@ -1,0 +1,42 @@
+From 3d970a15c506bd8d7c085be8aec9ee0e439da347 Mon Sep 17 00:00:00 2001
+From: Jared Tsai <Jared.Tsai@microsoft.com>
+Date: Thu, 2 Jun 2022 02:19:03 +0800
+Subject: [PATCH] Using overrideServiceState after applying
+ PhysicalChannelConfigList
+
+The testing service state from ACTION_TEST_SERVICE_STATE broadcast
+cannot be applied on 5G network because the NR State and NR Frequency
+Range will be reset by PhysicalChannelConfigList.
+
+Solution:
+Override service state after being updated by physical channel configs
+Google: 2112770
+Change-Id: I14c1356579d1cd9d3bc82e0711f89ffe58d1eed0
+
+Signed-off-by: Pranav Vashi <neobuddy89@gmail.com>
+---
+ .../com/android/internal/telephony/ServiceStateTracker.java  | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/src/java/com/android/internal/telephony/ServiceStateTracker.java b/src/java/com/android/internal/telephony/ServiceStateTracker.java
+index e617e913ab..a0aaff1b02 100755
+--- a/src/java/com/android/internal/telephony/ServiceStateTracker.java
++++ b/src/java/com/android/internal/telephony/ServiceStateTracker.java
+@@ -3464,14 +3464,15 @@ private void pollStateDone() {
+         useDataRegStateForDataOnlyDevices();
+         processIwlanRegistrationInfo();
+ 
++        updateNrFrequencyRangeFromPhysicalChannelConfigs(mLastPhysicalChannelConfigList, mNewSS);
++        updateNrStateFromPhysicalChannelConfigs(mLastPhysicalChannelConfigList, mNewSS);
++
+         if (TelephonyUtils.IS_DEBUGGABLE && mPhone.mTelephonyTester != null) {
+             mPhone.mTelephonyTester.overrideServiceState(mNewSS);
+         }
+ 
+         NetworkRegistrationInfo networkRegState = mNewSS.getNetworkRegistrationInfo(
+                 NetworkRegistrationInfo.DOMAIN_PS, AccessNetworkConstants.TRANSPORT_TYPE_WWAN);
+-        updateNrFrequencyRangeFromPhysicalChannelConfigs(mLastPhysicalChannelConfigList, mNewSS);
+-        updateNrStateFromPhysicalChannelConfigs(mLastPhysicalChannelConfigList, mNewSS);
+         setPhyCellInfoFromCellIdentity(mNewSS, networkRegState.getCellIdentity());
+ 
+         if (DBG) {
