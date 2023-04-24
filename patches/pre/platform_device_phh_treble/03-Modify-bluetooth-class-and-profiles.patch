@@ -1,0 +1,71 @@
+From 3e4224d41ec6cfbd6fb5397961b592683370a9fb Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sat, 29 Oct 2022 17:48:30 +0000
+Subject: [PATCH] Modify Bluetooth Class and Profiles
+
+---
+ system.prop | 51 +++++++++++++++++++++++++++++++++++----------------
+ 1 file changed, 35 insertions(+), 16 deletions(-)
+
+diff --git a/system.prop b/system.prop
+index db7c86d..48b1633 100644
+--- a/system.prop
++++ b/system.prop
+@@ -17,19 +17,38 @@ persist.wm.enable_remote_keyguard_animation=0
+ 
+ # Enable system-side generic bluetooth audio HAL
+ persist.bluetooth.system_audio_hal.enabled=1
+-# Set commonly-supported Bluetooth profiles to enabled
+-# TODO: Enable BLE Audio profiles on newer vendors
+-bluetooth.profile.asha.central.enabled?=true
+-bluetooth.profile.a2dp.source.enabled?=true
+-bluetooth.profile.avrcp.target.enabled?=true
+-bluetooth.profile.bas.client.enabled?=true
+-bluetooth.profile.gatt.enabled?=true
+-bluetooth.profile.hfp.ag.enabled?=true
+-bluetooth.profile.hid.device.enabled?=true
+-bluetooth.profile.hid.host.enabled?=true
+-bluetooth.profile.map.server.enabled?=true
+-bluetooth.profile.opp.enabled?=true
+-bluetooth.profile.pan.nap.enabled?=true
+-bluetooth.profile.pan.panu.enabled?=true
+-bluetooth.profile.pbap.server.enabled?=true
+-bluetooth.profile.sap.server.enabled?=true
++
++# System props to enable Bluetooth Quality Report (BQR) feature
++# BQR event mask configuration (14 or 30 current known values)
++persist.bluetooth.bqr.event_mask=14
++
++# BQR minimum report interval configuration
++persist.bluetooth.bqr.min_interval_ms=500
++
++# Set the Bluetooth Class of Device
++# Service Field: 0x5A -> 90
++#    Bit 17: Networking
++#    Bit 19: Capturing
++#    Bit 20: Object Transfer
++#    Bit 22: Telephony
++# MAJOR_CLASS: 0x02 -> 2 (Phone)
++# MINOR_CLASS: 0x0C -> 12 (Smart Phone)
++bluetooth.device.class_of_device=90,2,12
++
++# Set supported Bluetooth profiles to enabled
++bluetooth.profile.asha.central.enabled=true
++bluetooth.profile.a2dp.source.enabled=true
++bluetooth.profile.avrcp.target.enabled=true
++bluetooth.profile.bas.client.enabled=true
++bluetooth.profile.gatt.enabled=true
++bluetooth.profile.hfp.ag.enabled=true
++bluetooth.profile.hid.device.enabled=true
++bluetooth.profile.hid.host.enabled=true
++bluetooth.profile.map.server.enabled=true
++bluetooth.profile.opp.enabled=true
++bluetooth.profile.pan.nap.enabled=true
++bluetooth.profile.pan.panu.enabled=true
++bluetooth.profile.pbap.server.enabled=true
++
++# This profile leads to bt crash here, uncomment if you need it
++# bluetooth.profile.sap.server.enabled=true
+-- 
+2.34.1
+

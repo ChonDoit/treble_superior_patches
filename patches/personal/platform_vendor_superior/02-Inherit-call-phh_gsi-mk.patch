@@ -1,0 +1,29 @@
+From 56b5fc29f9b0c586b543602b7eaced5243d84d53 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Fri, 7 Oct 2022 17:52:31 +0000
+Subject: [PATCH] Inherit call phh_gsi.mk
+
+---
+ config/common.mk | 6 ++++++
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/config/common.mk b/config/common.mk
+index c2798eca..4c8f36b7 100644
+--- a/config/common.mk
++++ b/config/common.mk
+@@ -14,6 +14,12 @@
+ 
+ PRODUCT_BRAND ?= SuperiorOS
+ 
++# PHH GSI
++$(call inherit-product, vendor/superior/config/phh_gsi.mk)
++
++# Set Bootanimation at 720P
++TARGET_BOOT_ANIMATION_RES := 720
++
+ # Enable Android Beam on all targets
+ PRODUCT_COPY_FILES += \
+     vendor/superior/config/permissions/android.software.nfc.beam.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/permissions/android.software.nfc.beam.xml
+-- 
+2.25.1
+

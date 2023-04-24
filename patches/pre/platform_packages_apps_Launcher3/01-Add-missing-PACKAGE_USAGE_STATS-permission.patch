@@ -1,0 +1,37 @@
+From 20224e75c10a03be21b8a5b665fee5b2bfc9bac9 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sun, 23 Apr 2023 21:13:37 +0000
+Subject: [PATCH 2/2] Add Missing PACKAGE_USAGE_STATS permission
+
+---
+ AndroidManifest-common.xml                      | 1 +
+ privapp_whitelist_com.android.launcher3-ext.xml | 3 ++-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/AndroidManifest-common.xml b/AndroidManifest-common.xml
+index 862fcab873..d5f3f6da88 100644
+--- a/AndroidManifest-common.xml
++++ b/AndroidManifest-common.xml
+@@ -52,6 +52,7 @@
+     <uses-permission android:name="android.permission.READ_HOME_APP_SEARCH_DATA" />
+     <uses-permission android:name="android.permission.DEVICE_POWER" />
+     <uses-permission android:name="android.permission.FORCE_STOP_PACKAGES" />
++    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
+ 
+     <permission android:name="com.google.android.apps.nexuslauncher.permission.QSB" android:protectionLevel="signatureOrSystem"/>
+     <uses-permission android:name="com.google.android.apps.nexuslauncher.permission.QSB"/>
+diff --git a/privapp_whitelist_com.android.launcher3-ext.xml b/privapp_whitelist_com.android.launcher3-ext.xml
+index 99767db392..c426ac34cc 100644
+--- a/privapp_whitelist_com.android.launcher3-ext.xml
++++ b/privapp_whitelist_com.android.launcher3-ext.xml
+@@ -19,5 +19,6 @@
+     <privapp-permissions package="com.android.launcher3">
+         <permission name="android.permission.SUSPEND_APPS"/>
+         <permission name="android.permission.INTERACT_ACROSS_USERS"/>
+-        <permission name="android.permission.FORCE_STOP_PACKAGES"/>
++	<permission name="android.permission.FORCE_STOP_PACKAGES"/>
++	<permission name="android.permission.PACKAGE_USAGE_STATS"/>
+     </privapp-permissions>
+-- 
+2.34.1
+

@@ -1,0 +1,38 @@
+From 18eab35988f68053fdc94c3e629f71cdeab7f87a Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Fri, 11 Nov 2022 21:08:39 +0000
+Subject: [PATCH 2/5] Address Huawei offline charging sepolicy
+
+---
+ sepolicy/attributes | 3 +++
+ sepolicy/charger.te | 9 +++++++++
+ 2 files changed, 12 insertions(+)
+ create mode 100644 sepolicy/attributes
+
+diff --git a/sepolicy/attributes b/sepolicy/attributes
+new file mode 100644
+index 0000000..f32aec9
+--- /dev/null
++++ b/sepolicy/attributes
+@@ -0,0 +1,3 @@
++# Huawei charger sysfs attr
++attribute sysfs_backlight_attr;
++attribute sysfs_led_attr;
+diff --git a/sepolicy/charger.te b/sepolicy/charger.te
+index 91cfb5c..96f3012 100644
+--- a/sepolicy/charger.te
++++ b/sepolicy/charger.te
+@@ -1 +1,10 @@
+ permissive charger;
++
++# Allow charger to write to sysfs_backlight_attr
++allow charger sysfs_backlight_attr:file w_file_perms;
++
++# Allow charger to write to sysfs_led_attr
++allow charger sysfs_led_attr:file w_file_perms;
++
++# Allow charger to read-write to sysfs_power
++allow charger sysfs_power:file rw_file_perms;
+-- 
+2.25.1
+

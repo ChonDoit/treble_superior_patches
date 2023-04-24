@@ -1,0 +1,76 @@
+From 42ea47c3058772dc227f334753c0e96e7abe2af7 Mon Sep 17 00:00:00 2001
+From: Pierre-Hugues Husson <phh@phh.me>
+Date: Sun, 25 Oct 2020 23:57:26 +0100
+Subject: [PATCH 12/35] Re-implement fnmatch-like behaviour for RRO java-side
+
+Change-Id: Id38292a9a1453aa87b8401c1fdb390fa4e63c7d1
+---
+ core/java/android/content/pm/PackageParser.java | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/core/java/android/content/pm/PackageParser.java b/core/java/android/content/pm/PackageParser.java
+index 44dc28d2b0faf..27c0795d47d20 100644
+--- a/core/java/android/content/pm/PackageParser.java
++++ b/core/java/android/content/pm/PackageParser.java
+@@ -2489,8 +2489,16 @@ public static boolean checkRequiredSystemProperties(@Nullable String rawPropName
+         for (int i = 0; i < propNames.length; i++) {
+             // Check property value: make sure it is both set and equal to expected value
+             final String currValue = SystemProperties.get(propNames[i]);
+-            if (!TextUtils.equals(currValue, propValues[i])) {
+-                return false;
++            if (propValues[i].startsWith("+") && propValues[i].endsWith("*")) {
++                // Glob matching
++                int idx = TextUtils.indexOf(currValue, propValues[i].substring(1, propValues[i].length() - 1));
++                if (idx < 0) {
++                    return false;
++                }
++            } else {
++                if (!TextUtils.equals(currValue, propValues[i])) {
++                    return false;
++                }
+             }
+         }
+         return true;
+-- 
+2.25.1
+
+
+From 13190bc28d9e68acb14ace9e94fc07fb9ed96f75 Mon Sep 17 00:00:00 2001
+From: Peter Cai <peter@typeblog.net>
+Date: Fri, 2 Sep 2022 21:36:06 -0400
+Subject: [PATCH] FrameworkParsingPackageUtils: Add glob matching support for
+ properties
+
+This is now required in addition to the one in PackageParser in order
+for overlays to work.
+
+Change-Id: Ie8679c0ffe03cead4a68bd2d0eb429f05af2d417
+---
+ .../pm/parsing/FrameworkParsingPackageUtils.java     | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/core/java/android/content/pm/parsing/FrameworkParsingPackageUtils.java b/core/java/android/content/pm/parsing/FrameworkParsingPackageUtils.java
+index 3e1c5bb3d7ec1..f15978c575740 100644
+--- a/core/java/android/content/pm/parsing/FrameworkParsingPackageUtils.java
++++ b/core/java/android/content/pm/parsing/FrameworkParsingPackageUtils.java
+@@ -215,8 +215,16 @@ public static boolean checkRequiredSystemProperties(@Nullable String rawPropName
+         for (int i = 0; i < propNames.length; i++) {
+             // Check property value: make sure it is both set and equal to expected value
+             final String currValue = SystemProperties.get(propNames[i]);
+-            if (!TextUtils.equals(currValue, propValues[i])) {
+-                return false;
++            if (propValues[i].startsWith("+") && propValues[i].endsWith("*")) {
++                // Glob matching
++                int idx = TextUtils.indexOf(currValue, propValues[i].substring(1, propValues[i].length() - 1));
++                if (idx < 0) {
++                    return false;
++                }
++            } else {
++                if (!TextUtils.equals(currValue, propValues[i])) {
++                    return false;
++                }
+             }
+         }
+         return true;
+-- 
+2.25.1
