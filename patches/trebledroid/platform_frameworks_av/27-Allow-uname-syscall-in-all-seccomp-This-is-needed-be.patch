@@ -1,10 +1,9 @@
-From b8303fd493873749e5e7ff66e9a992094a816564 Mon Sep 17 00:00:00 2001
+From 4a88b501c66093bedfe65b6d1135132ac091d83a Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Wed, 29 Mar 2023 16:53:18 -0400
-Subject: [PATCH 27/27] Allow uname syscall in all seccomp
+Subject: [PATCH] Allow uname syscall in all seccomp
 
 This is needed because of the getCallingSid change in fw/n libbinder
-
 ---
  services/mediacodec/seccomp_policy/mediacodec-arm.policy        | 2 ++
  services/mediacodec/seccomp_policy/mediacodec-arm64.policy      | 2 ++
@@ -71,11 +70,11 @@ index 4bcc077ce8..3a08ff6f09 100644
  @include /system/etc/seccomp_policy/crash_dump.x86.policy
  @include /system/etc/seccomp_policy/code_coverage.x86.policy
 diff --git a/services/mediacodec/seccomp_policy/mediaswcodec-arm.policy b/services/mediacodec/seccomp_policy/mediaswcodec-arm.policy
-index ca1c776180..d7c4c81370 100644
+index 41efce08b1..3c74e077c6 100644
 --- a/services/mediacodec/seccomp_policy/mediaswcodec-arm.policy
 +++ b/services/mediacodec/seccomp_policy/mediaswcodec-arm.policy
-@@ -91,4 +91,6 @@ readlink: 1
- open: 1
+@@ -86,4 +86,6 @@ getegid32: 1
+ getgroups32: 1
  sysinfo: 1
  
 +uname: 1

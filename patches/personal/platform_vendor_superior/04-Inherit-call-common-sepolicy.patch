@@ -1,0 +1,26 @@
+From c68243c75bf297ea037a9b814894794328328598 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Tue, 2 May 2023 12:11:18 +0000
+Subject: [PATCH] Inherit call common sepolicy
+
+---
+ config/common.mk | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/config/common.mk b/config/common.mk
+index 4c8f36b7..611ae6d5 100644
+--- a/config/common.mk
++++ b/config/common.mk
+@@ -20,6 +20,9 @@ $(call inherit-product, vendor/superior/config/phh_gsi.mk)
+ # Set Bootanimation at 720P
+ TARGET_BOOT_ANIMATION_RES := 720
+ 
++# Include common sepolicy
++$(call inherit-product, device/superior/sepolicy/common/sepolicy.mk)
++
+ # Enable Android Beam on all targets
+ PRODUCT_COPY_FILES += \
+     vendor/superior/config/permissions/android.software.nfc.beam.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/permissions/android.software.nfc.beam.xml
+-- 
+2.34.1
+

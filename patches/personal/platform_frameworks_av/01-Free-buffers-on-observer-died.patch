@@ -1,0 +1,37 @@
+From bf3f57122ef8a00e737ec7feaf1347872cf018b2 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Fri, 14 Oct 2022 12:28:28 +0000
+Subject: [PATCH] libstagefright: Free buffers on observer died
+
+If observer died while allocating buffers, component remains
+in loaded state. In cleanup, it checks for idle state to
+free the allocated buffers which leads to memory leak.
+Hence explicitly calling free buffers to avoid memory leak.
+---
+ media/libstagefright/omx/OMXNodeInstance.cpp | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/media/libstagefright/omx/OMXNodeInstance.cpp b/media/libstagefright/omx/OMXNodeInstance.cpp
+index bebd5161d7..a0ce6d257f 100644
+--- a/media/libstagefright/omx/OMXNodeInstance.cpp
++++ b/media/libstagefright/omx/OMXNodeInstance.cpp
+@@ -579,8 +579,16 @@ status_t OMXNodeInstance::freeNode() {
+             LOG_ALWAYS_FATAL("unknown state %s(%#x).", asString(state), state);
+             break;
+     }
++
++    if (mActiveBuffers.size() > 0) {
++        freeActiveBuffers();
++    }
+
+     Mutex::Autolock _l(mLock);
++
++    if (mActiveBuffers.size() > 0) {
++        freeActiveBuffers();
++    }
+
+     status_t err = mOwner->freeNode(this);
+ 
+-- 
+2.34.1
+

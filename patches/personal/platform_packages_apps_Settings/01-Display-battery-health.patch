@@ -1,0 +1,204 @@
+From 477803669ac58a5179a10822b8898857abb7af72 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sun, 25 Jun 2023 04:48:58 +0000
+Subject: [PATCH 1/2] Settings: Battery stats: Display battery health
+
+---
+ res/values/cornelio.xml | 28 ++++++++++++++++++++++++++++
+ res/xml/power_usage_summary.xml               | 15 ++++
+ .../batteryusage/PowerUsageSummary.java       | 70 +++++++++++++++++++
+ 3 files changed, 113 insertions(+)
+
+diff --git a/res/values/cornelio.xml b/res/values/cornelio.xml
+new file mode 100644
+index 0000000000..57bb43be1b
+--- /dev/null
++++ b/res/values/cornelio.xml
+@@ -0,0 +1,28 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++     Copyright (C) 2020-2022 The AwakenOS Project
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++          http://www.apache.org/licenses/LICENSE-2.0
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
++
++	<!-- Battery health -->
++	<string name="designed_battery_capacity">Full charge</string>
++	<string name="current_battery_capacity">Remaining charge</string>
++	<string name="battery_charge_cycles">Cycles count</string>
++
++	<string name="config_batteryChargeCycles">/sys/class/power_supply/battery/cycle_count</string>
++	<string name="config_batteryDesignCapacity">/sys/class/power_supply/battery/charge_full</string>
++	<string name="config_batteryCalculatedCapacity">/sys/class/power_supply/battery/charge_counter</string>
++
++</resources>
++
++
++
+diff --git a/res/xml/power_usage_summary.xml b/res/xml/power_usage_summary.xml
+index 15e6066666..6b8d7c3105 100644
+--- a/res/xml/power_usage_summary.xml
++++ b/res/xml/power_usage_summary.xml
+@@ -74,6 +74,21 @@
+     <com.android.settings.fuelgauge.batteryusage.PowerGaugePreference
+         android:key="battery_temperature"
+         android:title="@string/battery_temperature"
++        android:selectable="false" />
++
++    <com.android.settings.fuelgauge.batteryusage.PowerGaugePreference
++        android:key="designed_battery_capacity"
++        android:title="@string/designed_battery_capacity"
++        android:selectable="false" />
++
++    <com.android.settings.fuelgauge.batteryusage.PowerGaugePreference
++        android:key="current_battery_capacity"
++        android:title="@string/current_battery_capacity"
++        android:selectable="false" />
++
++    <com.android.settings.fuelgauge.batteryusage.PowerGaugePreference
++        android:key="battery_charge_cycles"
++        android:title="@string/battery_charge_cycles"
+         android:selectable="false" />
+ 
+     <SwitchPreference
+diff --git a/src/com/android/settings/fuelgauge/batteryusage/PowerUsageSummary.java b/src/com/android/settings/fuelgauge/batteryusage/PowerUsageSummary.java
+index 8da77bf67b..049b351763 100644
+--- a/src/com/android/settings/fuelgauge/batteryusage/PowerUsageSummary.java
++++ b/src/com/android/settings/fuelgauge/batteryusage/PowerUsageSummary.java
+@@ -18,6 +18,8 @@ package com.android.settings.fuelgauge.batteryusage;
+ 
+ import static com.android.settings.fuelgauge.BatteryBroadcastReceiver.BatteryUpdateType;
+ 
++import android.annotation.Nullable;
++
+ import android.app.settings.SettingsEnums;
+ import android.content.Context;
+ import android.database.ContentObserver;
+@@ -36,6 +38,7 @@ import androidx.annotation.VisibleForTesting;
+ import androidx.loader.app.LoaderManager;
+ import androidx.loader.content.Loader;
+ import androidx.preference.Preference;
++import android.util.Log;
+ 
+ import com.android.settings.R;
+ import com.android.settings.SettingsActivity;
+@@ -53,6 +56,11 @@ import com.android.settings.search.BaseSearchIndexProvider;
+ import com.android.settingslib.search.SearchIndexable;
+ import com.android.settingslib.widget.LayoutPreference;
+ 
++import java.io.BufferedReader;
++import java.io.FileReader;
++import java.io.IOException;
++import java.lang.Integer;
++import java.util.ArrayList;
+ import java.util.List;
+ 
+ /**
+@@ -72,6 +80,12 @@ public class PowerUsageSummary extends PowerUsageBase implements
+ 
+     private static final String KEY_BATTERY_TEMP = "battery_temperature";
+ 
++    private static final String KEY_CURRENT_BATTERY_CAPACITY = "current_battery_capacity";
++
++    private static final String KEY_DESIGNED_BATTERY_CAPACITY = "designed_battery_capacity";
++
++    private static final String KEY_BATTERY_CHARGE_CYCLES = "battery_charge_cycles";
++
+     static final int MENU_STATS_RESET = Menu.FIRST + 1;
+ 
+     @VisibleForTesting
+@@ -84,6 +98,12 @@ public class PowerUsageSummary extends PowerUsageBase implements
+     LayoutPreference mBatteryLayoutPref;
+     @VisibleForTesting
+     BatteryInfo mBatteryInfo;
++    @VisibleForTesting
++    PowerGaugePreference mCurrentBatteryCapacity;
++    @VisibleForTesting
++    PowerGaugePreference mDesignedBatteryCapacity;
++    @VisibleForTesting
++    PowerGaugePreference mBatteryChargeCycles;
+ 
+     @VisibleForTesting
+     BatteryHeaderPreferenceController mBatteryHeaderPreferenceController;
+@@ -174,6 +194,9 @@ public class PowerUsageSummary extends PowerUsageBase implements
+         initPreference();
+ 
+         mBatteryTempPref = (PowerGaugePreference) findPreference(KEY_BATTERY_TEMP);
++	mCurrentBatteryCapacity = (PowerGaugePreference) findPreference(KEY_CURRENT_BATTERY_CAPACITY);
++        mDesignedBatteryCapacity = (PowerGaugePreference) findPreference(KEY_DESIGNED_BATTERY_CAPACITY);
++	mBatteryChargeCycles = (PowerGaugePreference) findPreference(KEY_BATTERY_CHARGE_CYCLES);
+         mBatteryUtils = BatteryUtils.getInstance(getContext());
+ 
+         if (Utils.isBatteryPresent(getContext())) {
+@@ -289,6 +312,10 @@ public class PowerUsageSummary extends PowerUsageBase implements
+         } else {
+             mBatteryTempPref.setSummary(getResources().getString(R.string.status_unavailable));
+         }
++
++	mCurrentBatteryCapacity.setSubtitle(parseBatterymAhText(getResources().getString(R.string.config_batteryCalculatedCapacity)));
++        mDesignedBatteryCapacity.setSubtitle(parseBatterymAhText(getResources().getString(R.string.config_batteryDesignCapacity)));
++        mBatteryChargeCycles.setSubtitle(parseBatteryCycle(getResources().getString(R.string.config_batteryChargeCycles)));
+     }
+ 
+     @VisibleForTesting
+@@ -354,6 +381,49 @@ public class PowerUsageSummary extends PowerUsageBase implements
+         restartBatteryTipLoader();
+     }
+ 
++    private String parseBatterymAhText(String file) {
++        try {
++            return Integer.parseInt(readLine(file)) / 1000 + " mAh";
++        } catch (IOException ioe) {
++            Log.e(TAG, "Cannot read battery capacity from "
++                    + file, ioe);
++        } catch (NumberFormatException nfe) {
++            Log.e(TAG, "Read a badly formatted battery capacity from "
++                    + file, nfe);
++        }
++        return getResources().getString(R.string.status_unavailable);
++    }
++
++    private String parseBatteryCycle(String file) {
++        try {
++            return Integer.parseInt(readLine(file)) + " Cycles";
++        } catch (IOException ioe) {
++            Log.e(TAG, "Cannot read battery cycle from "
++                    + file, ioe);
++        } catch (NumberFormatException nfe) {
++            Log.e(TAG, "Read a badly formatted battery cycle from "
++                    + file, nfe);
++        }
++        return getResources().getString(R.string.status_unavailable);
++    }
++
++    /**
++    * Reads a line from the specified file.
++    *
++    * @param filename The file to read from.
++    * @return The first line up to 256 characters, or <code>null</code> if file is empty.
++    * @throws IOException If the file couldn't be read.
++    */
++    @Nullable
++    private String readLine(String filename) throws IOException {
++        final BufferedReader reader = new BufferedReader(new FileReader(filename), 256);
++        try {
++            return reader.readLine();
++        } finally {
++            reader.close();
++        }
++    }
++
+     public static final BaseSearchIndexProvider SEARCH_INDEX_DATA_PROVIDER =
+             new BaseSearchIndexProvider(R.xml.power_usage_summary);
+ }
+-- 
+2.34.1
+

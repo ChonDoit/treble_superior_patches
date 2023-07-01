@@ -15,7 +15,7 @@ index 00000000..d8e00974
 +++ b/config/phh_gsi.mk
 @@ -0,0 +1,32 @@
 +# The Gapps
-+$(call inherit-product, vendor/gapps_go/config.mk)
++$(call inherit-product, vendor/gapps/config.mk)
 +WITH_FULL_THEGAPPS := false
 +
 +# Don't Build Kernel

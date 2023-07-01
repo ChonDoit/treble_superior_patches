@@ -1,0 +1,55 @@
+From 0c46b075d904719a6027f8eb77ed396ad9236edc Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Thu, 29 Jun 2023 17:30:05 +0000
+Subject: [PATCH] SystemUI: Allow disabling clipboard overlay [1/2]
+
+---
+ core/java/android/provider/Settings.java                   | 7 +++++++
+ .../systemui/clipboardoverlay/ClipboardListener.java       | 6 ++++++
+ 2 files changed, 13 insertions(+)
+
+diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
+index 8591cddf9502..d21ada7c03e6 100644
+--- a/core/java/android/provider/Settings.java
++++ b/core/java/android/provider/Settings.java
+@@ -11800,6 +11800,13 @@ public final class Settings {
+         @Readable
+         public static final String GAMES_DEVICE_SPOOF = "games_device_spoof";
+ 
++	/**
++         * Whether to show an overlay in the bottom corner of the screen on copying stuff
++         * into the clipboard.
++         * @hide
++         */
++        public static final String SHOW_CLIPBOARD_OVERLAY = "show_clipboard_overlay";
++
+         /**
+          * Face Unlock Method
+          * @hide
+diff --git a/packages/SystemUI/src/com/android/systemui/clipboardoverlay/ClipboardListener.java b/packages/SystemUI/src/com/android/systemui/clipboardoverlay/ClipboardListener.java
+index edda87527b1d..5bb805a7d823 100644
+--- a/packages/SystemUI/src/com/android/systemui/clipboardoverlay/ClipboardListener.java
++++ b/packages/SystemUI/src/com/android/systemui/clipboardoverlay/ClipboardListener.java
+@@ -30,6 +30,7 @@ import android.content.ClipboardManager;
+ import android.content.Context;
+ import android.os.SystemProperties;
+ import android.provider.Settings;
++import android.os.UserHandle;
+ import android.util.Log;
+ 
+ import com.android.internal.annotations.VisibleForTesting;
+@@ -89,6 +90,11 @@ public class ClipboardListener implements
+             return;
+         }
+ 
++	if (Settings.Secure.getIntForUser(mContext.getContentResolver(),
++                Settings.Secure.SHOW_CLIPBOARD_OVERLAY, 1, UserHandle.USER_CURRENT) == 0) {
++            return;
++        }
++
+         String clipSource = mClipboardManager.getPrimaryClipSource();
+         ClipData clipData = mClipboardManager.getPrimaryClip();
+ 
+-- 
+2.34.1
+

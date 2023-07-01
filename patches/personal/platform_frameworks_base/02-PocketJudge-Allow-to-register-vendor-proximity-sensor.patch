@@ -1,0 +1,53 @@
+From 78254ae4f5865e5a8c946537eac55fc6e072d606 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sun, 7 May 2023 15:39:46 +0000
+Subject: [PATCH] PocketJudge: Allow to register vendor proximity sensor
+
+Some devices (ie OnePlus) have bunch of proximity sensors
+and default one may not work properly. This change allow to use
+particular proximity sensor.
+
+Example for OnePlus infrared proximity sensor:
+<string name="config_pocketJudgeVendorProximitySensorName">oneplus.sensor.infrared.proximity</string>
+---
+ core/res/res/values/cornelio_configs.xml | 4 ++++
+ .../java/com/android/server/pocket/PocketService.java  | 10 +++++++---
+ 2 files changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/core/res/res/values/cornelio_configs.xml b/core/res/res/values/cornelio_configs.xml
+index ed71e3d6b3e5..27035fa9855d 100644
+--- a/core/res/res/values/cornelio_configs.xml
++++ b/core/res/res/values/cornelio_configs.xml
+@@ -4,4 +4,8 @@
+ 	<bool name="config_pocketUseLightSensor">true</bool>
+ 	<java-symbol type="bool" name="config_pocketUseLightSensor" />
+ 
++	<!-- Pocket Service -->
++	<string name="config_pocketJudgeVendorProximitySensorName"></string>
++	<java-symbol type="string" name="config_pocketJudgeVendorProximitySensorName" />
++
+ </resources>
+diff --git a/services/core/java/com/android/server/pocket/PocketService.java b/services/core/java/com/android/server/pocket/PocketService.java
+index 2d1f795721ea..070a0e735f83 100644
+--- a/services/core/java/com/android/server/pocket/PocketService.java
++++ b/services/core/java/com/android/server/pocket/PocketService.java
+@@ -171,9 +171,13 @@ public class PocketService extends SystemService implements IBinder.DeathRecipie
+         handlerThread.start();
+         mHandler = new PocketHandler(handlerThread.getLooper());
+         mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
+-        mVendorPocketSensor = mContext.getResources().getString(
+-                        com.android.internal.R.string.config_pocketJudgeVendorSensorName);
+-        mProximitySensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
++        mVendorPocketSensor = mContext.getResources().getString(com.android.internal.R.string.config_pocketJudgeVendorSensorName);
++        String vendorProximitySensor = mContext.getResources().getString(com.android.internal.R.string.config_pocketJudgeVendorProximitySensorName);
++        if (vendorProximitySensor != null && !vendorProximitySensor.isEmpty()) {
++            mProximitySensor = getSensor(mSensorManager, vendorProximitySensor);
++        } else {
++            mProximitySensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
++        }
+         if (mProximitySensor != null) {
+             mProximityMaxRange = mProximitySensor.getMaximumRange();
+         }
+-- 
+2.34.1
+

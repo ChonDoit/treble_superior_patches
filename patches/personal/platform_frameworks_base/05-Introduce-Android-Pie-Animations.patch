@@ -1,0 +1,235 @@
+From cfba1d4109e194b868b8c6fd63638e73596c2ff8 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sun, 11 Jun 2023 22:00:40 -0300
+Subject: [PATCH] Introduce Android Pie Animations
+
+---
+ core/java/android/provider/Settings.java      |  7 ++
+ .../view/animation/AnimationUtils.java        | 82 ++++++++++++++++
+ .../view/animation/ClipRectAnimationF.java    | 94 +++++++++++++++++++
+ 3 files changed, 183 insertions(+)
+ create mode 100644 core/java/android/view/animation/ClipRectAnimationF.java
+
+diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
+index 5003d7d1213e..6c6f4b941058 100644
+--- a/core/java/android/provider/Settings.java
++++ b/core/java/android/provider/Settings.java
+@@ -17948,6 +17948,13 @@ public final class Settings {
+          */
+         public static final String RESTRICTED_NETWORKING_MODE = "restricted_networking_mode";
+ 
++        /**
++         * Android P animation style
++         * @hide
++         */
++        @Readable
++        public static final String PIE_ANIMATION_STYLE = "pie_animation_style";
++
+         /**
+          * Setting indicating whether Low Power Standby is enabled, if supported.
+          *
+diff --git a/core/java/android/view/animation/AnimationUtils.java b/core/java/android/view/animation/AnimationUtils.java
+index 7d1dc7660871..ab9f0f8f264b 100644
+--- a/core/java/android/view/animation/AnimationUtils.java
++++ b/core/java/android/view/animation/AnimationUtils.java
+@@ -26,8 +26,11 @@ import android.content.res.Resources.NotFoundException;
+ import android.content.res.Resources.Theme;
+ import android.content.res.XmlResourceParser;
+ import android.os.SystemClock;
++import android.os.UserHandle;
++import android.provider.Settings;
+ import android.util.AttributeSet;
+ import android.util.Xml;
++import android.util.PathParser;
+ 
+ import org.xmlpull.v1.XmlPullParser;
+ import org.xmlpull.v1.XmlPullParserException;
+@@ -133,6 +136,85 @@ public class AnimationUtils {
+     public static Animation loadAnimation(Context context, @AnimRes int id)
+             throws NotFoundException {
+ 
++if (Settings.Global.getInt(context.getContentResolver(), Settings.Global.PIE_ANIMATION_STYLE, 0) != 0) {
++            switch(context.getResources().getResourceEntryName(id)) {
++                case "activity_open_enter" : return getActivityOpenEnterAnim();
++                case "activity_open_exit" : return getActivityOpenExitAnim();
++                case "activity_close_enter" : return getActivityCloseEnterAnim();
++                case "activity_close_exit" : return getActivityCloseExitAnim();
++            }
++        }
++        return loadAnimationFromXml(context, id);
++    }
++
++    private static Animation getActivityOpenEnterAnim() {
++        AnimationSet animationSet = new AnimationSet(false);
++        animationSet.setZAdjustment(Animation.ZORDER_TOP);
++        TranslateAnimation translateAnimation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.04100001f, Animation.RELATIVE_TO_SELF, 0.0f);
++        translateAnimation.setInterpolator(fastOutSlowIn());
++        translateAnimation.setDuration(425L);
++        animationSet.addAnimation(translateAnimation);
++        ClipRectAnimationF clipRectAnimationF = new ClipRectAnimationF(0.0f, 0.959f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
++        clipRectAnimationF.setDuration(425L);
++        clipRectAnimationF.setInterpolator(fastOutExtraSlowIn());
++        animationSet.addAnimation(clipRectAnimationF);
++        return animationSet;
++    }
++
++    private static Animation getActivityOpenExitAnim(){
++        AnimationSet animationSet = new AnimationSet(false);
++        TranslateAnimation translateAnimation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, -0.019999981f);
++        translateAnimation.setDuration(425L);
++        translateAnimation.setInterpolator(fastOutSlowIn());
++        animationSet.addAnimation(translateAnimation);
++        AlphaAnimation alphaAnimation = new AlphaAnimation(1.0f,0.9f);
++        alphaAnimation.setDuration(117L);
++        alphaAnimation.setInterpolator(new LinearInterpolator());
++        animationSet.addAnimation(alphaAnimation);
++        return animationSet;
++    }
++
++    private static Animation getActivityCloseEnterAnim(){
++        AnimationSet animationSet = new AnimationSet(false);
++        TranslateAnimation translateAnimation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, -0.019999981f, Animation.RELATIVE_TO_SELF, 0.0f);
++        translateAnimation.setDuration(425L);
++        translateAnimation.setInterpolator(fastOutSlowIn());
++        animationSet.addAnimation(translateAnimation);
++        AlphaAnimation alphaAnimation = new AlphaAnimation(0.9f,1.0f);
++        alphaAnimation.setDuration(425L);
++        alphaAnimation.setStartOffset(0);
++        alphaAnimation.setInterpolator(activityCloseDim());
++        animationSet.addAnimation(alphaAnimation);
++        return animationSet;
++    }
++
++    private static Animation getActivityCloseExitAnim(){
++        AnimationSet animationSet = new AnimationSet(false);
++        TranslateAnimation translateAnimation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.04100001f);
++        translateAnimation.setDuration(425L);
++        translateAnimation.setInterpolator(fastOutSlowIn());
++        animationSet.addAnimation(translateAnimation);
++        ClipRectAnimationF clipRectAnimationF = new ClipRectAnimationF(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.959f, 1.0f, 1.0f);
++        clipRectAnimationF.setDuration(425L);
++        clipRectAnimationF.setInterpolator(fastOutExtraSlowIn());
++        animationSet.addAnimation(clipRectAnimationF);
++        return animationSet;
++    }
++
++    private static Interpolator fastOutSlowIn() {
++        return new PathInterpolator(0.4F, 0.0F, 0.2F, 1.0F);
++    }
++
++    private static Interpolator activityCloseDim() {
++        return new PathInterpolator(0.33f, 0.0f, 1.0f, 1.0f);
++    }
++
++    private static Interpolator fastOutExtraSlowIn() {
++        return new PathInterpolator(PathParser.createPathFromPathData("M 0,0 C 0.05, 0, 0.133333, 0.06, 0.166666, 0.4 C 0.208333, 0.82, 0.25, 1, 1, 1"));
++    }
++
++    private static Animation loadAnimationFromXml(Context context, int id) {
++
+         XmlResourceParser parser = null;
+         try {
+             parser = context.getResources().getAnimation(id);
+diff --git a/core/java/android/view/animation/ClipRectAnimationF.java b/core/java/android/view/animation/ClipRectAnimationF.java
+new file mode 100644
+index 000000000000..b0abddb37a90
+--- /dev/null
++++ b/core/java/android/view/animation/ClipRectAnimationF.java
+@@ -0,0 +1,94 @@
++/*
++ * Copyright (C) 2014 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package android.view.animation;
++
++import android.graphics.Rect;
++import android.graphics.RectF;
++
++/**
++ * An animation that controls the clip of an object. See the
++ * {@link android.view.animation full package} description for details and
++ * sample code.
++ *
++ * @hide
++ */
++public class ClipRectAnimationF extends Animation {
++    protected RectF mFromRectF = new RectF();
++    protected RectF mToRectF = new RectF();
++    protected Rect mFromRect = new Rect();
++    protected Rect mToRect = new Rect();
++    protected Rect mResolvedFrom = new Rect();
++    protected Rect mResolvedTo = new Rect();
++
++    /**
++     * Constructor to use when building a ClipRectAnimationF from code
++     *
++     * @param fromClip the clip rect to animate from
++     * @param toClip the clip rect to animate to
++     */
++    public ClipRectAnimationF(Rect fromClip, Rect toClip) {
++        if (fromClip == null || toClip == null) {
++            throw new RuntimeException("Expected non-null animation clip rects");
++        }
++        mFromRect.set(fromClip);
++        mToRect.set(toClip);
++    }
++
++    /**
++     * Constructor to use when building a ClipRectAnimationF from code
++     */
++    public ClipRectAnimationF(int fromL, int fromT, int fromR, int fromB,
++            int toL, int toT, int toR, int toB) {
++        mFromRect.set(fromL, fromT, fromR, fromB);
++        mToRect.set(toL, toT, toR, toB);
++        mFromRectF.set(1.0f, 1.0f, 1.0f, 1.0f);
++        mToRectF.set(1.0f, 1.0f, 1.0f, 1.0f);
++    }
++
++    public ClipRectAnimationF(float fromL, float fromT, float fromR, float fromB,
++                             float toL, float toT, float toR, float toB) {
++        mFromRectF.set(fromL, fromT, fromR, fromB);
++        mToRectF.set(toL, toT, toR, toB);
++    }
++
++    @Override
++    public void initialize(int width, int height, int parentWidth, int parentHeight) {
++        super.initialize(width, height, parentWidth, parentHeight);
++        mResolvedFrom.left = (int) resolveSize(RELATIVE_TO_SELF, mFromRectF.left, width, parentWidth);
++        mResolvedFrom.top = (int) resolveSize(RELATIVE_TO_SELF, mFromRectF.top, height, parentHeight);
++        mResolvedFrom.right = (int) resolveSize(RELATIVE_TO_SELF, mFromRectF.right, width, parentWidth);
++        mResolvedFrom.bottom = (int) resolveSize(RELATIVE_TO_SELF, mFromRectF.bottom, height, parentHeight);
++        mResolvedTo.left = (int) resolveSize(RELATIVE_TO_SELF, mToRectF.left, width, parentWidth);
++        mResolvedTo.top = (int) resolveSize(RELATIVE_TO_SELF, mToRectF.top, height, parentHeight);
++        mResolvedTo.right = (int) resolveSize(RELATIVE_TO_SELF, mToRectF.right, width, parentWidth);
++        mResolvedTo.bottom = (int) resolveSize(RELATIVE_TO_SELF, mToRectF.bottom, height, parentHeight);
++    }
++
++    @Override
++    protected void applyTransformation(float it, Transformation tr) {
++        int l = mResolvedFrom.left + (int) ((mResolvedTo.left - mResolvedFrom.left) * it);
++        int t = mResolvedFrom.top + (int) ((mResolvedTo.top - mResolvedFrom.top) * it);
++        int r = mResolvedFrom.right + (int) ((mResolvedTo.right - mResolvedFrom.right) * it);
++        int b = mResolvedFrom.bottom + (int) ((mResolvedTo.bottom - mResolvedFrom.bottom) * it);
++        tr.setClipRect(l, t, r, b);
++    }
++
++    @Override
++    public boolean willChangeTransformationMatrix() {
++        return false;
++    }
++}
+-- 
+2.41.0
+

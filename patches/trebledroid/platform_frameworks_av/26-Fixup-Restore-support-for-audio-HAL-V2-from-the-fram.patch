@@ -88,3 +88,6 @@ index 4069a6bdbd..e9d2af5d2c 100644
  #if MAJOR_VERSION == 7 && MINOR_VERSION == 1
              ret = factory->openDevice_7_1(
  #else
+-- 
+2.25.1
+

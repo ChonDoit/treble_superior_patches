@@ -1,0 +1,27 @@
+From 8a755e234a04b2eb218cac9eb6e4c9616f0e3861 Mon Sep 17 00:00:00 2001
+From: ChonDoe <thphantomblog@gmail.com>
+Date: Tue, 14 Feb 2023 20:54:09 +0000
+Subject: [PATCH] Again, don't handle apn
+
+---
+ base.mk      | 4 ++--
+ 3 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/base.mk b/base.mk
+index eee2ed7..fb8882b 100644
+--- a/base.mk
++++ b/base.mk
+@@ -17,8 +17,8 @@ PRODUCT_COPY_FILES += \
+     device/phh/treble/bluetooth/audio/config/sysbta_audio_policy_configuration.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/sysbta_audio_policy_configuration.xml \
+     device/phh/treble/bluetooth/audio/config/sysbta_audio_policy_configuration_7_0.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/sysbta_audio_policy_configuration_7_0.xml
+ 
+-#Use a more decent APN config
+-PRODUCT_COPY_FILES += \
++# Use a more decent APN config
++# PRODUCT_COPY_FILES += \
+ 	device/sample/etc/apns-full-conf.xml:system/etc/apns-conf.xml
+ 
+ SYSTEM_EXT_PRIVATE_SEPOLICY_DIRS += device/phh/treble/sepolicy
+-- 
+2.34.1
+

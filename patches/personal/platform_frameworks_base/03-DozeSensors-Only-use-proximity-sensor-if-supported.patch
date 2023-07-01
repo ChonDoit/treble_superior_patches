@@ -1,0 +1,100 @@
+From 8cea98c5dfd441a69a98763f51fc6a8c24e52459 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sun, 11 Jun 2023 22:29:13 -0300
+Subject: [PATCH] DozeSensors: Only use proximity sensor if supported
+
+On msm-4.14 devices, when the proximity sensor is in use,
+the smp2p-sleepstate IRQ is fired multiple times a second,
+with each one holding a 200ms wakelock.
+This is probably a bug in the DSP firmware.
+To fix this, avoid using the proximity sensor in doze mode,
+because sleep is preferred to turning off the screen.
+
+@neobuddy89:
+Fixup for A13 QPR2.
+
+Change-Id: I57750afd77267abdc49780f70636626d20e666ad
+Signed-off-by: Pranav Vashi <neobuddy89@gmail.com>
+---
+ .../SystemUI/res/values/superior_config.xml   |  4 ++++
+ .../android/systemui/doze/DozeSensors.java    | 23 +++++++++++--------
+ 2 files changed, 18 insertions(+), 9 deletions(-)
+
+diff --git a/packages/SystemUI/res/values/superior_config.xml b/packages/SystemUI/res/values/superior_config.xml
+index 6da5033bd487..76d886358bd8 100644
+--- a/packages/SystemUI/res/values/superior_config.xml
++++ b/packages/SystemUI/res/values/superior_config.xml
+@@ -43,6 +43,9 @@
+     <!-- Whether to find optimal display refresh rate when using udfps -->
+     <bool name="config_udfpsOptimalRefreshRate">true</bool>
+ 
++    <!-- Whether usage of the proximity sensor during doze is supported -->
++    <bool name="doze_proximity_sensor_supported">true</bool>
++
+     <!-- Should we listen for fingerprints when the screen is off?  Devices
+          with a rear-mounted sensor want this, but certain devices have
+          the sensor embedded in the power key and listening all the time
+diff --git a/packages/SystemUI/src/com/android/systemui/doze/DozeSensors.java b/packages/SystemUI/src/com/android/systemui/doze/DozeSensors.java
+index e3c568a98cc6..a7d909fb66d5 100644
+--- a/packages/SystemUI/src/com/android/systemui/doze/DozeSensors.java
++++ b/packages/SystemUI/src/com/android/systemui/doze/DozeSensors.java
+@@ -116,6 +116,7 @@ public class DozeSensors {
+     private boolean mListening;
+     private boolean mListeningTouchScreenSensors;
+     private boolean mListeningProxSensors;
++    private boolean mEnableProx;
+     private boolean mListeningAodOnlySensors;
+     private boolean mUdfpsEnrolled;
+ 
+@@ -168,6 +169,7 @@ public class DozeSensors {
+         mProximitySensor.setTag(TAG);
+         mSelectivelyRegisterProxSensors = dozeParameters.getSelectivelyRegisterSensorsUsingProx();
+         mListeningProxSensors = !mSelectivelyRegisterProxSensors;
++	mEnableProx = resources.getBoolean(com.android.systemui.R.bool.doze_proximity_sensor_supported);
+         mScreenOffUdfpsEnabled =
+                 config.screenOffUdfpsEnabled(KeyguardUpdateMonitor.getCurrentUser());
+         mDevicePostureController = devicePostureController;
+@@ -280,13 +282,15 @@ public class DozeSensors {
+                         false /* requiresAod */
+                 ),
+         };
+-        setProxListening(false);  // Don't immediately start listening when we register.
+-        mProximitySensor.register(
+-                proximityEvent -> {
+-                    if (proximityEvent != null) {
+-                        mProxCallback.accept(!proximityEvent.getBelow());
+-                    }
+-                });
++        if (mEnableProx) {
++		setProxListening(false);  // Don't immediately start listening when we register.
++		mProximitySensor.register(
++                    proximityEvent -> {
++                        if (proximityEvent != null) {
++                            mProxCallback.accept(!proximityEvent.getBelow());
++                        }
++                    });
++        }
+ 
+         mDevicePostureController.addCallback(mDevicePostureCallback);
+     }
+@@ -501,14 +505,15 @@ public class DozeSensors {
+         for (TriggerSensor s : mTriggerSensors) {
+             idpw.println("Sensor: " + s.toString());
+         }
+-        idpw.println("ProxSensor: " + mProximitySensor.toString());
++        if (mEnableProx) // Useless
++            idpw.println("ProxSensor: " + mProximitySensor.toString());
+     }
+ 
+     /**
+      * @return true if prox is currently near, false if far or null if unknown.
+      */
+     public Boolean isProximityCurrentlyNear() {
+-        return mProximitySensor.isNear();
++        return mEnableProx ? mProximitySensor.isNear() : null;
+     }
+ 
+     @VisibleForTesting
+-- 
+2.41.0
+
