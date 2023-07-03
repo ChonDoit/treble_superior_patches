@@ -8,7 +8,7 @@ Based on Victor Bo implementation.
 Handled with PHH-SECURE_BUILD flag
 
 true = Dynamic Root
-false = Secure build
+false = Secure build (RO)
 
 Parsed with secure.mk, called trough base-pre.mk
 Managed with phh-root.sh to avoid issues with future merges on phh-prop-handler
@@ -137,18 +137,21 @@ index 80b46d7..864c3d2 100644
  sync
 diff --git a/secure.mk b/secure.mk
 new file mode 100644
-index 0000000..1534098
+index 0000000..05b942d
 --- /dev/null
 +++ b/secure.mk
-@@ -0,0 +1,9 @@
+@@ -0,0 +1,12 @@
 +ifeq ($(PHH-SECURE_BUILD), true)
-+        PRODUCT_PACKAGES += phh-su
-+                else
-+        PRODUCT_PACKAGES += phh-su SuperUser
-+        PRODUCT_COPY_FILES += \
-+		device/phh/treble/phh-root.sh:system/bin/phh-root.sh \
-+		device/phh/treble/phh-securize.sh:system/bin/phh-securize.sh \
-+		device/phh/treble/empty:system/xbin/empty
++    BOARD_EXT4_SHARE_DUP_BLOCKS := true
++        else
++    PRODUCT_PACKAGES += phh-su SuperUser
++    PRODUCT_COPY_FILES += \
++        device/phh/treble/phh-root.sh:system/bin/phh-root.sh \
++        device/phh/treble/phh-securize.sh:system/bin/phh-securize.sh \
++        device/phh/treble/empty:system/xbin/empty
++
++    PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
++        persist.sys.phh.dynamic_superuser=0
 +endif
 diff --git a/sepolicy/file_contexts b/sepolicy/file_contexts
 index beb639a..e05faf3 100644

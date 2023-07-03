@@ -1,29 +1,27 @@
-From 51c951d57faa8d08d0d8c690a706d22d9e8072fd Mon Sep 17 00:00:00 2001
+From db43824989681f79621649a65ea10c21df482400 Mon Sep 17 00:00:00 2001
 From: ChonDoit <thphantomblog@gmail.com>
-Date: Wed, 12 Apr 2023 02:07:34 +0000
+Date: Sun, 2 Jul 2023 22:40:39 +0000
 Subject: [PATCH] Add own build changes
 
 ---
- config/phh_gsi.mk | 32 ++++++++++++++++++++++++++++++++
- 1 file changed, 32 insertions(+)
+ config/phh_gsi.mk | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
  create mode 100644 config/phh_gsi.mk
 
 diff --git a/config/phh_gsi.mk b/config/phh_gsi.mk
 new file mode 100644
-index 00000000..d8e00974
+index 00000000..152e814c
 --- /dev/null
 +++ b/config/phh_gsi.mk
-@@ -0,0 +1,32 @@
+@@ -0,0 +1,30 @@
 +# The Gapps
 +$(call inherit-product, vendor/gapps/config.mk)
-+WITH_FULL_THEGAPPS := false
 +
 +# Don't Build Kernel
 +TARGET_NO_KERNEL := true
 +
-+# Shared Block (RO)
-+PHH-SECURE_BUILD := false
-+BOARD_EXT4_SHARE_DUP_BLOCKS := false
++# Secure build?
++PHH-SECURE_BUILD := true
 +
 +# Use CCache
 +USE_CCACHE := true
@@ -31,11 +29,13 @@ index 00000000..d8e00974
 +# Build APN
 +PRODUCT_PACKAGES += apns-conf.xml
 +
++# R8 Java optimizations for SystemUI and system_server
++SYSTEM_OPTIMIZE_JAVA ?= true
++SYSTEMUI_OPTIMIZE_JAVA ?= true
++
 +# Set Build Variant prop for OTA
-+ifeq ($(WITH_FULL_THEGAPPS), true)
-+    PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.phh.buildvariant=Secure
-+        else ifeq ($(BOARD_EXT4_SHARE_DUP_BLOCKS), true)
-+    PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.phh.buildvariant=Slim Secure
++ifeq ($(PHH-SECURE_BUILD), true)
++    PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.phh.buildvariant=Slim-Secure
 +        else
 +    PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.phh.buildvariant=Slim
 +endif
@@ -43,9 +43,7 @@ index 00000000..d8e00974
 +PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
 +    persist.sys.binary_xml=false \
 +    dalvik.vm.dex2oat64.enabled=true \
-+    persist.sys.phh.dynamic_superuser=0 \
-+    persist.sys.dexpreopt.performed=0 \
 +    ro.system.ota.json_url=https://github.com/ChonDoit/treble_superio_patches/raw/13/ota.json
 -- 
-2.25.1
+2.34.1
 

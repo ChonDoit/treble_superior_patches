@@ -1,0 +1,150 @@
+From 2d4f7963fe2c7534baae8df2cfc404014ebbc9c5 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sun, 2 Jul 2023 19:19:49 +0000
+Subject: [PATCH] Allow toggling rotation button overlay [1/2]
+
+---
+ core/java/android/provider/Settings.java      |  7 +++
+ .../settings/backup/SystemSettings.java       |  1 +
+ .../validators/SystemSettingsValidators.java  |  1 +
+ .../navigationbar/NavigationBarView.java      | 46 ++++++++++++++++++-
+ 4 files changed, 54 insertions(+), 1 deletion(-)
+
+diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
+index d21ada7c03e6..7c1bcc1d6811 100644
+--- a/core/java/android/provider/Settings.java
++++ b/core/java/android/provider/Settings.java
+@@ -5573,6 +5573,13 @@ public final class Settings {
+          */
+         public static final String SHOW_FOURG_ICON = "show_fourg_icon";
+ 
++	/**
++         * Whether to show floating rotation button
++         * @hide
++         */
++        @Readable
++        public static final String ENABLE_FLOATING_ROTATION_BUTTON = "enable_floating_rotation_button";
++
+         /**
+          * IMPORTANT: If you add a new public settings you also have to add it to
+          * PUBLIC_SETTINGS below. If the new setting is hidden you have to add
+diff --git a/packages/SettingsProvider/src/android/provider/settings/backup/SystemSettings.java b/packages/SettingsProvider/src/android/provider/settings/backup/SystemSettings.java
+index 23f59681479d..5b216ffa9b58 100644
+--- a/packages/SettingsProvider/src/android/provider/settings/backup/SystemSettings.java
++++ b/packages/SettingsProvider/src/android/provider/settings/backup/SystemSettings.java
+@@ -89,5 +89,6 @@ public class SystemSettings {
+         Settings.System.NOTIFICATION_LIGHT_PULSE,
+         Settings.System.USE_OLD_MOBILETYPE,
+         Settings.System.TORCH_POWER_BUTTON_GESTURE,
++	Settings.System.ENABLE_FLOATING_ROTATION_BUTTON,
+     };
+ }
+diff --git a/packages/SettingsProvider/src/android/provider/settings/validators/SystemSettingsValidators.java b/packages/SettingsProvider/src/android/provider/settings/validators/SystemSettingsValidators.java
+index 8e501a5d0a86..109ef450b94a 100644
+--- a/packages/SettingsProvider/src/android/provider/settings/validators/SystemSettingsValidators.java
++++ b/packages/SettingsProvider/src/android/provider/settings/validators/SystemSettingsValidators.java
+@@ -215,5 +215,6 @@ public class SystemSettingsValidators {
+         VALIDATORS.put(System.TOUCHSCREEN_GESTURE_HAPTIC_FEEDBACK, BOOLEAN_VALIDATOR);
+         VALIDATORS.put(System.HIGH_TOUCH_POLLING_RATE_ENABLE, BOOLEAN_VALIDATOR);
+         VALIDATORS.put(System.FINGERPRINT_WAKE_UNLOCK, NON_NEGATIVE_INTEGER_VALIDATOR);
++	VALIDATORS.put(System.ENABLE_FLOATING_ROTATION_BUTTON, BOOLEAN_VALIDATOR);
+     }
+ }
+diff --git a/packages/SystemUI/src/com/android/systemui/navigationbar/NavigationBarView.java b/packages/SystemUI/src/com/android/systemui/navigationbar/NavigationBarView.java
+index 1842206a0f77..34ee77abf7ed 100644
+--- a/packages/SystemUI/src/com/android/systemui/navigationbar/NavigationBarView.java
++++ b/packages/SystemUI/src/com/android/systemui/navigationbar/NavigationBarView.java
+@@ -34,11 +34,16 @@ import android.annotation.DrawableRes;
+ import android.app.StatusBarManager;
+ import android.content.Context;
+ import android.content.res.Configuration;
++import android.database.ContentObserver;
+ import android.graphics.Canvas;
+ import android.graphics.Point;
+ import android.graphics.Rect;
++import android.net.Uri;
+ import android.os.Bundle;
++import android.os.Handler;
++import android.os.Looper;
+ import android.os.RemoteException;
++import android.os.UserHandle;
+ import android.provider.Settings;
+ import android.util.AttributeSet;
+ import android.util.Log;
+@@ -147,6 +152,7 @@ public class NavigationBarView extends FrameLayout implements
+     private boolean mInCarMode = false;
+     private boolean mDockedStackExists;
+     private boolean mScreenOn = true;
++    private boolean mIsUserEnabled = true;
+ 
+     private final SparseArray<ButtonDispatcher> mButtonDispatchers = new SparseArray<>();
+     private final ContextualButtonGroup mContextualButtonGroup;
+@@ -593,7 +599,7 @@ public class NavigationBarView extends FrameLayout implements
+         if (!visible) {
+             mTransitionListener.onBackAltCleared();
+         }
+-        mRotationButtonController.getRotationButton().setCanShowRotationButton(!visible);
++        mRotationButtonController.getRotationButton().setCanShowRotationButton(!visible && mIsUserEnabled);
+         mEdgeBackGestureHandler.setImeVisible(visible);
+     }
+ 
+@@ -1153,6 +1159,9 @@ public class NavigationBarView extends FrameLayout implements
+         }
+ 
+         updateNavButtonIcons();
++
++	mCustomSettingsObserver.observe();
++        mCustomSettingsObserver.update();
+     }
+ 
+     @Override
+@@ -1165,6 +1174,8 @@ public class NavigationBarView extends FrameLayout implements
+             mFloatingRotationButton.hide();
+             mRotationButtonController.unregisterListeners();
+         }
++
++	mCustomSettingsObserver.stop();
+     }
+ 
+     @Override
+@@ -1279,4 +1290,37 @@ public class NavigationBarView extends FrameLayout implements
+     interface UpdateActiveTouchRegionsCallback {
+         void update();
+     }
++
++    private CustomSettingsObserver mCustomSettingsObserver = new CustomSettingsObserver();
++    private class CustomSettingsObserver extends ContentObserver {
++        CustomSettingsObserver() {
++            super(new Handler(Looper.getMainLooper()));
++        }
++
++        void observe() {
++            mContext.getContentResolver().registerContentObserver(Settings.System.getUriFor(
++                    Settings.System.ENABLE_FLOATING_ROTATION_BUTTON),
++                    false, this, UserHandle.USER_ALL);
++        }
++
++        void stop() {
++            mContext.getContentResolver().unregisterContentObserver(this);
++        }
++
++        @Override
++        public void onChange(boolean selfChange, Uri uri) {
++            update();
++        }
++
++        void update() {
++            boolean enabled = Settings.System.getInt(getContext().getContentResolver(),
++                    Settings.System.ENABLE_FLOATING_ROTATION_BUTTON, 1) == 1;
++            if (mIsUserEnabled != enabled) {
++                mIsUserEnabled = enabled;
++                if (mRotationButtonController == null) return;
++                mRotationButtonController.getRotationButton().setCanShowRotationButton(
++                        mIsUserEnabled);
++            }
++        }
++    }
+ }
+-- 
+2.34.1
+
