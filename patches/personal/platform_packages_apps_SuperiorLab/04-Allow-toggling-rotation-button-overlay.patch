@@ -4,30 +4,16 @@ Date: Sun, 2 Jul 2023 19:21:05 +0000
 Subject: [PATCH] Allow toggling rotation button overlay [2/2]
 
 ---
- res/values/custom_strings.xml          | 4 ++++
  res/xml/superior_lab_notifications.xml | 6 ++++++
- 2 files changed, 10 insertions(+)
+ 1 files changed, 6 insertions(+)
 
-diff --git a/res/values/custom_strings.xml b/res/values/custom_strings.xml
-index 470bd8c..0c986b2 100644
---- a/res/values/custom_strings.xml
-+++ b/res/values/custom_strings.xml
-@@ -23,4 +23,8 @@
-     <string name="show_clipboard_overlay_title">Show clipboard overlay</string>
-     <string name="show_clipboard_overlay_summary">Show an overlay in the left bottom corner of the screen when something is copied to the clipboard</string>
- 
-+    <!-- Floating rotation button -->
-+    <string name="show_floating_rotation_button_title">Show rotation button overlay</string>
-+    <string name="show_floating_rotation_button_summary">Show an overlay in the left bottom corner of the screen when rotation is detected</string>
-+
- </resources>
 diff --git a/res/xml/superior_lab_notifications.xml b/res/xml/superior_lab_notifications.xml
-index 8e7d64e..e1d105e 100644
+index b9307d7..fc96fd6 100644
 --- a/res/xml/superior_lab_notifications.xml
 +++ b/res/xml/superior_lab_notifications.xml
 @@ -28,6 +28,12 @@
-             android:summary="@string/show_clipboard_overlay_summary"
-             android:defaultValue="true"/>
+         android:summary="@string/show_clipboard_overlay_summary"
+         android:defaultValue="true"/>
  
 +    <com.superior.support.preferences.SystemSettingSwitchPreference
 +        android:key="enable_floating_rotation_button"

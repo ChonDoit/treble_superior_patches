@@ -23,7 +23,7 @@ index d302519..8bfd6ba 100644
 +    LOCAL_OVERRIDES_PACKAGES := su SuperUser Updater
 +        else
 +    LOCAL_SRC_FILES := app.apk
-+    LOCAL_OVERRIDES_PACKAGES := Updater
++    LOCAL_OVERRIDES_PACKAGES := su Updater
 +endif
  LOCAL_MODULE_CLASS := APPS
  LOCAL_MODULE_SUFFIX := .apk

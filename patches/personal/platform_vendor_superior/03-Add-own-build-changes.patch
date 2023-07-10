@@ -43,7 +43,7 @@ index 00000000..152e814c
 +PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
 +    persist.sys.binary_xml=false \
 +    dalvik.vm.dex2oat64.enabled=true \
-+    ro.system.ota.json_url=https://github.com/ChonDoit/treble_superio_patches/raw/13/ota.json
++    ro.system.ota.json_url=https://raw.githubusercontent.com/ChonDoit/treble_superior_patches/13/ota.json
 -- 
 2.34.1
 

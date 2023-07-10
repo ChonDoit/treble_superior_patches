@@ -1,4 +1,4 @@
-From a22f8f73dd0a1880fb932f22d466afcd5bb67b49 Mon Sep 17 00:00:00 2001
+From 29e1eb039bd2426be54d3b17820a8db4b12f73e0 Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Wed, 14 Dec 2022 17:21:00 -0500
 Subject: [PATCH] Call Samsung's ISehSysInputDev to report screen state to
@@ -11,17 +11,17 @@ This fixes touchscreen not waking up on Galaxy F23
  2 files changed, 34 insertions(+)
 
 diff --git a/services/core/Android.bp b/services/core/Android.bp
-index 21ae8a1797e6..b4c882bf0d04 100644
+index 2f3c1b803fd0..ea84c7d36ca6 100644
 --- a/services/core/Android.bp
 +++ b/services/core/Android.bp
-@@ -172,6 +172,7 @@ java_library_static {
+@@ -175,6 +175,7 @@ java_library_static {
          "netd-client",
          "overlayable_policy_aidl-java",
          "com.android.sysprop.watchdog",
 +        "vendor.samsung.hardware.sysinput-V1.2-java",
          "vendor.aac.hardware.richtap.vibrator",
          "faceunlock_framework",
-     ],
+         "kotlin-stdlib",
 diff --git a/services/core/java/com/android/server/display/LocalDisplayAdapter.java b/services/core/java/com/android/server/display/LocalDisplayAdapter.java
 index 58a182a61e44..d37b23aca50b 100644
 --- a/services/core/java/com/android/server/display/LocalDisplayAdapter.java

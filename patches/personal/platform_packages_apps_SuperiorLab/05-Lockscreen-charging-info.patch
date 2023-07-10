@@ -1,0 +1,35 @@
+From 367dc8783fa82a213d02934eeabd95bc56028c9d Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Wed, 5 Jul 2023 16:38:24 +0000
+Subject: [PATCH] LockScreen Charging info [3/3]
+
+With fixed voltage information
+
+---
+ res/xml/superior_lab_lockscreen.xml | 8 +++++++-
+ 1 files changed, 8 insertions(+)
+
+diff --git a/res/xml/superior_lab_lockscreen.xml b/res/xml/superior_lab_lockscreen.xml
+index 7005cc4..79f05ce 100644
+--- a/res/xml/superior_lab_lockscreen.xml
++++ b/res/xml/superior_lab_lockscreen.xml
+@@ -18,9 +18,15 @@
+     android:title="@string/lockscreen_title"
+     xmlns:settings="http://schemas.android.com/apk/res/com.android.settings">
+ 
+-     <PreferenceCategory
++    <PreferenceCategory
+         android:title="@string/general_category">
+ 
++     <com.superior.support.preferences.SystemSettingSwitchPreference
++	 android:key="lockscreen_battery_info"
++	 android:title="@string/lockscreen_battery_info_title"
++	 android:summary="@string/lockscreen_battery_info_summary"
++	 android:defaultValue="true" />
++
+      <Preference
+         android:key="pulse_settings"
+         android:fragment="com.superior.lab.fragments.PulseSettings"
+-- 
+2.34.1
+

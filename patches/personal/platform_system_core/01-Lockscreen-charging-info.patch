@@ -1,0 +1,25 @@
+From 14ffd6f62cec7f0bd9acb70486f94839784afc04 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Wed, 5 Jul 2023 16:37:35 +0000
+Subject: [PATCH] LockScreen Charging info [2/3]
+
+---
+ healthd/BatteryMonitor.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/healthd/BatteryMonitor.cpp b/healthd/BatteryMonitor.cpp
+index 48ededfa3..478e42b43 100644
+--- a/healthd/BatteryMonitor.cpp
++++ b/healthd/BatteryMonitor.cpp
+@@ -47,7 +47,7 @@
+ #define POWER_SUPPLY_SUBSYSTEM "power_supply"
+ #define POWER_SUPPLY_SYSFS_PATH "/sys/class/" POWER_SUPPLY_SUBSYSTEM
+ #define SYSFS_BATTERY_CURRENT "/sys/class/power_supply/battery/current_now"
+-#define SYSFS_BATTERY_VOLTAGE "/sys/class/power_supply/battery/voltage_now"
++#define SYSFS_BATTERY_VOLTAGE "/sys/class/power_supply/usb/voltage_now"
+ #define FAKE_BATTERY_CAPACITY 42
+ #define FAKE_BATTERY_TEMPERATURE 424
+ #define MILLION 1.0e6
+-- 
+2.34.1
+

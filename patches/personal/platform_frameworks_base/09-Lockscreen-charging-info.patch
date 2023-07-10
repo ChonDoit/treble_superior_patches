@@ -1,0 +1,227 @@
+From 6b990eaba1c3befd06ad3fd2459b3536030a5c66 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Wed, 5 Jul 2023 16:36:50 +0000
+Subject: [PATCH] LockScreen Charging info [1/3]
+
+---
+ core/java/android/provider/Settings.java      |  7 +++
+ .../settingslib/fuelgauge/BatteryStatus.java  | 19 +++++++-
+ .../keyguard/KeyguardUpdateMonitor.java       | 12 ++++-
+ .../KeyguardIndicationController.java         | 47 +++++++++++++++++--
+ 4 files changed, 78 insertions(+), 7 deletions(-)
+
+diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
+index 7c1bcc1d6811..419fa9ec6227 100644
+--- a/core/java/android/provider/Settings.java
++++ b/core/java/android/provider/Settings.java
+@@ -5928,6 +5928,13 @@ public final class Settings {
+          */
+         public static final String FINGERPRINT_WAKE_UNLOCK = "fingerprint_wake_unlock";
+ 
++	/**
++         * Whether to show the battery info on the lockscreen while charging
++         * @hide
++         */
++        @Readable
++        public static final String LOCKSCREEN_BATTERY_INFO = "lockscreen_battery_info";
++
+         /**
+          * Keys we no longer back up under the current schema, but want to continue to
+          * process when restoring historical backup datasets.
+diff --git a/packages/SettingsLib/src/com/android/settingslib/fuelgauge/BatteryStatus.java b/packages/SettingsLib/src/com/android/settingslib/fuelgauge/BatteryStatus.java
+index 4d5acc0c6030..934d99a64e94 100644
+--- a/packages/SettingsLib/src/com/android/settingslib/fuelgauge/BatteryStatus.java
++++ b/packages/SettingsLib/src/com/android/settingslib/fuelgauge/BatteryStatus.java
+@@ -27,6 +27,7 @@ import static android.os.BatteryManager.EXTRA_MAX_CHARGING_VOLTAGE;
+ import static android.os.BatteryManager.EXTRA_PLUGGED;
+ import static android.os.BatteryManager.EXTRA_PRESENT;
+ import static android.os.BatteryManager.EXTRA_STATUS;
++import static android.os.BatteryManager.EXTRA_TEMPERATURE;
+ import static android.os.BatteryManager.EXTRA_DASH_CHARGER;
+ import static android.os.BatteryManager.EXTRA_WARP_CHARGER;
+ import static android.os.BatteryManager.EXTRA_VOOC_CHARGER;
+@@ -56,25 +57,34 @@ public class BatteryStatus {
+     public final int level;
+     public final int plugged;
+     public final int health;
++    public final int maxChargingCurrent;
++    public final int maxChargingVoltage;
+     public final int maxChargingWattage;
+     public final boolean present;
+ 
++    public final float temperature;
++
+     public final boolean dashChargeStatus;
+     public final boolean warpChargeStatus;
+     public final boolean voocChargeStatus;
+ 
+     public BatteryStatus(int status, int level, int plugged, int health,
+-            int maxChargingWattage, boolean dashChargeStatus, boolean warpChargeStatus,
+-            boolean voocChargeStatus, boolean present) {
++            int maxChargingWattage, boolean present,
++            int maxChargingCurrent, int maxChargingVoltage,
++            float temperature, boolean dashChargeStatus, boolean warpChargeStatus,
++            boolean voocChargeStatus) {
+         this.status = status;
+         this.level = level;
+         this.plugged = plugged;
+         this.health = health;
++	this.maxChargingCurrent = maxChargingCurrent;
++        this.maxChargingVoltage = maxChargingVoltage;
+         this.maxChargingWattage = maxChargingWattage;
+         this.dashChargeStatus = dashChargeStatus;
+         this.warpChargeStatus = warpChargeStatus;
+         this.voocChargeStatus = voocChargeStatus;
+         this.present = present;
++	this.temperature = temperature;
+     }
+ 
+     public BatteryStatus(Intent batteryChangedIntent) {
+@@ -86,6 +96,7 @@ public class BatteryStatus {
+         warpChargeStatus = batteryChangedIntent.getBooleanExtra(EXTRA_WARP_CHARGER, false);
+         voocChargeStatus = batteryChangedIntent.getBooleanExtra(EXTRA_VOOC_CHARGER, false);
+         present = batteryChangedIntent.getBooleanExtra(EXTRA_PRESENT, true);
++	temperature = batteryChangedIntent.getIntExtra(EXTRA_TEMPERATURE, -1);
+ 
+         final int maxChargingMicroAmp = batteryChangedIntent.getIntExtra(EXTRA_MAX_CHARGING_CURRENT,
+                 -1);
+@@ -99,8 +110,12 @@ public class BatteryStatus {
+             // to maintain precision equally on both factors.
+             maxChargingWattage = (maxChargingMicroAmp / 1000)
+                     * (maxChargingMicroVolt / 1000);
++	    maxChargingCurrent = maxChargingMicroAmp;
++            maxChargingVoltage = maxChargingMicroVolt;
+         } else {
+             maxChargingWattage = -1;
++	    maxChargingCurrent = -1;
++            maxChargingVoltage = -1;
+         }
+     }
+ 
+diff --git a/packages/SystemUI/src/com/android/keyguard/KeyguardUpdateMonitor.java b/packages/SystemUI/src/com/android/keyguard/KeyguardUpdateMonitor.java
+index 84aab4f2f460..b794c746c1cc 100644
+--- a/packages/SystemUI/src/com/android/keyguard/KeyguardUpdateMonitor.java
++++ b/packages/SystemUI/src/com/android/keyguard/KeyguardUpdateMonitor.java
+@@ -2355,7 +2355,7 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener, Dumpab
+         }
+ 
+         // Take a guess at initial SIM state, battery status and PLMN until we get an update
+-        mBatteryStatus = new BatteryStatus(BATTERY_STATUS_UNKNOWN, 100, 0, 0, 0, false, false, false, true);
++        mBatteryStatus = new BatteryStatus(BATTERY_STATUS_UNKNOWN, 100, 0, 0, 0, true, 0, 0, 0, false, false, false);
+ 
+         // Watch for interesting updates
+         final IntentFilter filter = new IntentFilter();
+@@ -3743,8 +3743,16 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener, Dumpab
+             return true;
+         }
+ 
++	// change in battery temperature
++        if (old.temperature != current.temperature) {
++            return true;
++        }
++
+         // change in charging current while plugged in
+-        if (nowPluggedIn && current.maxChargingWattage != old.maxChargingWattage) {
++        if (nowPluggedIn &&
++              (current.maxChargingWattage != old.maxChargingWattage ||
++               current.maxChargingCurrent != old.maxChargingCurrent ||
++               current.maxChargingVoltage != old.maxChargingVoltage)) {
+             return true;
+         }
+ 
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/KeyguardIndicationController.java b/packages/SystemUI/src/com/android/systemui/statusbar/KeyguardIndicationController.java
+index a081ce65ca65..136be4439e17 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/KeyguardIndicationController.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/KeyguardIndicationController.java
+@@ -68,6 +68,9 @@ import android.os.UserHandle;
+ import android.os.UserManager;
+ import android.os.IBatteryPropertiesRegistrar;
+ import android.os.ServiceManager;
++import android.provider.Settings;
++import android.os.IBatteryPropertiesRegistrar;
++import android.os.ServiceManager;
+ import android.text.TextUtils;
+ import android.text.format.Formatter;
+ import android.view.View;
+@@ -190,13 +193,17 @@ public class KeyguardIndicationController {
+     private boolean mBatteryOverheated;
+     private boolean mEnableBatteryDefender;
+     private int mChargingSpeed;
+-    private int mChargingWattage;
++    private double mChargingWattage;
+     private int mBatteryLevel;
+     private boolean mBatteryPresent = true;
+     private long mChargingTimeRemaining;
+     private String mBiometricErrorMessageToShowOnScreenOn;
+     private final Set<Integer> mCoExFaceAcquisitionMsgIdsToShow;
+     private final FaceHelpMessageDeferral mFaceAcquiredMessageDeferral;
++    private int mChargingCurrent;
++    private double mChargingVoltage;
++    private float mTemperature;
++    private String mMessageToShowOnScreenOn;
+     private boolean mInited;
+ 
+     private IBatteryPropertiesRegistrar mBatteryPropertiesRegistrar;
+@@ -973,14 +980,45 @@ public class KeyguardIndicationController {
+                     : R.string.keyguard_plugged_in;
+         }
+ 
++	String batteryInfo = "";
++	int current = 0;
++        double voltage = 0;
++        boolean showbatteryInfo = Settings.System.getIntForUser(mContext.getContentResolver(),
++            Settings.System.LOCKSCREEN_BATTERY_INFO, 1, UserHandle.USER_CURRENT) == 1;
++        if (showbatteryInfo) {
++            if (mChargingCurrent > 0) {
++                current = (mChargingCurrent < 5 ? (mChargingCurrent * 1000)
++                        : (mChargingCurrent < 4000 ? mChargingCurrent : (mChargingCurrent / 1000)));
++                batteryInfo = batteryInfo + current + "mA";
++            }
++            if (mChargingVoltage > 0 && mChargingCurrent > 0) {
++                voltage = mChargingVoltage / 1000 / 1000;
++                batteryInfo = (batteryInfo == "" ? "" : batteryInfo + " · ") +
++                        String.format("%.1f" , ((double) current / 1000) * voltage) + "W";
++            }
++            if (mChargingVoltage > 0) {
++                batteryInfo = (batteryInfo == "" ? "" : batteryInfo + " · ") +
++                        String.format("%.1f" , voltage) + "V";
++            }
++            if (mTemperature > 0) {
++                batteryInfo = (batteryInfo == "" ? "" : batteryInfo + " · ") +
++                        mTemperature / 10 + "°C";
++            }
++            if (batteryInfo != "") {
++                batteryInfo = "\n" + batteryInfo;
++            }
++        }
++
+         String percentage = NumberFormat.getPercentInstance().format(mBatteryLevel / 100f);
+         if (hasChargingTime) {
+             String chargingTimeFormatted = Formatter.formatShortElapsedTimeRoundingUpToMinutes(
+                     mContext, mChargingTimeRemaining);
+-            return mContext.getResources().getString(chargingId, chargingTimeFormatted,
++            String chargingText = mContext.getResources().getString(chargingId, chargingTimeFormatted,
+                     percentage);
++         return chargingText + batteryInfo;
+         } else {
+-            return mContext.getResources().getString(chargingId, percentage);
++            String chargingText =  mContext.getResources().getString(chargingId, percentage);
++            return chargingText + batteryInfo;
+         }
+     }
+ 
+@@ -1110,8 +1148,11 @@ public class KeyguardIndicationController {
+             mPowerPluggedInDock = status.isPluggedInDock() && isChargingOrFull;
+             mPowerPluggedIn = status.isPluggedIn() && isChargingOrFull;
+             mPowerCharged = status.isCharged();
++            mChargingCurrent = status.maxChargingCurrent;
++            mChargingVoltage = status.maxChargingVoltage;
+             mChargingWattage = status.maxChargingWattage;
+             mChargingSpeed = status.getChargingSpeed(mContext);
++            mTemperature = status.temperature;
+             mBatteryLevel = status.level;
+             mBatteryPresent = status.present;
+             mBatteryOverheated = status.isOverheated();
+-- 
+2.34.1
+

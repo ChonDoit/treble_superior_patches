@@ -1,7 +1,7 @@
-From c05651782358638ace34956b145d84a3e9bbce1c Mon Sep 17 00:00:00 2001
+From f3382a3051da9bcdecbe26ed69543e36a4af796f Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Sun, 18 Dec 2022 18:20:40 -0500
-Subject: [PATCH 36/37] FOD support for Asus ZF8 and Samsung devices
+Subject: [PATCH] FOD support for Asus ZF8 and Samsung devices
 
 Thanks Asus for providing a free device to make this support
 And thanks @davigamer987 for donating enough to get a Samsung FOD device
@@ -16,7 +16,7 @@ to make this
  6 files changed, 395 insertions(+), 4 deletions(-)
 
 diff --git a/packages/SystemUI/Android.bp b/packages/SystemUI/Android.bp
-index 25fe3db12e10..3419337c2b42 100644
+index 5498db2ee51b..2181b7a8a632 100644
 --- a/packages/SystemUI/Android.bp
 +++ b/packages/SystemUI/Android.bp
 @@ -179,6 +179,7 @@ android_library {
@@ -25,13 +25,13 @@ index 25fe3db12e10..3419337c2b42 100644
          "faceunlock_framework",
 +        "vendor.goodix.hardware.biometrics.fingerprint-V2.1-java",
          "bcsmartspace-google",
+         "vendor.lineage.powershare-V1.0-java",
      ],
-     manifest: "AndroidManifest.xml",
 diff --git a/packages/SystemUI/res/values/config.xml b/packages/SystemUI/res/values/config.xml
-index ea3ac8d201bc..f7cf3dd1f15f 100644
+index f30bed04febc..5b0323408321 100644
 --- a/packages/SystemUI/res/values/config.xml
 +++ b/packages/SystemUI/res/values/config.xml
-@@ -580,7 +580,7 @@
+@@ -586,7 +586,7 @@
  
      <!-- The radius of the enrollment progress bar, in dp -->
      <integer name="config_udfpsEnrollProgressBar" translatable="false">
@@ -41,10 +41,10 @@ index ea3ac8d201bc..f7cf3dd1f15f 100644
  
      <!-- The time (in ms) needed to trigger the lock icon view's long-press affordance -->
 diff --git a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsControllerOverlay.kt b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsControllerOverlay.kt
-index 6d1e958e21ad..ec13c1459d2b 100644
+index baa46e875529..5c48be111da6 100644
 --- a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsControllerOverlay.kt
 +++ b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsControllerOverlay.kt
-@@ -118,7 +118,9 @@ class UdfpsControllerOverlay @JvmOverloads constructor(
+@@ -120,7 +120,9 @@ class UdfpsControllerOverlay @JvmOverloads constructor(
          gravity = android.view.Gravity.TOP or android.view.Gravity.LEFT
          layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
          flags = (Utils.FINGERPRINT_OVERLAY_LAYOUT_PARAM_FLAGS or
@@ -55,7 +55,7 @@ index 6d1e958e21ad..ec13c1459d2b 100644
          privateFlags = WindowManager.LayoutParams.PRIVATE_FLAG_TRUSTED_OVERLAY
          // Avoid announcing window title.
          accessibilityTitle = " "
-@@ -187,6 +189,9 @@ class UdfpsControllerOverlay @JvmOverloads constructor(
+@@ -189,6 +191,9 @@ class UdfpsControllerOverlay @JvmOverloads constructor(
                      windowManager.addView(this, coreLayoutParams.updateDimensions(animation))
                      sensorRect = sensorBounds
                      touchExplorationEnabled = accessibilityManager.isTouchExplorationEnabled
@@ -66,7 +66,7 @@ index 6d1e958e21ad..ec13c1459d2b 100644
                          if (accessibilityManager.isTouchExplorationEnabled) {
                              setOnHoverListener { v, event -> onTouch(v, event, true) }
 diff --git a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsView.kt b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsView.kt
-index 97590822a3fb..1a360ea4a75b 100644
+index 1e2e6c8bb253..5e15250b50ba 100644
 --- a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsView.kt
 +++ b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsView.kt
 @@ -19,16 +19,24 @@ import android.content.Context
@@ -158,7 +158,7 @@ index 97590822a3fb..1a360ea4a75b 100644
      /** Debug message. */
      var debugMessage: String? = null
          set(value) {
-@@ -157,6 +215,21 @@ class UdfpsView(
+@@ -153,6 +211,21 @@ class UdfpsView(
              !(animationViewController?.shouldPauseAuth() ?: false)
      }
  
@@ -180,7 +180,7 @@ index 97590822a3fb..1a360ea4a75b 100644
      fun configureDisplay(onDisplayConfigured: Runnable) {
          isDisplayConfigured = true
          animationViewController?.onDisplayConfiguring()
-@@ -168,6 +241,37 @@ class UdfpsView(
+@@ -164,6 +237,37 @@ class UdfpsView(
          } else {
              doIlluminate(null /* surface */, onDisplayConfigured)
          }
@@ -218,7 +218,7 @@ index 97590822a3fb..1a360ea4a75b 100644
      }
  
      private fun doIlluminate(surface: Surface?, onDisplayConfigured: Runnable?) {
-@@ -189,5 +293,49 @@ class UdfpsView(
+@@ -185,5 +289,49 @@ class UdfpsView(
              view.visibility = INVISIBLE
          }
          mUdfpsDisplayMode?.disable(null /* onDisabled */)
@@ -269,10 +269,10 @@ index 97590822a3fb..1a360ea4a75b 100644
      }
  }
 diff --git a/services/core/Android.bp b/services/core/Android.bp
-index b4c882bf0d04..ac5b650c0ac0 100644
+index ea84c7d36ca6..a0bfb7d8a54a 100644
 --- a/services/core/Android.bp
 +++ b/services/core/Android.bp
-@@ -173,6 +173,10 @@ java_library_static {
+@@ -176,6 +176,10 @@ java_library_static {
          "overlayable_policy_aidl-java",
          "com.android.sysprop.watchdog",
          "vendor.samsung.hardware.sysinput-V1.2-java",
@@ -282,9 +282,9 @@ index b4c882bf0d04..ac5b650c0ac0 100644
 +        "vendor.oppo.hardware.biometrics.fingerprint-V2.1-java",
          "vendor.aac.hardware.richtap.vibrator",
          "faceunlock_framework",
-     ],
+         "kotlin-stdlib",
 diff --git a/services/core/java/com/android/server/biometrics/AuthService.java b/services/core/java/com/android/server/biometrics/AuthService.java
-index 8fd274fa5cc4..7c8f28eaf8e9 100644
+index 7e6f35acc398..608a21366749 100644
 --- a/services/core/java/com/android/server/biometrics/AuthService.java
 +++ b/services/core/java/com/android/server/biometrics/AuthService.java
 @@ -77,6 +77,22 @@ import java.util.ArrayList;

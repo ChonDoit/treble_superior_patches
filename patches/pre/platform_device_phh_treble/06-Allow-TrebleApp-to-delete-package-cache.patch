@@ -1,0 +1,24 @@
+From c9f10bac73956cb495695d52c9c6cba1c3841534 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Fri, 7 Jul 2023 04:38:56 +0000
+Subject: [PATCH] Allow TrebleApp to delete /data/system/package_cache
+
+---
+ sepolicy/phh.te | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/sepolicy/phh.te b/sepolicy/phh.te
+index 9e233c3..30658de 100644
+--- a/sepolicy/phh.te
++++ b/sepolicy/phh.te
+@@ -15,3 +15,7 @@ allow phhsu_daemon userdata_block_device:blk_file ioctl;
+ allowxperm phhsu_daemon userdata_block_device:blk_file ioctl { 0x1278 0x127a };
+ 
+ allow kernel gsi_data_file:file rw_file_perms;
++
++# Allow TrebleApp to delete /data/system/package_cache
++allow system_app system_data_file:dir { read write open remove_name rmdir };
++allow system_app system_data_file:file { read unlink };
+-- 
+2.34.1
+

@@ -1,0 +1,29 @@
+From a35551fcd1639440ebe3fd48e6e548420c16577d Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Thu, 29 Jun 2023 17:33:03 +0000
+Subject: [PATCH] Allow disabling clipboard overlay [2/2]
+
+---
+ res/xml/superior_lab_notifications.xml |  6 ++++++
+ 1 files changed, 6 insertions(+)
+
+diff --git a/res/xml/superior_lab_notifications.xml b/res/xml/superior_lab_notifications.xml
+index b0782ce..b9307d7 100644
+--- a/res/xml/superior_lab_notifications.xml
++++ b/res/xml/superior_lab_notifications.xml
+@@ -22,6 +22,12 @@
+     <PreferenceCategory
+         android:title="@string/general_category">
+ 
++    <com.superior.support.preferences.SecureSettingSwitchPreference
++        android:key="show_clipboard_overlay"
++        android:title="@string/show_clipboard_overlay_title"
++        android:summary="@string/show_clipboard_overlay_summary"
++        android:defaultValue="true"/>
++
+     <com.superior.support.preferences.SystemSettingSwitchPreference
+          android:key="notification_sound_vib_screen_on"
+          android:title="@string/notification_sound_vib_screen_on_title"
+-- 
+2.34.1
+
