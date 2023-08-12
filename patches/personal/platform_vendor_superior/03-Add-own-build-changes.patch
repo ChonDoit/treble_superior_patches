@@ -1,27 +1,32 @@
-From db43824989681f79621649a65ea10c21df482400 Mon Sep 17 00:00:00 2001
+From 03fbea7c759f09465a1983813153aa29efc39c94 Mon Sep 17 00:00:00 2001
 From: ChonDoit <thphantomblog@gmail.com>
-Date: Sun, 2 Jul 2023 22:40:39 +0000
+Date: Mon, 7 Aug 2023 23:08:27 +0000
 Subject: [PATCH] Add own build changes
 
 ---
- config/phh_gsi.mk | 30 ++++++++++++++++++++++++++++++
- 1 file changed, 30 insertions(+)
+ config/phh_gsi.mk | 37 +++++++++++++++++++++++++++++++++++++
+ 1 file changed, 37 insertions(+)
  create mode 100644 config/phh_gsi.mk
 
 diff --git a/config/phh_gsi.mk b/config/phh_gsi.mk
 new file mode 100644
-index 00000000..152e814c
+index 00000000..7e46f504
 --- /dev/null
 +++ b/config/phh_gsi.mk
-@@ -0,0 +1,30 @@
+@@ -0,0 +1,37 @@
 +# The Gapps
-+$(call inherit-product, vendor/gapps/config.mk)
++WITH_THE_GAPPS := true
++ifeq ($(WITH_THE_GAPPS), true)
++    $(call inherit-product, vendor/gapps/slim.mk)
++        else
++    $(call inherit-product, vendor/gapps/vanilla.mk)
++endif
 +
 +# Don't Build Kernel
-+TARGET_NO_KERNEL := true
++TARGET_NO_KERNEL_OVERRIDE := true
 +
 +# Secure build?
-+PHH-SECURE_BUILD := true
++PHH-SECURE_BUILD := false
 +
 +# Use CCache
 +USE_CCACHE := true
@@ -30,14 +35,16 @@ index 00000000..152e814c
 +PRODUCT_PACKAGES += apns-conf.xml
 +
 +# R8 Java optimizations for SystemUI and system_server
-+SYSTEM_OPTIMIZE_JAVA ?= true
-+SYSTEMUI_OPTIMIZE_JAVA ?= true
++#SYSTEM_OPTIMIZE_JAVA ?= true
++#SYSTEMUI_OPTIMIZE_JAVA ?= true
 +
 +# Set Build Variant prop for OTA
-+ifeq ($(PHH-SECURE_BUILD), true)
-+    PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.phh.buildvariant=Slim-Secure
-+        else
-+    PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.phh.buildvariant=Slim
++ifeq ($(WITH_THE_GAPPS), false)
++    PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.phh.buildvariant=Vanilla
++    else ifeq ($(PHH-SECURE_BUILD),true)
++        PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.phh.buildvariant=Slim-Secure
++            else
++        PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.phh.buildvariant=Slim
 +endif
 +
 +PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \

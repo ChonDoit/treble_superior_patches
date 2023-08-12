@@ -16,7 +16,7 @@ to make this
  6 files changed, 395 insertions(+), 4 deletions(-)
 
 diff --git a/packages/SystemUI/Android.bp b/packages/SystemUI/Android.bp
-index 5498db2ee51b..2181b7a8a632 100644
+index 77d3a09c4498..929109cb79fc 100644
 --- a/packages/SystemUI/Android.bp
 +++ b/packages/SystemUI/Android.bp
 @@ -179,6 +179,7 @@ android_library {
@@ -24,9 +24,9 @@ index 5498db2ee51b..2181b7a8a632 100644
          "motion_tool_lib",
          "faceunlock_framework",
 +        "vendor.goodix.hardware.biometrics.fingerprint-V2.1-java",
-         "bcsmartspace-google",
          "vendor.lineage.powershare-V1.0-java",
      ],
+     manifest: "AndroidManifest.xml",
 diff --git a/packages/SystemUI/res/values/config.xml b/packages/SystemUI/res/values/config.xml
 index f30bed04febc..5b0323408321 100644
 --- a/packages/SystemUI/res/values/config.xml

@@ -29,24 +29,24 @@ index d21ada7c03e6..7c1bcc1d6811 100644
           * IMPORTANT: If you add a new public settings you also have to add it to
           * PUBLIC_SETTINGS below. If the new setting is hidden you have to add
 diff --git a/packages/SettingsProvider/src/android/provider/settings/backup/SystemSettings.java b/packages/SettingsProvider/src/android/provider/settings/backup/SystemSettings.java
-index 23f59681479d..5b216ffa9b58 100644
+index b6486396522e..dbb306be2b65 100644
 --- a/packages/SettingsProvider/src/android/provider/settings/backup/SystemSettings.java
 +++ b/packages/SettingsProvider/src/android/provider/settings/backup/SystemSettings.java
-@@ -89,5 +89,6 @@ public class SystemSettings {
-         Settings.System.NOTIFICATION_LIGHT_PULSE,
+@@ -90,5 +90,6 @@ public class SystemSettings {
          Settings.System.USE_OLD_MOBILETYPE,
          Settings.System.TORCH_POWER_BUTTON_GESTURE,
+         Settings.System.LOCKSCREEN_BATTERY_INFO,
 +	Settings.System.ENABLE_FLOATING_ROTATION_BUTTON,
      };
  }
 diff --git a/packages/SettingsProvider/src/android/provider/settings/validators/SystemSettingsValidators.java b/packages/SettingsProvider/src/android/provider/settings/validators/SystemSettingsValidators.java
-index 8e501a5d0a86..109ef450b94a 100644
+index 89455a085aaf..a59a8d18c7d5 100644
 --- a/packages/SettingsProvider/src/android/provider/settings/validators/SystemSettingsValidators.java
 +++ b/packages/SettingsProvider/src/android/provider/settings/validators/SystemSettingsValidators.java
-@@ -215,5 +215,6 @@ public class SystemSettingsValidators {
-         VALIDATORS.put(System.TOUCHSCREEN_GESTURE_HAPTIC_FEEDBACK, BOOLEAN_VALIDATOR);
+@@ -216,5 +216,6 @@ public class SystemSettingsValidators {
          VALIDATORS.put(System.HIGH_TOUCH_POLLING_RATE_ENABLE, BOOLEAN_VALIDATOR);
          VALIDATORS.put(System.FINGERPRINT_WAKE_UNLOCK, NON_NEGATIVE_INTEGER_VALIDATOR);
+         VALIDATORS.put(System.LOCKSCREEN_BATTERY_INFO, BOOLEAN_VALIDATOR);
 +	VALIDATORS.put(System.ENABLE_FLOATING_ROTATION_BUTTON, BOOLEAN_VALIDATOR);
      }
  }

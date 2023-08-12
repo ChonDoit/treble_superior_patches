@@ -1,0 +1,148 @@
+From 4864255902f02559cefcf28883bdba327fda7b1d Mon Sep 17 00:00:00 2001
+From: TARKZiM <tom8476oo@gmail.com>
+Date: Sat, 12 Feb 2022 18:41:32 +0800
+Subject: [PATCH] libaudiohal: Bring back 2.0 HAL
+
+Change-Id: I1800712582df740db9f60d29e22cda18c4895a96
+---
+ media/libaudiohal/Android.bp                  |  1 +
+ media/libaudiohal/FactoryHalHidl.cpp          |  5 ++--
+ media/libaudiohal/impl/Android.bp             | 23 +++++++++++++++++++
+ media/libaudiohal/impl/DeviceHalHidl.cpp      | 11 +++++++++
+ .../impl/DevicesFactoryHalHidl.cpp            | 12 ++++++++++
+ 5 files changed, 50 insertions(+), 2 deletions(-)
+
+diff --git a/media/libaudiohal/Android.bp b/media/libaudiohal/Android.bp
+index 5f63e8de04..aa1d825d2f 100644
+--- a/media/libaudiohal/Android.bp
++++ b/media/libaudiohal/Android.bp
+@@ -23,6 +23,7 @@ cc_library_shared {
+     ],
+ 
+     required: [
++        "libaudiohal@2.0",
+         "libaudiohal@4.0",
+         "libaudiohal@5.0",
+         "libaudiohal@6.0",
+diff --git a/media/libaudiohal/FactoryHalHidl.cpp b/media/libaudiohal/FactoryHalHidl.cpp
+index 590fec5443..46b6bd757a 100644
+--- a/media/libaudiohal/FactoryHalHidl.cpp
++++ b/media/libaudiohal/FactoryHalHidl.cpp
+@@ -36,12 +36,13 @@ namespace {
+  */
+ #define CONC_VERSION(maj, min) #maj "." #min
+ #define DECLARE_VERSION(maj, min) std::make_pair(std::make_pair(maj, min), CONC_VERSION(maj, min))
+-static constexpr std::array<std::pair<std::pair<int, int>, const char*>, 5> sAudioHALVersions = {
++static constexpr std::array<std::pair<std::pair<int, int>, const char*>, 6> sAudioHALVersions = {
+     DECLARE_VERSION(7, 1),
+     DECLARE_VERSION(7, 0),
+     DECLARE_VERSION(6, 0),
+     DECLARE_VERSION(5, 0),
+-    DECLARE_VERSION(4, 0)
++    DECLARE_VERSION(4, 0),
++    DECLARE_VERSION(2, 0)
+ };
+ 
+ bool createHalService(const std::string& version, const std::string& interface,
+diff --git a/media/libaudiohal/impl/Android.bp b/media/libaudiohal/impl/Android.bp
+index d30883a95c..e53289c935 100644
+--- a/media/libaudiohal/impl/Android.bp
++++ b/media/libaudiohal/impl/Android.bp
+@@ -68,6 +68,29 @@ cc_defaults {
+     ],
+ }
+ 
++cc_library_shared {
++    name: "libaudiohal@2.0",
++    defaults: ["libaudiohal_default"],
++    srcs: [
++        ":audio_core_hal_client_sources",
++        ":audio_effect_hal_client_sources",
++        "EffectsFactoryHalHidlEntry.cpp",
++    ],
++    shared_libs: [
++        "android.hardware.audio.common@2.0",
++        "android.hardware.audio.common@2.0-util",
++        "android.hardware.audio.effect@2.0",
++        "android.hardware.audio.effect@2.0-util",
++        "android.hardware.audio@2.0",
++        "android.hardware.audio@2.0-util",
++    ],
++    cflags: [
++        "-DMAJOR_VERSION=2",
++        "-DMINOR_VERSION=0",
++        "-include common/all-versions/VersionMacro.h",
++    ]
++}
++
+ cc_library_shared {
+     name: "libaudiohal@4.0",
+     defaults: ["libaudiohal_default"],
+diff --git a/media/libaudiohal/impl/DeviceHalHidl.cpp b/media/libaudiohal/impl/DeviceHalHidl.cpp
+index 0cdf621c7a..eaafba3f8b 100644
+--- a/media/libaudiohal/impl/DeviceHalHidl.cpp
++++ b/media/libaudiohal/impl/DeviceHalHidl.cpp
+@@ -537,7 +537,12 @@ status_t DeviceHalHidl::setConnectedState(const struct audio_port_v7 *port, bool
+             result != NO_ERROR) {
+         return result;
+     }
++#if MAJOR_VERSION > 2
+     return processReturn("setConnectedState", mDevice->setConnectedState(hidlAddress, connected));
++#else
++    (void)connected;
++    return NO_ERROR;
++#endif
+ }
+ 
+ error::Result<audio_hw_sync_t> DeviceHalHidl::getHwAvSync() {
+@@ -545,11 +550,17 @@ error::Result<audio_hw_sync_t> DeviceHalHidl::getHwAvSync() {
+     if (mDevice == 0) return NO_INIT;
+     audio_hw_sync_t value;
+     Result result;
++#if MAJOR_VERSION > 2
+     Return<void> ret = mDevice->getHwAvSync([&value, &result](Result r, audio_hw_sync_t v) {
+         value = v;
+         result = r;
+     });
+     RETURN_IF_ERROR(processReturn("getHwAvSync", ret, result));
++#else
++    Return<uint32_t> ret = mDevice->getHwAvSync();
++    (void)result;
++//    RETURN_IF_ERROR(processReturn("getHwAvSync", ret, result));
++#endif
+     return value;
+ }
+ 
+diff --git a/media/libaudiohal/impl/DevicesFactoryHalHidl.cpp b/media/libaudiohal/impl/DevicesFactoryHalHidl.cpp
+index 4069a6bdbd..b86de107e2 100644
+--- a/media/libaudiohal/impl/DevicesFactoryHalHidl.cpp
++++ b/media/libaudiohal/impl/DevicesFactoryHalHidl.cpp
+@@ -119,9 +119,20 @@ status_t DevicesFactoryHalHidl::openDevice(const char *name, sp<DeviceHalInterfa
+             // thus openPrimaryDevice must be used.
+ #if MAJOR_VERSION == 7 && MINOR_VERSION == 1
+             ret = factory->openPrimaryDevice_7_1(
++#elif MAJOR_VERSION < 4
++            ret = factory->openDevice(
++                    hidlId,
++                    [&](Result r,
++                        const sp<::android::hardware::audio::CPP_VERSION::IDevice>& result) {
++                        retval = r;
++                        if (retval == Result::OK) {
++                            *device = new DeviceHalHidl(result);
++                        }
++                    });
+ #else
+             ret = factory->openPrimaryDevice(
+ #endif
++#if MAJOR_VERSION > 2
+                     [&](Result r,
+                         const sp<::android::hardware::audio::CPP_VERSION::IPrimaryDevice>& result) {
+                         retval = r;
+@@ -129,6 +140,7 @@ status_t DevicesFactoryHalHidl::openDevice(const char *name, sp<DeviceHalInterfa
+                             *device = new DeviceHalHidl(result);
+                         }
+                     });
++#endif
+         } else {
+ #if MAJOR_VERSION == 7 && MINOR_VERSION == 1
+             ret = factory->openDevice_7_1(

@@ -9,12 +9,12 @@ Subject: [PATCH] SystemUI: Allow disabling clipboard overlay [1/2]
  2 files changed, 13 insertions(+)
 
 diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
-index 8591cddf9502..d21ada7c03e6 100644
+index ea6425e7cd03..271f5b54c814 100644
 --- a/core/java/android/provider/Settings.java
 +++ b/core/java/android/provider/Settings.java
-@@ -11800,6 +11800,13 @@ public final class Settings {
-         @Readable
-         public static final String GAMES_DEVICE_SPOOF = "games_device_spoof";
+@@ -11798,6 +11798,13 @@ public final class Settings {
+          */
+         public static final String PULSE_SMOOTHING_ENABLED = "pulse_smoothing_enabled";
  
 +	/**
 +         * Whether to show an overlay in the bottom corner of the screen on copying stuff
@@ -24,7 +24,7 @@ index 8591cddf9502..d21ada7c03e6 100644
 +        public static final String SHOW_CLIPBOARD_OVERLAY = "show_clipboard_overlay";
 +
          /**
-          * Face Unlock Method
+          * Pulse ambient music visualizer
           * @hide
 diff --git a/packages/SystemUI/src/com/android/systemui/clipboardoverlay/ClipboardListener.java b/packages/SystemUI/src/com/android/systemui/clipboardoverlay/ClipboardListener.java
 index edda87527b1d..5bb805a7d823 100644

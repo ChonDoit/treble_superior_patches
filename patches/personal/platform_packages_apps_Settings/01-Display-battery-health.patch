@@ -1,7 +1,7 @@
 From 477803669ac58a5179a10822b8898857abb7af72 Mon Sep 17 00:00:00 2001
 From: ChonDoit <thphantomblog@gmail.com>
 Date: Sun, 25 Jun 2023 04:48:58 +0000
-Subject: [PATCH 1/2] Settings: Battery stats: Display battery health
+Subject: [PATCH] Settings: Battery stats: Display battery health
 
 ---
  res/values/cornelio.xml | 28 ++++++++++++++++++++++++++++

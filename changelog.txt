@@ -1,11 +1,5 @@
-JULY IS HERE! OTA IS UP!
+SYNC WITH AUGUST SOURCES
 
-A13-v20230709
-| Sync with July Sources
-| Add some missing patches after QPR3
-| Updater: Print more info and push somes toast
-| Updater Fix: Print correctly update build variant
-
-OWN ADDITION
-| Bring back Rounded QS
-| Add LockScreen Charging Info
+## PHH MISC CHANGES
+| Bring back rounded corner diameter
+| Allow to override status bar padding

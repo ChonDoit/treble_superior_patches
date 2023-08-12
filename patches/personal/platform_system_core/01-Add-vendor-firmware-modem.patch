@@ -1,0 +1,26 @@
+From 45cb0bd3e4304417b068ff5c3fe648f9d9070228 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Thu, 27 Jul 2023 21:05:30 +0000
+Subject: [PATCH 3/3] Add /vendor/firmware-modem
+
+It's used by Samsung devices
+---
+ rootdir/ueventd.rc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/rootdir/ueventd.rc b/rootdir/ueventd.rc
+index 31f7f38cc..3f8f707f0 100644
+--- a/rootdir/ueventd.rc
++++ b/rootdir/ueventd.rc
+@@ -1,7 +1,7 @@
+ import /vendor/etc/ueventd.rc
+ import /odm/etc/ueventd.rc
+ 
+-firmware_directories /etc/firmware/ /odm/firmware/ /vendor/firmware/ /firmware/image/ /vendor/firmware_mnt/image/
++firmware_directories /etc/firmware/ /odm/firmware/ /vendor/firmware/ /firmware/image/ /vendor/firmware_mnt/image/ /vendor/firmware-modem/image
+ uevent_socket_rcvbuf_size 16M
+ 
+ subsystem graphics
+-- 
+2.34.1
+
