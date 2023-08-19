@@ -21,9 +21,10 @@ Managed with phh-root.sh to avoid issues with future merges on phh-prop-handler
  secure.mk              |   13 ++++++++
  sepolicy/file_contexts |   1 +
  su/Android.mk          |   9 ++++++--
+ su/su.rc                | 1 +
  su/SuperUser.apk       | Bin 0 -> 931404 bytes
  vndk.rc                |   3 +++
- 10 files changed, 79 insertions(+), 9 deletions(-)
+ 11 files changed, 80 insertions(+), 9 deletions(-)
  create mode 100644 phh-root.sh
  create mode 100644 secure.mk
  create mode 100644 su/SuperUser.apk
@@ -189,6 +190,14 @@ index 4d2e612..ce3bb87 100644
 +LOCAL_PRIVILEGED_MODULE := true
 +LOCAL_CERTIFICATE := PRESIGNED
  include $(BUILD_PREBUILT)
+diff --git a/su/su.rc b/su/su.rc
+index 935bdde..3221fc6 100644
+--- a/su/su.rc
++++ b/su/su.rc
+@@ -1,2 +1,3 @@
+ service sudaemon /system/bin/phh-su --daemon
+     class main
++    disabled
 diff --git a/su/SuperUser.apk b/su/SuperUser.apk
 new file mode 100644
 index 0000000000000000000000000000000000000000..d93f75c0005dc0e2115d0549425985dd72f4faa6

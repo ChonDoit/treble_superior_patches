@@ -1,8 +1,9 @@
-From 994d2a1605ddeacf7d2305ee65ffb7ae357b5efe Mon Sep 17 00:00:00 2001
-From: ChonDoit <thphantomblog@gmail.com>
-Date: Wed, 28 Sep 2022 22:25:25 -0300
-Subject: [PATCH] Re-order services so that it works even without qtaguid
+From 3e175c920d8a040934f70f91b3b6a802cb8bac41 Mon Sep 17 00:00:00 2001
+From: Pierre-Hugues Husson <phh@phh.me>
+Date: Thu, 8 Nov 2018 23:04:03 +0100
+Subject: [PATCH 09/41] Re-order services so that it works even without qtaguid
 
+Change-Id: I0c0f527b3ae151d45c68f7ac6c205da3f34e74df
 ---
  .../android/server/net/NetworkPolicyManagerService.java   | 8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)

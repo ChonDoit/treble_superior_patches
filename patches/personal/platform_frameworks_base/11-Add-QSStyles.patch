@@ -1,0 +1,267 @@
+From 6fb22bfa76186cf0a838c0fd2808190de57d6413 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sun, 13 Aug 2023 22:51:14 +0000
+Subject: [PATCH] QS Panel Styles
+
+---
+ core/res/res/values-night/colors.xml    | 1 +
+ core/res/res/values/colors.xml          | 1 +
+ packages/SystemUI/res/values/colors.xml | 5 +++++
+ core/java/android/provider/Settings.java      |  5 +++
+ .../settings/backup/SystemSettings.java       |  1 +
+ .../validators/SystemSettingsValidators.java  |  1 +
+ .../res/drawable/qs_tile_background.xml       |  4 +--
+ .../systemui/qs/tileimpl/QSIconViewImpl.java  | 19 +++++++++++
+ .../systemui/qs/tileimpl/QSTileViewImpl.kt    | 32 ++++++++++++++++---
+ 9 files changed, 63 insertions(+), 6 deletions(-)
+
+diff --git a/core/res/res/values-night/colors.xml b/core/res/res/values-night/colors.xml
+index ffaccd3ddc57..402c30fd3088 100644
+--- a/core/res/res/values-night/colors.xml
++++ b/core/res/res/values-night/colors.xml
+@@ -43,4 +43,5 @@
+     <color name="side_fps_text_color">#EFF1F2</color>
+     <color name="side_fps_button_color">#33B9DB</color>
+ 
++    <color name="qs_translucent_brightness_bg">#0FFFFFFF</color>
+ </resources>
+diff --git a/core/res/res/values/colors.xml b/core/res/res/values/colors.xml
+index b83d3b4ea298..4fec1693df18 100644
+--- a/core/res/res/values/colors.xml
++++ b/core/res/res/values/colors.xml
+@@ -455,4 +455,5 @@
+     <color name="side_fps_text_color">#191C1D</color>
+     <color name="side_fps_button_color">#00677E</color>
+ 
++    <color name="qs_translucent_brightness_bg">#33FFFFFF</color>
+ </resources>
+diff --git a/packages/SystemUI/res/values/colors.xml b/packages/SystemUI/res/values/colors.xml
+index 74d1c60dd61e..b5ff9ff6ea79 100644
+--- a/packages/SystemUI/res/values/colors.xml
++++ b/packages/SystemUI/res/values/colors.xml
+@@ -263,4 +263,9 @@
+ 
+     <!-- Volume panel -->
+     <color name="volume_seekbar_bg">@android:color/system_accent2_100</color>
++
++    <!-- QS Tile Ripple Color -->
++    <color name="qs_ripple_color">@android:color/system_accent1_400</color>
++    <color name="qs_translucent_bg">#59FFFFFF</color>
++
+ </resources>
+diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
+index f16a4e9561be..b77d136d270f 100644
+--- a/core/java/android/provider/Settings.java
++++ b/core/java/android/provider/Settings.java
+@@ -5883,6 +5883,11 @@ public final class Settings {
+          */
+         public static final String QS_TILE_LABEL_SIZE = "qs_tile_label_size";
+ 
++	/**
++         * @hide
++         */
++        public static final String QS_PANEL_STYLE = "qs_panel_style";
++
+         /**
+          * Whether allowing pocket service to register sensors and dispatch informations.
+          *   0 = disabled
+diff --git a/packages/SettingsProvider/src/android/provider/settings/backup/SystemSettings.java b/packages/SettingsProvider/src/android/provider/settings/backup/SystemSettings.java
+index dbb306be2b65..72459dceb9a9 100644
+--- a/packages/SettingsProvider/src/android/provider/settings/backup/SystemSettings.java
++++ b/packages/SettingsProvider/src/android/provider/settings/backup/SystemSettings.java
+@@ -91,5 +91,6 @@ public class SystemSettings {
+         Settings.System.TORCH_POWER_BUTTON_GESTURE,
+         Settings.System.LOCKSCREEN_BATTERY_INFO,
+ 	Settings.System.ENABLE_FLOATING_ROTATION_BUTTON,
++	Settings.System.QS_PANEL_STYLE,
+     };
+ }
+diff --git a/packages/SettingsProvider/src/android/provider/settings/validators/SystemSettingsValidators.java b/packages/SettingsProvider/src/android/provider/settings/validators/SystemSettingsValidators.java
+index a59a8d18c7d5..72cfbc79efad 100644
+--- a/packages/SettingsProvider/src/android/provider/settings/validators/SystemSettingsValidators.java
++++ b/packages/SettingsProvider/src/android/provider/settings/validators/SystemSettingsValidators.java
+@@ -217,5 +217,6 @@ public class SystemSettingsValidators {
+         VALIDATORS.put(System.FINGERPRINT_WAKE_UNLOCK, NON_NEGATIVE_INTEGER_VALIDATOR);
+         VALIDATORS.put(System.LOCKSCREEN_BATTERY_INFO, BOOLEAN_VALIDATOR);
+ 	VALIDATORS.put(System.ENABLE_FLOATING_ROTATION_BUTTON, BOOLEAN_VALIDATOR);
++	VALIDATORS.put(System.QS_PANEL_STYLE, NON_NEGATIVE_INTEGER_VALIDATOR);
+     }
+ }
+diff --git a/packages/SystemUI/res/drawable/qs_tile_background.xml b/packages/SystemUI/res/drawable/qs_tile_background.xml
+index 265f575fc99c..cf39eaca7416 100644
+--- a/packages/SystemUI/res/drawable/qs_tile_background.xml
++++ b/packages/SystemUI/res/drawable/qs_tile_background.xml
+@@ -15,9 +15,9 @@
+   ~ limitations under the License.
+   -->
+ <ripple xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:color="?android:attr/colorControlHighlight">
++    android:color="@color/qs_ripple_color">
+     <item android:id="@android:id/mask"
+         android:drawable="@drawable/qs_tile_background_shape" />
+     <item android:id="@id/background"
+         android:drawable="@drawable/qs_tile_background_shape"/>
+-</ripple>
+\ No newline at end of file
++</ripple>
+diff --git a/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSIconViewImpl.java b/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSIconViewImpl.java
+index cd69f4edff63..6376974e84a5 100644
+--- a/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSIconViewImpl.java
++++ b/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSIconViewImpl.java
+@@ -24,9 +24,12 @@ import android.content.Context;
+ import android.content.res.ColorStateList;
+ import android.content.res.Configuration;
+ import android.content.res.Resources;
++import android.graphics.Color;
+ import android.graphics.drawable.Animatable2;
+ import android.graphics.drawable.Animatable2.AnimationCallback;
+ import android.graphics.drawable.Drawable;
++import android.os.UserHandle;
++import android.provider.Settings.System;
+ import android.service.quicksettings.Tile;
+ import android.util.Log;
+ import android.view.View;
+@@ -40,7 +43,10 @@ import com.android.systemui.plugins.qs.QSTile;
+ import com.android.systemui.plugins.qs.QSTile.State;
+ import com.android.systemui.qs.AlphaControlledSignalTileView.AlphaControlledSlashImageView;
+ 
++import android.provider.Settings.System;
++
+ import java.util.Objects;
++import java.util.Random;
+ 
+ public class QSIconViewImpl extends QSIconView {
+ 
+@@ -242,14 +248,27 @@ public class QSIconViewImpl extends QSIconView {
+      * Color to tint the tile icon based on state
+      */
+     private static int getIconColorForState(Context context, QSTile.State state) {
++	int qsPanelStyle = System.getIntForUser(context.getContentResolver(),
++                     System.QS_PANEL_STYLE, 0, UserHandle.USER_CURRENT);
++
++        Random mRandomColor = new Random();
++        int mRandomTint = Color.rgb((float)
++        (mRandomColor.nextInt(256) / 2f + 0.5),
++         mRandomColor.nextInt(256),
++         mRandomColor.nextInt(256));
+         if (state.disabledByPolicy || state.state == Tile.STATE_UNAVAILABLE) {
+             return Utils.getColorAttrDefaultColor(
+                     context, com.android.internal.R.attr.textColorTertiary);
+         } else if (state.state == Tile.STATE_INACTIVE) {
+             return Utils.getColorAttrDefaultColor(context, android.R.attr.textColorPrimary);
+         } else if (state.state == Tile.STATE_ACTIVE) {
++	    if (qsPanelStyle == 5 || qsPanelStyle == 6) {
++                return Utils.getColorAttrDefaultColor(context,
++                        android.R.attr.colorAccent);
++            } else {
+             return Utils.getColorAttrDefaultColor(context,
+                     com.android.internal.R.attr.textColorOnAccent);
++	    }
+         } else {
+             Log.e("QSIconView", "Invalid state " + state);
+             return 0;
+@@ -277,3 +296,4 @@ public class QSIconViewImpl extends QSIconView {
+         }
+     }
+ }
++
+diff --git a/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSTileViewImpl.kt b/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSTileViewImpl.kt
+index 7d22828c658f..dc9f2fb55e60 100644
+--- a/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSTileViewImpl.kt
++++ b/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSTileViewImpl.kt
+@@ -19,13 +19,17 @@ package com.android.systemui.qs.tileimpl
+ import android.animation.ArgbEvaluator
+ import android.animation.PropertyValuesHolder
+ import android.animation.ValueAnimator
++import android.annotation.SuppressLint;
+ import android.content.Context
+ import android.content.res.ColorStateList
+ import android.content.res.Configuration
+ import android.content.res.Resources.ID_NULL
++import android.graphics.Color
+ import android.graphics.drawable.Drawable
+ import android.graphics.drawable.RippleDrawable
+ import android.os.Trace
++import android.os.UserHandle
++import android.provider.Settings
+ import android.service.quicksettings.Tile
+ import android.text.TextUtils
+ import android.util.Log
+@@ -69,6 +73,8 @@ open class QSTileViewImpl @JvmOverloads constructor(
+         private const val SECONDARY_LABEL_NAME = "secondaryLabel"
+         private const val CHEVRON_NAME = "chevron"
+         const val UNAVAILABLE_ALPHA = 0.3f
++        const val TILE_ALPHA = 0.2f
++        const val INACTIVE_ALPHA = 0.2f
+         @VisibleForTesting
+         internal const val TILE_STATE_RES_PREFIX = "tile_states_"
+     }
+@@ -93,6 +99,11 @@ open class QSTileViewImpl @JvmOverloads constructor(
+             updateHeight()
+         }
+ 
++    private val qsPanelStyle: Int = Settings.System.getIntForUser(
++            context.contentResolver,
++            Settings.System.QS_PANEL_STYLE, 0, UserHandle.USER_CURRENT
++        )
++
+     private val colorActive = Utils.getColorAttrDefaultColor(context,
+             com.android.internal.R.attr.colorAccentPrimary)
+     private val colorInactive = Utils.getColorAttrDefaultColor(context, R.attr.offStateColor)
+@@ -112,6 +123,10 @@ open class QSTileViewImpl @JvmOverloads constructor(
+     private val colorSecondaryLabelUnavailable =
+         Utils.getColorAttrDefaultColor(context, com.android.internal.R.attr.textColorTertiary)
+ 
++    // QS Style 3
++    private val colorActiveAlpha = Utils.applyAlpha(TILE_ALPHA, Utils.getColorAttrDefaultColor(context, android.R.attr.colorAccent))
++    private val colorInactiveAlpha = Utils.applyAlpha(INACTIVE_ALPHA, Utils.getColorAttrDefaultColor(context, R.attr.offStateColor))
++
+     private lateinit var label: TextView
+     protected lateinit var secondaryLabel: TextView
+     private lateinit var labelContainer: IgnorableChildLinearLayout
+@@ -625,8 +640,11 @@ open class QSTileViewImpl @JvmOverloads constructor(
+     private fun getBackgroundColorForState(state: Int, disabledByPolicy: Boolean = false): Int {
+         return when {
+             state == Tile.STATE_UNAVAILABLE || disabledByPolicy -> colorUnavailable
+-            state == Tile.STATE_ACTIVE -> colorActive
+-            state == Tile.STATE_INACTIVE -> colorInactive
++            state == Tile.STATE_ACTIVE ->
++                if(qsPanelStyle == 5 || qsPanelStyle == 6)
++                    colorActiveAlpha
++                else colorActive
++            state == Tile.STATE_INACTIVE -> if(qsPanelStyle >= 3) colorInactiveAlpha else colorInactive
+             else -> {
+                 Log.e(TAG, "Invalid state $state")
+                 0
+@@ -637,7 +655,10 @@ open class QSTileViewImpl @JvmOverloads constructor(
+     private fun getLabelColorForState(state: Int, disabledByPolicy: Boolean = false): Int {
+         return when {
+             state == Tile.STATE_UNAVAILABLE || disabledByPolicy -> colorLabelUnavailable
+-            state == Tile.STATE_ACTIVE -> colorLabelActive
++            state == Tile.STATE_ACTIVE ->
++                if(qsPanelStyle == 5 || qsPanelStyle == 6)
++                    colorActive
++                else colorLabelActive
+             state == Tile.STATE_INACTIVE -> colorLabelInactive
+             else -> {
+                 Log.e(TAG, "Invalid state $state")
+@@ -649,7 +670,10 @@ open class QSTileViewImpl @JvmOverloads constructor(
+     private fun getSecondaryLabelColorForState(state: Int, disabledByPolicy: Boolean = false): Int {
+         return when {
+             state == Tile.STATE_UNAVAILABLE || disabledByPolicy -> colorSecondaryLabelUnavailable
+-            state == Tile.STATE_ACTIVE -> colorSecondaryLabelActive
++            state == Tile.STATE_ACTIVE ->
++                if(qsPanelStyle == 5 || qsPanelStyle == 6)
++                    colorActive
++                else colorSecondaryLabelActive
+             state == Tile.STATE_INACTIVE -> colorSecondaryLabelInactive
+             else -> {
+                 Log.e(TAG, "Invalid state $state")
+@@ -679,3 +703,4 @@ private fun colorValuesHolder(name: String, vararg values: Int): PropertyValuesH
+         setEvaluator(ArgbEvaluator.getInstance())
+     }
+ }
++
+-- 
+2.34.1
+

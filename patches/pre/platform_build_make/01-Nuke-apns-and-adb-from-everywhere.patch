@@ -1,7 +1,7 @@
 From 60fd12135b6c957d6265b8ac76981ca5cb8e15f5 Mon Sep 17 00:00:00 2001
 From: ChonDoit <thphantomblog@gmail.com>
 Date: Sat, 12 Aug 2023 18:52:10 +0000
-Subject: [PATCH] Jzjzjsj
+Subject: [PATCH] Nuke adb and APN from everywhere
 
 ---
  core/main.mk                          | 8 --------

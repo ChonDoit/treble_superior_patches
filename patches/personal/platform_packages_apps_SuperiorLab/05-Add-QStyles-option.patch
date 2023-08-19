@@ -1,0 +1,244 @@
+From f2dd284e7d6db653d2341246747fa5aabb82d223 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sun, 13 Aug 2023 23:03:29 +0000
+Subject: [PATCH] Add QS Panel Styles
+
+---
+ res/values/superior_arrays.xml                |  20 ++++
+ res/values/superior_strings.xml               |  11 ++
+ res/xml/superior_lab_quicksettings.xml        |  8 ++
+ .../superior/lab/fragments/QuickSettings.java | 108 +++++++++++++++++-
+ 3 files changed, 146 insertions(+), 1 deletion(-)
+
+diff --git a/res/values/superior_arrays.xml b/res/values/superior_arrays.xml
+index 95adcb4..2df2252 100644
+--- a/res/values/superior_arrays.xml
++++ b/res/values/superior_arrays.xml
+@@ -128,4 +128,24 @@
+         <item>3</item>
+     </string-array>
+ 
++    <string-array name="qs_styles_entries" translatable="false">
++        <item>@string/default_string</item>
++        <item>@string/qs_rounded</item>
++        <item>@string/qs_rounded_rect</item>
++        <item>@string/qs_translucent_round</item>
++        <item>@string/qs_translucent_rect</item>
++        <item>@string/qs_dual_accent_round</item>
++        <item>@string/qs_dual_accent_rect</item>
++    </string-array>
++
++    <string-array name="qs_styles_values" translatable="false">
++        <item>0</item>
++        <item>1</item>
++        <item>2</item>
++        <item>3</item>
++        <item>4</item>
++        <item>5</item>
++        <item>6</item>
++    </string-array>
++
+ </resources>
+diff --git a/res/values/superior_strings.xml b/res/values/superior_strings.xml
+index 08b1399..5061e44 100644
+--- a/res/values/superior_strings.xml
++++ b/res/values/superior_strings.xml
+@@ -421,4 +421,15 @@
+     <!-- Disable QS -->
+     <string name="disable_qs_title">Hide QS in secure lockscreen</string>
+     <string name="disable_qs_summary">Hides QS if device is locked. Does not disable notification shade</string>
++
++    <!-- Quick settings styles -->
++    <string name="qs_styles_title">Themes</string>
++    <string name="default_string">Default</string>
++    <string name="qs_rounded">Rounded</string>
++    <string name="qs_rounded_rect">Rounded Rectangle</string>
++    <string name="qs_translucent_round">Translucent Rounded</string>
++    <string name="qs_translucent_rect">Translucent Rectangle</string>
++    <string name="qs_dual_accent_round">Dual Accent Rounded</string>
++    <string name="qs_dual_accent_rect">Dual Accent Rectangle</string>
++
+ </resources>
+diff --git a/res/xml/superior_lab_quicksettings.xml b/res/xml/superior_lab_quicksettings.xml
+index 8658e15..c2ba6ef 100644
+--- a/res/xml/superior_lab_quicksettings.xml
++++ b/res/xml/superior_lab_quicksettings.xml
+@@ -12,6 +12,14 @@
+         android:key="quick_settings_general_category"
+         android:title="@string/general_category">
+ 
++	<com.superior.support.preferences.SystemSettingListPreference
++            android:key="qs_panel_style"
++            android:title="@string/qs_styles_title"
++            android:entries="@array/qs_styles_entries"
++            android:entryValues="@array/qs_styles_values"
++            android:summary="%s"
++            android:defaultValue="0" />
++
+         <com.superior.support.preferences.SecureSettingSwitchPreference
+             android:key="quick_settings_vibrate"
+             android:title="@string/quick_settings_vibrate_title"
+diff --git a/src/com/superior/lab/fragments/QuickSettings.java b/src/com/superior/lab/fragments/QuickSettings.java
+index c55114d..a6f30e6 100644
+--- a/src/com/superior/lab/fragments/QuickSettings.java
++++ b/src/com/superior/lab/fragments/QuickSettings.java
+@@ -16,15 +16,26 @@
+ 
+ package com.superior.lab.fragments;
+ 
++import static android.os.UserHandle.USER_CURRENT;
++import static android.os.UserHandle.USER_SYSTEM;
++
+ import com.android.internal.logging.nano.MetricsProto;
+ 
+ import android.os.Bundle;
+ import android.content.Intent;
+ import android.content.pm.PackageManager;
+ import android.content.pm.ResolveInfo;
+-import android.os.UserHandle;
+ import android.content.ContentResolver;
++import android.content.Context;
+ import android.content.res.Resources;
++import android.content.om.IOverlayManager;
++import android.content.om.OverlayInfo;
++import android.database.ContentObserver;
++import android.net.Uri;
++import android.os.Handler;
++import android.os.RemoteException;
++import android.os.ServiceManager;
++import android.os.UserHandle;
+ import androidx.preference.ListPreference;
+ import androidx.preference.Preference;
+ import androidx.preference.PreferenceScreen;
+@@ -40,12 +51,20 @@ import android.view.View;
+ import java.util.List;
+ import java.util.ArrayList;
+ 
++import com.superior.support.preferences.SystemSettingListPreference;
++
+ public class QuickSettings extends SettingsPreferenceFragment implements
+         OnPreferenceChangeListener {
+ 
+     private static final String QUICK_PULLDOWN = "status_bar_quick_qs_pulldown";
++    private static final String KEY_QS_PANEL_STYLE  = "qs_panel_style";
+ 
++    private Context mContext;
+     private ListPreference mQuickPulldown;
++    private Handler mHandler;
++    private IOverlayManager mOverlayManager;
++    private IOverlayManager mOverlayService;
++    private SystemSettingListPreference mQsStyle;
+ 
+     @Override
+     public void onCreate(Bundle icicle) {
+@@ -56,6 +75,12 @@ public class QuickSettings extends SettingsPreferenceFragment implements
+         PreferenceScreen prefScreen = getPreferenceScreen();
+         ContentResolver resolver = getActivity().getContentResolver();
+ 
++        mOverlayService = IOverlayManager.Stub
++        .asInterface(ServiceManager.getService(Context.OVERLAY_SERVICE));
++
++        mQsStyle = (SystemSettingListPreference) findPreference(KEY_QS_PANEL_STYLE);
++        mCustomSettingsObserver.observe();
++
+         int qpmode = Settings.System.getIntForUser(getContentResolver(),
+                 Settings.System.STATUS_BAR_QUICK_QS_PULLDOWN, 0, UserHandle.USER_CURRENT);
+         mQuickPulldown = (ListPreference) findPreference(QUICK_PULLDOWN);
+@@ -68,6 +93,11 @@ public class QuickSettings extends SettingsPreferenceFragment implements
+     @Override
+     public boolean onPreferenceChange(Preference preference, Object newValue) {
+         ContentResolver resolver = getActivity().getContentResolver();
++         if (preference == mQsStyle) {
++           mCustomSettingsObserver.observe();
++           return true;
++        }
++
+         if (preference == mQuickPulldown) {
+             int value = Integer.parseInt((String) newValue);
+             Settings.System.putIntForUser(resolver,
+@@ -81,6 +111,82 @@ public class QuickSettings extends SettingsPreferenceFragment implements
+         return false;
+     }
+ 
++    private void updateQsStyle() {
++        ContentResolver resolver = getActivity().getContentResolver();
++
++        int qsPanelStyle = Settings.System.getIntForUser(getContext().getContentResolver(),
++                Settings.System.QS_PANEL_STYLE , 0, UserHandle.USER_CURRENT);
++
++        if (qsPanelStyle == 0) {
++            setDefaultStyle(mOverlayService);
++        } else if (qsPanelStyle == 1 || qsPanelStyle == 3) {
++            setQsStyle(mOverlayService, "com.android.system.qs.rounded");
++        } else if (qsPanelStyle == 2 || qsPanelStyle == 4) {
++            setQsStyle(mOverlayService, "com.android.system.qs.roundedrect");
++        } else if (qsPanelStyle == 5) {
++            setQsStyle(mOverlayService, "com.android.system.qs.dualaccentround");
++        } else if (qsPanelStyle == 6) {
++            setQsStyle(mOverlayService, "com.android.system.qs.dualaccentrect");
++        }
++    }
++
++    public static void setDefaultStyle(IOverlayManager overlayManager) {
++        for (int i = 0; i < QS_STYLES.length; i++) {
++            String qsStyles = QS_STYLES[i];
++            try {
++                overlayManager.setEnabled(qsStyles, false, USER_SYSTEM);
++            } catch (RemoteException e) {
++                e.printStackTrace();
++            }
++        }
++    }
++
++    public static void setQsStyle(IOverlayManager overlayManager, String overlayName) {
++        try {
++            for (int i = 0; i < QS_STYLES.length; i++) {
++                String qsStyles = QS_STYLES[i];
++                try {
++                    overlayManager.setEnabled(qsStyles, false, USER_SYSTEM);
++                } catch (RemoteException e) {
++                    e.printStackTrace();
++                }
++            }
++            overlayManager.setEnabled(overlayName, true, USER_SYSTEM);
++        } catch (RemoteException e) {
++            e.printStackTrace();
++        }
++    }
++
++    public static final String[] QS_STYLES = {
++        "com.android.system.qs.rounded",
++        "com.android.system.qs.roundedrect",
++        "com.android.system.qs.dualaccentround",
++        "com.android.system.qs.dualaccentrect",
++    };
++
++    private CustomSettingsObserver mCustomSettingsObserver = new CustomSettingsObserver(mHandler);
++    private class CustomSettingsObserver extends ContentObserver {
++
++        CustomSettingsObserver(Handler handler) {
++            super(handler);
++        }
++
++        void observe() {
++            Context mContext = getContext();
++            ContentResolver resolver = mContext.getContentResolver();
++            resolver.registerContentObserver(Settings.System.getUriFor(
++                    Settings.System.QS_PANEL_STYLE),
++                    false, this, UserHandle.USER_ALL);
++        }
++
++        @Override
++        public void onChange(boolean selfChange, Uri uri) {
++            if (uri.equals(Settings.System.getUriFor(Settings.System.QS_PANEL_STYLE))) {
++                updateQsStyle();
++            }
++        }
++    }
++
+     @Override
+     public int getMetricsCategory() {
+         return MetricsProto.MetricsEvent.SUPERIOR;
+-- 
+2.34.1
+

@@ -6,6 +6,7 @@ Subject: [PATCH 12/35] Re-implement fnmatch-like behaviour for RRO java-side
 Change-Id: Id38292a9a1453aa87b8401c1fdb390fa4e63c7d1
 ---
  core/java/android/content/pm/PackageParser.java | 12 ++++++++++--
+ .../pm/parsing/FrameworkParsingPackageUtils.java     | 12 ++++++++++--
  1 file changed, 10 insertions(+), 2 deletions(-)
 
 diff --git a/core/java/android/content/pm/PackageParser.java b/core/java/android/content/pm/PackageParser.java
@@ -31,24 +32,6 @@ index 44dc28d2b0faf..27c0795d47d20 100644
              }
          }
          return true;
--- 
-2.25.1
-
-
-From 13190bc28d9e68acb14ace9e94fc07fb9ed96f75 Mon Sep 17 00:00:00 2001
-From: Peter Cai <peter@typeblog.net>
-Date: Fri, 2 Sep 2022 21:36:06 -0400
-Subject: [PATCH] FrameworkParsingPackageUtils: Add glob matching support for
- properties
-
-This is now required in addition to the one in PackageParser in order
-for overlays to work.
-
-Change-Id: Ie8679c0ffe03cead4a68bd2d0eb429f05af2d417
----
- .../pm/parsing/FrameworkParsingPackageUtils.java     | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
-
 diff --git a/core/java/android/content/pm/parsing/FrameworkParsingPackageUtils.java b/core/java/android/content/pm/parsing/FrameworkParsingPackageUtils.java
 index 3e1c5bb3d7ec1..f15978c575740 100644
 --- a/core/java/android/content/pm/parsing/FrameworkParsingPackageUtils.java

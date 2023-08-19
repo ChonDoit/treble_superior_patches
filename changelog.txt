@@ -1,5 +1,20 @@
-SYNC WITH AUGUST SOURCES
+A13-v20230819
+| Samsung should boot now
+| Add A-GPS toggle
+| Add AoD while charging only
+| Bring Back Device Health Services
+| Calculate battery estimates with Device Health Services
+| Settings > Accent search button
+| PHH Settings > Nuke Customization. Breaks Monet settings and maybe more
 
-## PHH MISC CHANGES
+SAMSUNG USERS
+Thanks for don't share a fucking log.
+
+A13-v20230816
+| Add own Quick Settings styles (Superior Lab > Quick Settings)
+| Bring back ThemePicker (for Launcher3)
+
+A13-v20230812
+| Sync with August sources
 | Bring back rounded corner diameter
 | Allow to override status bar padding

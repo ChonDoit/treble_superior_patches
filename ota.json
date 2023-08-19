@@ -1,23 +1,23 @@
 {
-  "version": "v20230812",
-  "date": "1691866766",
+  "version": "v20230819",
+  "date": "1692470104",
   "gsi": "SuperiorOS | by ChonDoe feat. TD",
   "changelog": "https://raw.githubusercontent.com/ChonDoit/treble_superior_patches/13/changelog.txt",
   "variants": [
     {
       "name": "Slim",
-      "size": "1131884580",
-      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A13-v20230812/SuperiorOS_A13-arm64-bgS-slim_20230812.img.xz"
+      "size": "1137551028",
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A13-v20230819/SuperiorOS_A13-arm64-bgS-slim_20230819.img.xz"
     },
     {
       "name": "Slim-VNDK-Lite",
-      "size": "1077238112",
-      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A13-v20230812/SuperiorOS_A13-arm64-bgS-slim-vndklite_20230812.img.xz"
+      "size": "1075885876",
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A13-v20230819/SuperiorOS_A13-arm64-bgS-slim-vndklite_20230819.img.xz"
     },
     {
       "name": "Slim-Secure",
-      "size": "983101560",
-      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A13-v20230812/SuperiorOS_A13-RO-arm64-bgN-slim_20230812.img.xz"
+      "size": "989973604",
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A13-v20230819/SuperiorOS_A13-RO-arm64-bgN-slim_20230819.img.xz"
     }
   ]
 }

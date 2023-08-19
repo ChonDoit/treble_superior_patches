@@ -1,0 +1,28 @@
+From 007d8ba1cb4b1c155a27d49d05ecbff7fbe782ee Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sat, 19 Aug 2023 18:05:41 +0000
+Subject: [PATCH 1/2] Address somes Xiaomi FOD
+
+From: https://github.com/jgudec/device_phh_treble/commit/f939a8415cbcf05d97d3d585186fc032ff997c23
+---
+ sepolicy/xiaomi.te | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+ create mode 100644 sepolicy/xiaomi.te
+
+diff --git a/sepolicy/xiaomi.te b/sepolicy/xiaomi.te
+new file mode 100644
+index 0000000..47f7ca9
+--- /dev/null
++++ b/sepolicy/xiaomi.te
+@@ -0,0 +1,8 @@
++type vendor_sysfs_displayfeature, domain, mlstrustedobject;
++type sysfs_tp_fodstatus, property_type;
++
++allow shell sysfs_tp_fodstatus:file r_file_perms;
++allow shell vendor_sysfs_displayfeature:dir r_dir_perms;
++allow platform_app vendor_sysfs_displayfeature:dir r_dir_perms;
++allow platform_app vendor_sysfs_displayfeature:file rw_file_perms;
++
+-- 
+2.34.1
+

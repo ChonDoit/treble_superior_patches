@@ -1,0 +1,43 @@
+From 380715a382f3b7ceab085727d012420733d69b4e Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Thu, 17 Aug 2023 00:16:51 +0000
+Subject: [PATCH] AoD while Charging [1/2]
+
+---
+ res/values/superior_strings.xml          | 4 ++++
+ res/xml/security_lockscreen_settings.xml | 6 ++++++
+ 2 files changed, 10 insertions(+)
+
+diff --git a/res/values/superior_strings.xml b/res/values/superior_strings.xml
+index 55ada601f3..215a30b21f 100644
+--- a/res/values/superior_strings.xml
++++ b/res/values/superior_strings.xml
+@@ -384,4 +384,8 @@
+     <string name="back_gesture_haptic_title">Haptic feedback</string>
+     <string name="back_gesture_haptic_summary">Enable haptic tick effect on back gesture</string>
+ 
++    <!-- Doze on charge -->
++    <string name="doze_on_charge_title">Always on when charging</string>
++    <string name="doze_on_charge_summary">Show doze screen all the time when charging</string>
++
+ </resources>
+diff --git a/res/xml/security_lockscreen_settings.xml b/res/xml/security_lockscreen_settings.xml
+index 2798c7edf5..6f18b4292d 100644
+--- a/res/xml/security_lockscreen_settings.xml
++++ b/res/xml/security_lockscreen_settings.xml
+@@ -106,6 +106,12 @@
+             settings:controller="com.android.settings.display.AmbientDisplayAlwaysOnPreferenceController"
+             settings:userRestriction="no_ambient_display" />
+ 
++	<com.superior.support.preferences.SecureSettingSwitchPreference
++            android:key="doze_on_charge"
++            android:defaultValue="false"
++            android:title="@string/doze_on_charge_title"
++            android:summary="@string/doze_on_charge_summary" />
++
+         <Preference
+             android:key="ambient_display_tap"
+             android:title="@string/ambient_display_tap_screen_title"
+-- 
+2.34.1
+

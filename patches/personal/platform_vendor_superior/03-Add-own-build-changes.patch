@@ -4,16 +4,16 @@ Date: Mon, 7 Aug 2023 23:08:27 +0000
 Subject: [PATCH] Add own build changes
 
 ---
- config/phh_gsi.mk | 37 +++++++++++++++++++++++++++++++++++++
- 1 file changed, 37 insertions(+)
+ config/phh_gsi.mk | 39 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 39 insertions(+)
  create mode 100644 config/phh_gsi.mk
 
 diff --git a/config/phh_gsi.mk b/config/phh_gsi.mk
 new file mode 100644
-index 00000000..7e46f504
+index 00000000..5b39c182
 --- /dev/null
 +++ b/config/phh_gsi.mk
-@@ -0,0 +1,37 @@
+@@ -0,0 +1,39 @@
 +# The Gapps
 +WITH_THE_GAPPS := true
 +ifeq ($(WITH_THE_GAPPS), true)
@@ -34,9 +34,11 @@ index 00000000..7e46f504
 +# Build APN
 +PRODUCT_PACKAGES += apns-conf.xml
 +
-+# R8 Java optimizations for SystemUI and system_server
-+#SYSTEM_OPTIMIZE_JAVA ?= true
-+#SYSTEMUI_OPTIMIZE_JAVA ?= true
++PRODUCT_PACKAGES += \
++    QSDualRounded \
++    QSDualRoundedRectangle \
++    QSRounded \
++    QSRoundedRectangle
 +
 +# Set Build Variant prop for OTA
 +ifeq ($(WITH_THE_GAPPS), false)
