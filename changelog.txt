@@ -1,3 +1,9 @@
+A13-v20230905
+| Re-implement TD patches from scratch
+| Drop Xiaomi FOD
+| Add Bluetooth timeout
+| Add White on White theme
+
 A13-v20230819
 | Samsung should boot now
 | Add A-GPS toggle

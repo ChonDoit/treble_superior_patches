@@ -47,7 +47,7 @@ index 0000000..1d5131a
 +        android:isStatic="true"
 +        android:priority="0"
 +        android:targetPackage="android"
-+        android:requiredSystemPropertyName="persist.sys.phh.biometrics"
++        android:requiredSystemPropertyName="persist.sys.phh.biometricstrong"
 +        android:requiredSystemPropertyValue="true" />
 +</manifest>
 diff --git a/Misc/Biometrics/res/values/arrays.xml b/Misc/Biometrics/res/values/arrays.xml

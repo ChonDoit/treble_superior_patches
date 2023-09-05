@@ -39,7 +39,7 @@ index f7f4947be09c..04f78219954e 100644
              Settings.Secure.DOZE_WAKE_DISPLAY_GESTURE,
 -            Settings.Secure.DOZE_TAP_SCREEN_GESTURE
 +            Settings.Secure.DOZE_TAP_SCREEN_GESTURE,
-+	    Settings.Secure.DOZE_ON_CHARGE
++            Settings.Secure.DOZE_ON_CHARGE
      };
  
      /** Non-user configurable doze settings */

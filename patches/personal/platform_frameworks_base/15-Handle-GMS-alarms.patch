@@ -1,0 +1,87 @@
+From 20213858c37e8be43f469741fe1be206edc1c6ca Mon Sep 17 00:00:00 2001
+From: Danny Lin <danny@kdrag0n.dev>
+Date: Wed, 20 Oct 2021 16:06:40 -0700
+Subject: [PATCH 1/2] AlarmManager: Handle all gms exact alarm denials
+
+java.lang.SecurityException: Caller com.google.android.gms needs to hold android.permission.SCHEDULE_EXACT_ALARM to set exact alarms.
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:2425)
+	at android.os.Parcel.createException(Parcel.java:2409)
+	at android.os.Parcel.readException(Parcel.java:2392)
+	at android.os.Parcel.readException(Parcel.java:2334)
+	at android.app.IAlarmManager$Stub$Proxy.set(IAlarmManager.java:359)
+	at android.app.AlarmManager.setImpl(AlarmManager.java:948)
+	at android.app.AlarmManager.setImpl(AlarmManager.java:908)
+	at android.app.AlarmManager.set(AlarmManager.java:818)
+	at usv.k(:com.google.android.gms@213314046@21.33.14 (150400-395723304):1)
+	at usv.o(:com.google.android.gms@213314046@21.33.14 (150400-395723304):0)
+	at usv.e(:com.google.android.gms@213314046@21.33.14 (150400-395723304):2)
+	at com.google.android.contextmanager.controller.EventHandler$AlarmSetter.c(:com.google.android.gms@213314046@21.33.14 (150400-395723304):8)
+	at exr.d(:com.google.android.gms@213314046@21.33.14 (150400-395723304):3)
+	at ext.l(:com.google.android.gms@213314046@21.33.14 (150400-395723304):0)
+	at evr.a(:com.google.android.gms@213314046@21.33.14 (150400-395723304):143)
+	at ext.run(:com.google.android.gms@213314046@21.33.14 (150400-395723304):2)
+	at exp.handleMessage(:com.google.android.gms@213314046@21.33.14 (150400-395723304):3)
+	at uwe.run(:com.google.android.gms@213314046@21.33.14 (150400-395723304):2)
+	at uwo.c(:com.google.android.gms@213314046@21.33.14 (150400-395723304):6)
+	at uwo.run(:com.google.android.gms@213314046@21.33.14 (150400-395723304):8)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+	at vcm.run(:com.google.android.gms@213314046@21.33.14 (150400-395723304):0)
+	at java.lang.Thread.run(Thread.java:920)
+
+Change-Id: I6a179661a3da33cba54cbc07c48adcebcaf008a8
+---
+ .../framework/java/android/app/AlarmManager.java           | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/apex/jobscheduler/framework/java/android/app/AlarmManager.java b/apex/jobscheduler/framework/java/android/app/AlarmManager.java
+index 21ed1eb6bef8..26c1580753e6 100644
+--- a/apex/jobscheduler/framework/java/android/app/AlarmManager.java
++++ b/apex/jobscheduler/framework/java/android/app/AlarmManager.java
+@@ -964,6 +964,13 @@ public class AlarmManager {
+             long intervalMillis, int flags, PendingIntent operation, final OnAlarmListener listener,
+             String listenerTag, Executor targetExecutor, WorkSource workSource,
+             AlarmClockInfo alarmClock) {
++
++        if (mPackageName.equals("com.google.android.gms")) {
++            if (windowMillis == WINDOW_EXACT && !canScheduleExactAlarms()) {
++                windowMillis = WINDOW_HEURISTIC;
++            }
++        }
++
+         if (triggerAtMillis < 0) {
+             /* NOTYET
+             if (mAlwaysExact) {
+-- 
+2.34.1
+
+
+From 4cce2ab8b570c61f281891bc1f1e274dcd9de4cc Mon Sep 17 00:00:00 2001
+From: minaripenguin <minaripenguin@users.noreply.github.com>
+Date: Tue, 21 Feb 2023 10:32:35 +0800
+Subject: [PATCH 2/2] AlarmManager: Handle google and system apps alarm denials
+
+Signed-off-by: minaripenguin <minaripenguin@users.noreply.github.com>
+---
+ .../framework/java/android/app/AlarmManager.java             | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/apex/jobscheduler/framework/java/android/app/AlarmManager.java b/apex/jobscheduler/framework/java/android/app/AlarmManager.java
+index 26c1580753e6..0fc371cdad30 100644
+--- a/apex/jobscheduler/framework/java/android/app/AlarmManager.java
++++ b/apex/jobscheduler/framework/java/android/app/AlarmManager.java
+@@ -965,7 +965,10 @@ public class AlarmManager {
+             String listenerTag, Executor targetExecutor, WorkSource workSource,
+             AlarmClockInfo alarmClock) {
+ 
+-        if (mPackageName.equals("com.google.android.gms")) {
++        if (mPackageName.equals("com.google.android.gms")
++            || mPackageName.equals("com.google.android.keep")
++            || mPackageName.equals("com.google.android.deskclock")
++            || mPackageName.equals("com.android.deskclock")) {
+             if (windowMillis == WINDOW_EXACT && !canScheduleExactAlarms()) {
+                 windowMillis = WINDOW_HEURISTIC;
+             }
+-- 
+2.34.1
+
