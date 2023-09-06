@@ -1,7 +1,7 @@
 From 87088ba951d57ddd0b239e312a54a5c1c080148a Mon Sep 17 00:00:00 2001
 From: Andy CrossGate Yan <GeForce8800Ultra@gmail.com>
 Date: Sun, 2 Oct 2022 14:27:26 +0200
-Subject: [PATCH 01/17] UI: Follow Monet and light/dark theme in user 1 icon
+Subject: [PATCH 01/18] UI: Follow Monet and light/dark theme in user 1 icon
 
 Change-Id: I755077c6003c39ddc9428da1defe6a6ddd0e5ff8
 ---
@@ -41,7 +41,7 @@ index 4fec1693df18..34710d8e5301 100644
 From e8620970608ec9c8865f8df25f3c685f61754b29 Mon Sep 17 00:00:00 2001
 From: Danny Lin <danny@kdrag0n.dev>
 Date: Wed, 6 Oct 2021 18:40:30 -0700
-Subject: [PATCH 02/17] SystemUI: Make QS panel change on UI mode changes
+Subject: [PATCH 02/18] SystemUI: Make QS panel change on UI mode changes
 
 This reverts commit d62f7249f9e3222da95ecf6816601c408aac6be5.
 
@@ -97,7 +97,7 @@ index 504e6d22bc18..653c5884ca81 100644
 From e3f24d8e9fcc943f378b0d8aa1682eba02e95210 Mon Sep 17 00:00:00 2001
 From: Danny Lin <danny@kdrag0n.dev>
 Date: Wed, 6 Oct 2021 18:41:11 -0700
-Subject: [PATCH 03/17] Revert "Do not re-inflate QS and SB when
+Subject: [PATCH 03/18] Revert "Do not re-inflate QS and SB when
  CONFIG_UI_MODE"
 
 This reverts commit 8a40ff855b86bc86e23367017002289920855a4e.
@@ -130,7 +130,7 @@ index 6a27ee7c0c89..577ebb0a42ee 100644
 From 2588500d52b5b75fa86a1673cf1994e105a52ca2 Mon Sep 17 00:00:00 2001
 From: ChonDoit <thphantomblog@gmail.com>
 Date: Tue, 5 Sep 2023 00:58:58 +0000
-Subject: [PATCH 04/17] Fixup! SystemUI: Follow light/dark theme in quick
+Subject: [PATCH 04/18] Fixup! SystemUI: Follow light/dark theme in quick
  settings
 
 ---
@@ -173,7 +173,7 @@ index 26a408ea9195..691b84c1c767 100644
 From 550252f950eb0f68190e7b775040ae527b882bf6 Mon Sep 17 00:00:00 2001
 From: Danny Lin <danny@kdrag0n.dev>
 Date: Mon, 11 Oct 2021 19:24:58 -0700
-Subject: [PATCH 05/17] SystemUI: Follow light/dark theme in quick settings
+Subject: [PATCH 05/18] SystemUI: Follow light/dark theme in quick settings
 
 Android 12's dual-tone style where the quick settings panel is always
 dark makes the light theme look like a second-class citizen. Pure black
@@ -368,7 +368,7 @@ index 81e4b023679b..ebe97ad7b92c 100644
 From e773ac9d5d653df45412fa47797480bb52051384 Mon Sep 17 00:00:00 2001
 From: Danny Lin <danny@kdrag0n.dev>
 Date: Mon, 11 Oct 2021 19:25:02 -0700
-Subject: [PATCH 06/17] SystemUI: Initialize QS tiles in inactive state
+Subject: [PATCH 06/18] SystemUI: Initialize QS tiles in inactive state
 
 Now that the QS fragment is recreated when changing the UI mode (so that
 it follows light/dark themes), all tiles flash with active color briefly
@@ -403,7 +403,7 @@ index c0b69c169ccd..84169a137eef 100644
 From 966f81d859fb910c3921924c6f3e5208401ba5fa Mon Sep 17 00:00:00 2001
 From: Danny Lin <danny@kdrag0n.dev>
 Date: Mon, 11 Oct 2021 19:25:08 -0700
-Subject: [PATCH 07/17] SystemUI: Add dual-tone light and dark themes for QS
+Subject: [PATCH 07/18] SystemUI: Add dual-tone light and dark themes for QS
 
 Google's dual-tone QS design where the notification panel has a
 semantically higher elevation adds depth to the notification+QS shade,
@@ -554,7 +554,7 @@ index c30831db3ca1..07bc30104d06 100644
 From 810dd3a412369df028035cbe440bcec48f6ee3ce Mon Sep 17 00:00:00 2001
 From: ChonDoit <thphantomblog@gmail.com>
 Date: Tue, 5 Sep 2023 01:04:27 +0000
-Subject: [PATCH 08/17] SystemUI: Follow light/dark theme in power menu
+Subject: [PATCH 08/18] SystemUI: Follow light/dark theme in power menu
 
 Now that we've modified the power menu to refresh on UI mode changes,
 make it follow the system light/dark theme for better integration in light mode.
@@ -602,7 +602,7 @@ index 9d5feeebaefc..6974458e0275 100644
 From 906548ec8e23ab197bd277fd376a2560abd41885 Mon Sep 17 00:00:00 2001
 From: Danny Baumann <dannybaumann@web.de>
 Date: Wed, 20 Jul 2022 15:53:13 +0200
-Subject: [PATCH 09/17] SystemUI: Fix QS header clock color
+Subject: [PATCH 09/18] SystemUI: Fix QS header clock color
 
 Now that we're flipping QS colors by theme (dark/light), we can no longer
 rely on wallpaper colors for QS clock. Instead, we now can rely on clock color
@@ -652,7 +652,7 @@ index 6875b523a962..3180f2361282 100644
 From 6eb09356f6b1185389858f4872b8e3180f5ef2ac Mon Sep 17 00:00:00 2001
 From: ChonDoit <thphantomblog@gmail.com>
 Date: Tue, 5 Sep 2023 01:07:03 +0000
-Subject: [PATCH 10/17] Fixup! SystemUI: Fix QS tile view active tint
+Subject: [PATCH 10/18] Fixup! SystemUI: Fix QS tile view active tint
 
 ---
  .../src/com/android/systemui/qs/tileimpl/QSIconViewImpl.java    | 2 +-
@@ -678,7 +678,7 @@ index 4166fdb4345c..22757e22806d 100644
 From 4236ebda6f31fb78ad2bf1b2e5a9c843b7c33976 Mon Sep 17 00:00:00 2001
 From: str143 <alexfinhart@gmail.com>
 Date: Fri, 9 Sep 2022 14:37:06 +0800
-Subject: [PATCH 11/17] SystemUI: Fix QS tile view active tint
+Subject: [PATCH 11/18] SystemUI: Fix QS tile view active tint
 
 Signed-off-by: str143 <alexfinhart@gmail.com>
 ---
@@ -705,7 +705,7 @@ index 691b84c1c767..f06e2c4db3b5 100644
 From ba5d330f81a7acc65b084345c06fb08127192c7e Mon Sep 17 00:00:00 2001
 From: ChonDoit <thphantomblog@gmail.com>
 Date: Tue, 5 Sep 2023 01:10:49 +0000
-Subject: [PATCH 12/17] Privacy Indicators: Follow light/dark theme settings
+Subject: [PATCH 12/18] Privacy Indicators: Follow light/dark theme settings
 
 ---
  .../src/com/android/systemui/privacy/OngoingPrivacyChip.kt    | 4 ++--
@@ -733,7 +733,7 @@ index 7150bc073589..54e095460a81 100644
 From fa3cafc2da3fadf8383adad8611b4c61f135b3b7 Mon Sep 17 00:00:00 2001
 From: althafvly <althafvly@gmail.com>
 Date: Tue, 4 Oct 2022 18:34:08 +0530
-Subject: [PATCH 13/17] SystemUI: Re-inflate QS and SB when
+Subject: [PATCH 13/18] SystemUI: Re-inflate QS and SB when
  CONFIG_SCREEN_LAYOUT
 
 - It was removed in a13, needed for light theme change in landscape.
@@ -764,7 +764,7 @@ index 577ebb0a42ee..d69358073c1a 100644
 From c5df49440f9a33b0a176de2aaf1e71b5d8d6b1fc Mon Sep 17 00:00:00 2001
 From: ChonDoit <thphantomblog@gmail.com>
 Date: Tue, 5 Sep 2023 01:14:42 +0000
-Subject: [PATCH 14/17] SystemUI: BatteryMeterView: Set white tint in darkmode
+Subject: [PATCH 14/18] SystemUI: BatteryMeterView: Set white tint in darkmode
 
 ---
  .../com/android/systemui/battery/BatteryMeterView.java   | 9 ++++++++-
@@ -802,7 +802,7 @@ index 7c633eca2be3..72c2ecacbccb 100644
 From 0bd9fd1ef2a6c68c1c45ff8a37b55ac57e5bf17c Mon Sep 17 00:00:00 2001
 From: Pulkit077 <pulkitagarwal2k1@gmail.com>
 Date: Fri, 16 Sep 2022 14:46:37 +0530
-Subject: [PATCH 15/17] Follow Dark/Light theme for Safe Mode dialog
+Subject: [PATCH 15/18] Follow Dark/Light theme for Safe Mode dialog
 
 Change-Id: Ia9864a45551e969abaccd351e8b6d65e21d99165
 Signed-off-by: Pulkit077 <pulkitagarwal2k1@gmail.com>
@@ -850,7 +850,7 @@ index 332088d96f15..1cc0020cfa3c 100644
 From 59eabf0a5af3badfb87b9c4e61cb9df82fb8bd96 Mon Sep 17 00:00:00 2001
 From: ChonDoit <thphantomblog@gmail.com>
 Date: Tue, 5 Sep 2023 02:57:39 +0000
-Subject: [PATCH 16/17] SystemUI: Follow light/dark theme in power menu
+Subject: [PATCH 16/18] SystemUI: Follow light/dark theme in power menu
 
 ---
  .../systemui/globalactions/GlobalActionsDialogLite.java  | 9 ---------
@@ -883,7 +883,7 @@ index 6974458e0275..8de8a488abcc 100644
 From 7038b4387d70c76f15482c609bfe243076baf15f Mon Sep 17 00:00:00 2001
 From: ChonDoit <thphantomblog@gmail.com>
 Date: Tue, 5 Sep 2023 12:55:29 +0000
-Subject: [PATCH 17/17] SystemUI: Follow light/dark theme in SplitShade Header and new QS footer actions
+Subject: [PATCH 17/18] SystemUI: Follow light/dark theme in SplitShade Header and new QS footer actions
 
 Revert to the ~Beta 1 style where quick settings used the same theme as
 the notification shade.
@@ -1092,6 +1092,37 @@ index 0b9fbd919715..92d8ae72fdca 100644
 +                    com.android.internal.R.attr.textColorPrimaryInverse,
                  ),
              )
+     }
+-- 
+2.34.1
+
+
+From 1cb8286077c9f8b0ff93d6fc7017691c8d416e01 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Tue, 5 Sep 2023 19:38:04 +0000
+Subject: [PATCH 18/18] BatteryStatusChip: Always use dark text
+
+We need this when after white on white
+---
+ .../src/com/android/systemui/statusbar/BatteryStatusChip.kt  | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/BatteryStatusChip.kt b/packages/SystemUI/src/com/android/systemui/statusbar/BatteryStatusChip.kt
+index 37140ec2aa32..483f147960d8 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/BatteryStatusChip.kt
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/BatteryStatusChip.kt
+@@ -63,10 +63,9 @@ class BatteryStatusChip @JvmOverloads constructor(context: Context, attrs: Attri
+ 
+     @SuppressLint("UseCompatLoadingForDrawables")
+     private fun updateResources() {
+-        val primaryColor =
+-            Utils.getColorAttrDefaultColor(context, com.android.internal.R.attr.colorPrimary)
++        val primaryColor = context.resources.getColor(android.R.color.system_neutral1_900)
+         val textColorSecondary =
+-            Utils.getColorAttrDefaultColor(mContext, android.R.attr.textColorSecondary)
++            Utils.getColorAttrDefaultColor(mContext, android.R.attr.textColorSecondaryInverse)
+         batteryMeterView.updateColors(primaryColor, textColorSecondary, primaryColor)
+         roundedContainer.background = mContext.getDrawable(R.drawable.statusbar_chip_bg)
      }
 -- 
 2.34.1

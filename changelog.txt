@@ -1,3 +1,7 @@
+A13-v20230906
+| Bring back Xiaomi FOD
+| Fix Battery Status Chip Text
+
 A13-v20230905
 | Re-implement TD patches from scratch
 | Drop Xiaomi FOD
