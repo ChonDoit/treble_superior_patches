@@ -1,0 +1,23 @@
+From 9d7396591e6278aafb71ca541ad188223ea26a2f Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sun, 29 Oct 2023 15:57:19 +0000
+Subject: [PATCH] Nuke androidx, it breaks Settings UI
+
+---
+ base.mk | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/base.mk b/base.mk
+index 5f93594..2767bbf 100644
+--- a/base.mk
++++ b/base.mk
+@@ -264,6 +264,3 @@ PRODUCT_PACKAGES += \
+ PRODUCT_PACKAGES += \
+ 	slsi-booted
+ 
+-# Two-pane layout in Settings
+-PRODUCT_PACKAGES += \
+-    androidx.window.extensions
+-- 
+2.34.1
+

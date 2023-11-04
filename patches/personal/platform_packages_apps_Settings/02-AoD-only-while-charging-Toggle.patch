@@ -17,8 +17,8 @@ index 55ada601f3..215a30b21f 100644
      <string name="back_gesture_haptic_summary">Enable haptic tick effect on back gesture</string>
  
 +    <!-- Doze on charge -->
-+    <string name="doze_on_charge_title">Always on when charging</string>
-+    <string name="doze_on_charge_summary">Show doze screen all the time when charging</string>
++    <string name="doze_on_charge_title">Always on while charging</string>
++    <string name="doze_on_charge_summary">Show doze screen all the time while charging</string>
 +
  </resources>
 diff --git a/res/xml/security_lockscreen_settings.xml b/res/xml/security_lockscreen_settings.xml

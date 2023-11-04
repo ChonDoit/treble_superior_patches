@@ -39,15 +39,17 @@ index 95adcb4..2df2252 100644
 +    </string-array>
 +
  </resources>
-diff --git a/res/values/superior_strings.xml b/res/values/superior_strings.xml
-index 08b1399..5061e44 100644
---- a/res/values/superior_strings.xml
-+++ b/res/values/superior_strings.xml
-@@ -421,4 +421,15 @@
-     <!-- Disable QS -->
-     <string name="disable_qs_title">Hide QS in secure lockscreen</string>
-     <string name="disable_qs_summary">Hides QS if device is locked. Does not disable notification shade</string>
-+
+diff --git a/res/values/cornelio.xml b/res/values/cornelio.xml
+index b35702d..40b8a44 100644
+--- a/res/values/cornelio.xml
++++ b/res/values/cornelio.xml
+@@ -27,8 +27,14 @@
+     <string name="show_floating_rotation_button_title">Show rotation button overlay</string>
+     <string name="show_floating_rotation_button_summary">Show an overlay in the left bottom corner of the screen when rotation is detected</string>
+ 
+-    <!-- Lockscreen battery info indicator  -->
+-    <string name="lockscreen_battery_info_title">Lockscreen charging info</string>
+-    <string name="lockscreen_battery_info_summary">Display negociated charger max current and voltage and battery temperature on lockscreen while charging</string>
 +    <!-- Quick settings styles -->
 +    <string name="qs_styles_title">Themes</string>
 +    <string name="default_string">Default</string>
@@ -57,7 +59,7 @@ index 08b1399..5061e44 100644
 +    <string name="qs_translucent_rect">Translucent Rectangle</string>
 +    <string name="qs_dual_accent_round">Dual Accent Rounded</string>
 +    <string name="qs_dual_accent_rect">Dual Accent Rectangle</string>
-+
+ 
  </resources>
 diff --git a/res/xml/superior_lab_quicksettings.xml b/res/xml/superior_lab_quicksettings.xml
 index 8658e15..c2ba6ef 100644

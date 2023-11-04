@@ -1,3 +1,9 @@
+A13-v20231103
+| Blind shot at adding Samsung AIDL Fingerprint support
+| Add a prop to use linear backlight control
+| Add a prop to disable AUDIO_OUTPUT_FLAG_FAST from audio policies
+| Change AOD while Charging implemetation
+
 A13-v20230906
 | Bring back Xiaomi FOD
 | Fix Battery Status Chip Text

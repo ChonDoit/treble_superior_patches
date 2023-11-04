@@ -1,0 +1,71 @@
+From 67460d4704d5d0cc353e34470e77c6922ebb05d2 Mon Sep 17 00:00:00 2001
+From: Pierre-Hugues Husson <phh@phh.me>
+Date: Wed, 25 Oct 2023 07:30:10 -0400
+Subject: [PATCH 46/47] UDFPS: Don't crash if we can't compute a dim. Just
+ don't dim.
+
+---
+ .../android/systemui/biometrics/UdfpsView.kt  | 32 ++++++++++++++-----
+ 1 file changed, 24 insertions(+), 8 deletions(-)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsView.kt b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsView.kt
+index 6e11ded0bc13..d74cabe5bf5d 100644
+--- a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsView.kt
++++ b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsView.kt
+@@ -35,6 +35,7 @@ import android.widget.FrameLayout
+ import com.android.systemui.R
+ import com.android.systemui.doze.DozeReceiver
+ import java.io.File
++import java.io.FileNotFoundException
+ 
+ import vendor.goodix.hardware.biometrics.fingerprint.V2_1.IGoodixFingerprintDaemon
+ import vendor.nubia.ifaa.V1_0.IIfaa
+@@ -258,22 +259,37 @@ Log.d("PHH", "Surface destroyed!")
+         mySurfaceView.setVisibility(VISIBLE)
+         Log.d("PHH", "setting surface visible!")
+ 
+-        val brightnessFile = File("/sys/class/backlight/panel/brightness")
+-        val maxBrightnessFile = File("/sys/class/backlight/panel/max_brightness")
++        val brightnessFiles = listOf(
++            File("/sys/class/backlight/panel/brightness"),
++            File("/sys/class/backlight/panel0-backlight/brightness"),
++            File("/sys/devices/platform/soc/soc:mtk_leds/leds/lcd-backlight/brightness")
++        )
++        val maxBrightnessFiles = listOf(
++            File("/sys/class/backlight/panel/max_brightness"),
++            File("/sys/class/backlight/panel0-backlight/max_brightness"),
++            File("/sys/devices/platform/soc/soc:mtk_leds/leds/lcd-backlight/max_brightness")
++        )
+ 
+         var brightness: Double = 0.0
+         var maxBrightness: Double = 0.0
++        var bmFilesExist: Boolean = false
+ 
+-        if (brightnessFile.exists() && maxBrightnessFile.exists()) {
+-            brightness = brightnessFile.readText().toDouble()
+-            maxBrightness = maxBrightnessFile.readText().toDouble()
++        brightnessFiles.zip(maxBrightnessFiles) {bFile, mFile ->
++            if (bFile.exists() && mFile.exists()) {
++                bmFilesExist = true
++                brightness = bFile.readText().toDouble()
++                maxBrightness = mFile.readText().toDouble()
++            }
++        }
++
++
++        val dim = if (bmFilesExist) {
++        1.0 - Math.pow( (brightness / maxBrightness), 1/2.3);
+         } else {
+-            brightness = File("/sys/class/backlight/panel0-backlight/brightness").readText().toDouble()
+-            maxBrightness = File("/sys/class/backlight/panel0-backlight/max_brightness").readText().toDouble()
++            0.0
+         }
+ 
+         // Assume HBM is max brightness
+-        val dim = 1.0 - Math.pow( (brightness / maxBrightness), 1/2.3);
+         Log.d("PHH-Enroll", "Brightness is $brightness / $maxBrightness, setting dim to $dim")
+         if (hasAsusGhbm) {
+             dimUpdate(dim.toFloat())
+-- 
+2.34.1
+

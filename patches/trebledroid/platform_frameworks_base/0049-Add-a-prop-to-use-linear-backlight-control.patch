@@ -1,0 +1,41 @@
+From 6d70001945d1958e05f97fae010f0b388d0a2fd7 Mon Sep 17 00:00:00 2001
+From: Pierre-Hugues Husson <phh@phh.me>
+Date: Mon, 30 Oct 2023 19:25:27 -0400
+Subject: [PATCH] Add a prop to use linear backlight control
+
+---
+ .../settings/brightness/BrightnessController.java        | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/settings/brightness/BrightnessController.java b/packages/SystemUI/src/com/android/systemui/settings/brightness/BrightnessController.java
+index 709688b2ee6e..aaf976557549 100644
+--- a/packages/SystemUI/src/com/android/systemui/settings/brightness/BrightnessController.java
++++ b/packages/SystemUI/src/com/android/systemui/settings/brightness/BrightnessController.java
+@@ -360,9 +360,14 @@ public class BrightnessController implements ToggleSlider.Listener, MirroredBrig
+             minBacklight = mBrightnessMin;
+             maxBacklight = mBrightnessMax;
+         }
+-        final float valFloat = MathUtils.min(
++        float valFloat = MathUtils.min(
+                 convertGammaToLinearFloat(value, minBacklight, maxBacklight),
+                 maxBacklight);
++	if (android.os.SystemProperties.getBoolean("persist.sys.phh.linear_brightness", false)) {
++            android.util.Log.e("PHH", "Linear brightness val " + value + " from " + minBacklight + " to " + maxBacklight + " makes " + valFloat);
++            valFloat = value / 65536.0f;
++        }
++        final float finalValFloat = valFloat;
+         if (stopTracking) {
+             // TODO(brightnessfloat): change to use float value instead.
+             MetricsLogger.action(mContext, metric,
+@@ -373,7 +378,7 @@ public class BrightnessController implements ToggleSlider.Listener, MirroredBrig
+         if (!tracking) {
+             AsyncTask.execute(new Runnable() {
+                     public void run() {
+-                        mDisplayManager.setBrightness(mDisplayId, valFloat);
++                        mDisplayManager.setBrightness(mDisplayId, finalValFloat);
+                     }
+                 });
+         }
+-- 
+2.34.1
+

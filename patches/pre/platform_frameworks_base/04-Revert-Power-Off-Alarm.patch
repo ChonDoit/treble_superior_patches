@@ -1,0 +1,430 @@
+From 3c4ed14010c677792590b6cad06b9e97ba08158f Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Thu, 2 Nov 2023 00:28:50 +0000
+Subject: [PATCH 1/3] Revert "PowerOffAlarmService: Handle NPE with shared
+ preferences"
+
+This reverts commit 3360d9fa158fb12f5a9b81dc0272d682e03e6be4.
+---
+ .../server/power/PowerOffAlarmService.java    | 32 +++++--------------
+ 1 file changed, 8 insertions(+), 24 deletions(-)
+
+diff --git a/services/core/java/com/android/server/power/PowerOffAlarmService.java b/services/core/java/com/android/server/power/PowerOffAlarmService.java
+index 2117b752a78e..8051bbaa85ac 100644
+--- a/services/core/java/com/android/server/power/PowerOffAlarmService.java
++++ b/services/core/java/com/android/server/power/PowerOffAlarmService.java
+@@ -102,6 +102,11 @@ public class PowerOffAlarmService extends SystemService {
+         Slog.v(TAG, "onBootPhase PHASE_BOOT_COMPLETED");
+         mNotificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+         setupNotification();
++        final File prefsFile = new File(
++                new File(Environment.getDataSystemDeDirectory(
++                    UserHandle.USER_SYSTEM), PREF_DIR_NAME), PREF_FILE_NAME);
++        mSharedPreferences = mContext.createDeviceProtectedStorageContext()
++                .getSharedPreferences(prefsFile, Context.MODE_PRIVATE);
+         updateAlarms(mAlarmManager);
+     }
+ 
+@@ -113,17 +118,6 @@ public class PowerOffAlarmService extends SystemService {
+         }
+     };
+ 
+-    private synchronized SharedPreferences getSharedPreferences() {
+-        if (mSharedPreferences == null) {
+-            final File prefsFile = new File(
+-                    new File(Environment.getDataSystemDeDirectory(
+-                        UserHandle.USER_SYSTEM), PREF_DIR_NAME), PREF_FILE_NAME);
+-            mSharedPreferences = mContext.createDeviceProtectedStorageContext()
+-                    .getSharedPreferences(prefsFile, Context.MODE_PRIVATE);
+-        }
+-        return mSharedPreferences;
+-    }
+-
+     private synchronized void updateAlarms(AlarmManager alarmManager) {
+         updateAlarms(alarmManager, false);
+     }
+@@ -137,27 +131,17 @@ public class PowerOffAlarmService extends SystemService {
+     }
+ 
+     private synchronized void cancelPowerOffAlarm() {
+-        final SharedPreferences sharedPrefs = getSharedPreferences();
+-        if (sharedPrefs == null) {
+-            Slog.e(TAG, "cancelPowerOffAlarm: SharedPreferences is null!");
+-            return;
+-        }
+-        final long time = sharedPrefs.getLong(PREF_NEXT_ALARM, 0);
++        final long time = mSharedPreferences.getLong(PREF_NEXT_ALARM, 0);
+         Slog.i(TAG, "Cancel power off alarm, Time: " + time);
+         mContext.sendBroadcastAsUser(getIntent(ACTION_CANCEL, time), UserHandle.SYSTEM);
+-        sharedPrefs.edit().remove(PREF_NEXT_ALARM).commit();
++        mSharedPreferences.edit().remove(PREF_NEXT_ALARM).commit();
+     }
+ 
+     private synchronized void setPowerOffAlarm(AlarmManager.AlarmClockInfo info) {
+-        final SharedPreferences sharedPrefs = getSharedPreferences();
+-        if (sharedPrefs == null) {
+-            Slog.e(TAG, "setPowerOffAlarm: SharedPreferences is null!");
+-            return;
+-        }
+         final long time = info.getTriggerTime();
+         Slog.i(TAG, "Set next power off alarm. Time: " + time);
+         mContext.sendBroadcastAsUser(getIntent(ACTION_SET, time), UserHandle.SYSTEM);
+-        sharedPrefs.edit().putLong(PREF_NEXT_ALARM, time).commit();
++        mSharedPreferences.edit().putLong(PREF_NEXT_ALARM, time).commit();
+     }
+ 
+     private synchronized void updateNotification(boolean isSet) {
+-- 
+2.34.1
+
+
+From 458151970b2689bd83da38eb9540bd73349b0e5e Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Thu, 2 Nov 2023 00:29:05 +0000
+Subject: [PATCH 2/3] Revert "base: PowerOffAlarmService: Add a notification"
+
+This reverts commit 1ef5dd17e877c0ce2a00214b5e245941798c9934.
+---
+ core/res/res/drawable/ic_alarm_on.xml         | 10 ----
+ core/res/res/values/superior_strings.xml      |  6 ---
+ core/res/res/values/superior_symbols.xml      |  7 ---
+ .../server/power/PowerOffAlarmService.java    | 50 ++-----------------
+ 4 files changed, 3 insertions(+), 70 deletions(-)
+ delete mode 100644 core/res/res/drawable/ic_alarm_on.xml
+
+diff --git a/core/res/res/drawable/ic_alarm_on.xml b/core/res/res/drawable/ic_alarm_on.xml
+deleted file mode 100644
+index bdcf7547c664..000000000000
+--- a/core/res/res/drawable/ic_alarm_on.xml
++++ /dev/null
+@@ -1,10 +0,0 @@
+-<vector xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:width="24dp"
+-    android:height="24dp"
+-    android:viewportWidth="960"
+-    android:viewportHeight="960"
+-    android:tint="?android:attr/colorControlNormal">
+-  <path
+-      android:fillColor="#FFFFFFFF"
+-      android:pathData="M438,662L664,436L607,379L438,548L353,463L296,520L438,662ZM480,880Q405,880 339.5,851.5Q274,823 225.5,774.5Q177,726 148.5,660.5Q120,595 120,520Q120,445 148.5,379.5Q177,314 225.5,265.5Q274,217 339.5,188.5Q405,160 480,160Q555,160 620.5,188.5Q686,217 734.5,265.5Q783,314 811.5,379.5Q840,445 840,520Q840,595 811.5,660.5Q783,726 734.5,774.5Q686,823 620.5,851.5Q555,880 480,880ZM480,520Q480,520 480,520Q480,520 480,520Q480,520 480,520Q480,520 480,520Q480,520 480,520Q480,520 480,520Q480,520 480,520Q480,520 480,520ZM224,94L280,150L110,320L54,264L224,94ZM736,94L906,264L850,320L680,150L736,94ZM480,800Q597,800 678.5,718.5Q760,637 760,520Q760,403 678.5,321.5Q597,240 480,240Q363,240 281.5,321.5Q200,403 200,520Q200,637 281.5,718.5Q363,800 480,800Z"/>
+-</vector>
+diff --git a/core/res/res/values/superior_strings.xml b/core/res/res/values/superior_strings.xml
+index 5e1fd14a12e9..36a6cf6aee27 100644
+--- a/core/res/res/values/superior_strings.xml
++++ b/core/res/res/values/superior_strings.xml
+@@ -68,10 +68,4 @@
+ 
+     <!-- App lock -->
+     <string name="unlock_application">Unlock <xliff:g id="label" example="Telegram">%1$s</xliff:g></string>
+-
+-    <!-- PowerOffAlarmService -->
+-    <string name="notification_channel_poweroff_alarm">Power off alarm</string>
+-    <string name="poweroff_alarm_title">Power off alarm set</string>
+-    <string name="poweroff_alarm_body">An alarm was detected and the device will power on 2 minutes before it\'s due</string>
+-
+ </resources>
+diff --git a/core/res/res/values/superior_symbols.xml b/core/res/res/values/superior_symbols.xml
+index 31050eb1cb25..ec4201408737 100644
+--- a/core/res/res/values/superior_symbols.xml
++++ b/core/res/res/values/superior_symbols.xml
+@@ -138,11 +138,4 @@
+ 
+     <!-- For dynamic default font styles -->
+     <java-symbol type="string" name="config_bodyFontFamily" />
+-
+-    <!-- PowerOffAlarmService -->
+-    <java-symbol type="string" name="notification_channel_poweroff_alarm" />
+-    <java-symbol type="string" name="poweroff_alarm_title" />
+-    <java-symbol type="string" name="poweroff_alarm_body" />
+-    <java-symbol type="drawable" name="ic_alarm_on" />
+-
+ </resources>
+diff --git a/services/core/java/com/android/server/power/PowerOffAlarmService.java b/services/core/java/com/android/server/power/PowerOffAlarmService.java
+index 8051bbaa85ac..8155f5f6e6d7 100644
+--- a/services/core/java/com/android/server/power/PowerOffAlarmService.java
++++ b/services/core/java/com/android/server/power/PowerOffAlarmService.java
+@@ -15,13 +15,7 @@
+  */
+ package com.android.server.power;
+ 
+-import static android.provider.AlarmClock.ACTION_SHOW_ALARMS;
+-
+ import android.app.AlarmManager;
+-import android.app.Notification;
+-import android.app.NotificationChannel;
+-import android.app.NotificationManager;
+-import android.app.PendingIntent;
+ import android.content.BroadcastReceiver;
+ import android.content.Context;
+ import android.content.Intent;
+@@ -33,7 +27,6 @@ import android.os.Environment;
+ import android.os.UserHandle;
+ import android.util.Slog;
+ 
+-import com.android.internal.R;
+ import com.android.server.SystemService;
+ 
+ import java.io.File;
+@@ -56,12 +49,8 @@ public class PowerOffAlarmService extends SystemService {
+     private static final String ACTION_CANCEL = "org.codeaurora.poweroffalarm.action.CANCEL_ALARM";
+     private static final String ALARM_PACKAGE = "com.qualcomm.qti.poweroffalarm";
+ 
+-    private static final int NOTIFICATION_ID = 0;
+-
+     private final Context mContext;
+     private final AlarmManager mAlarmManager;
+-    private NotificationManager mNotificationManager;
+-    private Notification mNotification;
+     private SharedPreferences mSharedPreferences;
+     private boolean mIsAvailable = false;
+ 
+@@ -100,8 +89,6 @@ public class PowerOffAlarmService extends SystemService {
+         if (phase != SystemService.PHASE_BOOT_COMPLETED || !mIsAvailable)
+             return;
+         Slog.v(TAG, "onBootPhase PHASE_BOOT_COMPLETED");
+-        mNotificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+-        setupNotification();
+         final File prefsFile = new File(
+                 new File(Environment.getDataSystemDeDirectory(
+                     UserHandle.USER_SYSTEM), PREF_DIR_NAME), PREF_FILE_NAME);
+@@ -114,20 +101,15 @@ public class PowerOffAlarmService extends SystemService {
+         @Override
+         public void onReceive(Context context, Intent intent) {
+             Slog.v(TAG, "mAlarmChangedReceiver onReceive");
+-            updateAlarms(mAlarmManager, true);
++            updateAlarms(mAlarmManager);
+         }
+     };
+ 
+     private synchronized void updateAlarms(AlarmManager alarmManager) {
+-        updateAlarms(alarmManager, false);
+-    }
+-
+-    private synchronized void updateAlarms(AlarmManager alarmManager, boolean user) {
+         final AlarmManager.AlarmClockInfo alarmInfo = alarmManager.getNextAlarmClock();
+         cancelPowerOffAlarm();
+-        final boolean isSet = alarmInfo != null;
+-        if (isSet) setPowerOffAlarm(alarmInfo);
+-        updateNotification(isSet && user);
++        if (alarmInfo == null) return;
++        setPowerOffAlarm(alarmInfo);
+     }
+ 
+     private synchronized void cancelPowerOffAlarm() {
+@@ -144,32 +126,6 @@ public class PowerOffAlarmService extends SystemService {
+         mSharedPreferences.edit().putLong(PREF_NEXT_ALARM, time).commit();
+     }
+ 
+-    private synchronized void updateNotification(boolean isSet) {
+-        mNotificationManager.cancel(NOTIFICATION_ID);
+-        if (!isSet) return;
+-        mNotificationManager.notify(NOTIFICATION_ID, mNotification);
+-    }
+-
+-    private void setupNotification() {
+-        final Intent intent = (new Intent(ACTION_SHOW_ALARMS))
+-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+-        final PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, intent,
+-                PendingIntent.FLAG_IMMUTABLE);
+-        final NotificationChannel channel = new NotificationChannel(TAG /* channel id */,
+-                mContext.getText(R.string.notification_channel_poweroff_alarm),
+-                NotificationManager.IMPORTANCE_LOW);
+-        channel.setBlockable(true);
+-        mNotificationManager.createNotificationChannel(channel);
+-        mNotification = new Notification.Builder(mContext, TAG /* channel id */)
+-                .setContentTitle(mContext.getText(R.string.poweroff_alarm_title))
+-                .setContentText(mContext.getText(R.string.poweroff_alarm_body))
+-                .setSmallIcon(R.drawable.ic_alarm_on)
+-                .setContentIntent(pendingIntent)
+-                .setAutoCancel(true)
+-                .setShowWhen(false)
+-                .build();
+-    }
+-
+     private static Intent getIntent(String action, long time) {
+         Intent intent = new Intent(action);
+         intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+-- 
+2.34.1
+
+
+From 2ce3055b6c8222d1fa6fd1b743d58b301393c935 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Thu, 2 Nov 2023 00:29:22 +0000
+Subject: [PATCH 3/3] Revert "base: Introduce PowerOffAlarmService"
+
+This reverts commit afda07796c11e64528ea478a897f48f774ad6cec.
+---
+ .../server/power/PowerOffAlarmService.java    | 136 ------------------
+ .../java/com/android/server/SystemServer.java |   5 -
+ 2 files changed, 141 deletions(-)
+ delete mode 100644 services/core/java/com/android/server/power/PowerOffAlarmService.java
+
+diff --git a/services/core/java/com/android/server/power/PowerOffAlarmService.java b/services/core/java/com/android/server/power/PowerOffAlarmService.java
+deleted file mode 100644
+index 8155f5f6e6d7..000000000000
+--- a/services/core/java/com/android/server/power/PowerOffAlarmService.java
++++ /dev/null
+@@ -1,136 +0,0 @@
+-/*
+- * Copyright (C) 2023 Yet Another AOSP Project
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *      http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-package com.android.server.power;
+-
+-import android.app.AlarmManager;
+-import android.content.BroadcastReceiver;
+-import android.content.Context;
+-import android.content.Intent;
+-import android.content.IntentFilter;
+-import android.content.SharedPreferences;
+-import android.content.pm.ApplicationInfo;
+-import android.content.pm.PackageManager;
+-import android.os.Environment;
+-import android.os.UserHandle;
+-import android.util.Slog;
+-
+-import com.android.server.SystemService;
+-
+-import java.io.File;
+-
+-/**
+- * A service that makes use of qcom's power off alarm feature
+- * Eliminates the need of app specific implementation for said feature
+- * Should work with any alarm app that uses {@link AlarmManager.setAlarmClock}
+- */
+-public class PowerOffAlarmService extends SystemService {
+-
+-    private static final String TAG = "PowerOffAlarmService";
+-
+-    private static final String PREF_DIR_NAME = "shared_prefs";
+-    private static final String PREF_FILE_NAME = TAG + "_preferences.xml";
+-    private static final String PREF_NEXT_ALARM = TAG + "next_alarm_millis";
+-
+-    private static final String EXTRA_TIME = "time";
+-    private static final String ACTION_SET = "org.codeaurora.poweroffalarm.action.SET_ALARM";
+-    private static final String ACTION_CANCEL = "org.codeaurora.poweroffalarm.action.CANCEL_ALARM";
+-    private static final String ALARM_PACKAGE = "com.qualcomm.qti.poweroffalarm";
+-
+-    private final Context mContext;
+-    private final AlarmManager mAlarmManager;
+-    private SharedPreferences mSharedPreferences;
+-    private boolean mIsAvailable = false;
+-
+-    public PowerOffAlarmService(Context context) {
+-        super(context);
+-        mContext = context;
+-        mAlarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
+-    }
+-
+-    @Override
+-    public void onStart() {
+-        Slog.v(TAG, "Starting " + TAG);
+-        publishLocalService(PowerOffAlarmService.class, this);
+-        final PackageManager pm = mContext.getPackageManager();
+-        try {
+-            final ApplicationInfo info = pm.getApplicationInfo(ALARM_PACKAGE,
+-                    PackageManager.ApplicationInfoFlags.of(0));
+-            if (!info.enabled) {
+-                Slog.v(TAG, "Package " + ALARM_PACKAGE + " is disabled - stopping");
+-                return;
+-            }
+-        } catch (PackageManager.NameNotFoundException e) {
+-            // no power off alarm package found
+-            Slog.v(TAG, "Could not find " + ALARM_PACKAGE + " - stopping");
+-            return;
+-        }
+-        mIsAvailable = true;
+-        final IntentFilter intentFilter = new IntentFilter(Intent.ACTION_TIME_CHANGED);
+-        intentFilter.addAction(AlarmManager.ACTION_NEXT_ALARM_CLOCK_CHANGED);
+-        mContext.registerReceiver(mAlarmChangedReceiver, intentFilter);
+-        Slog.v(TAG, "Registered alarm receiver");
+-    }
+-
+-    @Override
+-    public void onBootPhase(int phase) {
+-        if (phase != SystemService.PHASE_BOOT_COMPLETED || !mIsAvailable)
+-            return;
+-        Slog.v(TAG, "onBootPhase PHASE_BOOT_COMPLETED");
+-        final File prefsFile = new File(
+-                new File(Environment.getDataSystemDeDirectory(
+-                    UserHandle.USER_SYSTEM), PREF_DIR_NAME), PREF_FILE_NAME);
+-        mSharedPreferences = mContext.createDeviceProtectedStorageContext()
+-                .getSharedPreferences(prefsFile, Context.MODE_PRIVATE);
+-        updateAlarms(mAlarmManager);
+-    }
+-
+-    private final BroadcastReceiver mAlarmChangedReceiver = new BroadcastReceiver() {
+-        @Override
+-        public void onReceive(Context context, Intent intent) {
+-            Slog.v(TAG, "mAlarmChangedReceiver onReceive");
+-            updateAlarms(mAlarmManager);
+-        }
+-    };
+-
+-    private synchronized void updateAlarms(AlarmManager alarmManager) {
+-        final AlarmManager.AlarmClockInfo alarmInfo = alarmManager.getNextAlarmClock();
+-        cancelPowerOffAlarm();
+-        if (alarmInfo == null) return;
+-        setPowerOffAlarm(alarmInfo);
+-    }
+-
+-    private synchronized void cancelPowerOffAlarm() {
+-        final long time = mSharedPreferences.getLong(PREF_NEXT_ALARM, 0);
+-        Slog.i(TAG, "Cancel power off alarm, Time: " + time);
+-        mContext.sendBroadcastAsUser(getIntent(ACTION_CANCEL, time), UserHandle.SYSTEM);
+-        mSharedPreferences.edit().remove(PREF_NEXT_ALARM).commit();
+-    }
+-
+-    private synchronized void setPowerOffAlarm(AlarmManager.AlarmClockInfo info) {
+-        final long time = info.getTriggerTime();
+-        Slog.i(TAG, "Set next power off alarm. Time: " + time);
+-        mContext.sendBroadcastAsUser(getIntent(ACTION_SET, time), UserHandle.SYSTEM);
+-        mSharedPreferences.edit().putLong(PREF_NEXT_ALARM, time).commit();
+-    }
+-
+-    private static Intent getIntent(String action, long time) {
+-        Intent intent = new Intent(action);
+-        intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+-        intent.setPackage(ALARM_PACKAGE);
+-        intent.putExtra(EXTRA_TIME, time);
+-        return intent;
+-    }
+-}
+diff --git a/services/java/com/android/server/SystemServer.java b/services/java/com/android/server/SystemServer.java
+index dc3060e5721b..cfdf79068838 100644
+--- a/services/java/com/android/server/SystemServer.java
++++ b/services/java/com/android/server/SystemServer.java
+@@ -174,7 +174,6 @@ import com.android.server.policy.PermissionPolicyService;
+ import com.android.server.policy.PhoneWindowManager;
+ import com.android.server.policy.role.RoleServicePlatformHelperImpl;
+ import com.android.server.power.PowerManagerService;
+-import com.android.server.power.PowerOffAlarmService;
+ import com.android.server.power.ShutdownThread;
+ import com.android.server.power.ThermalManagerService;
+ import com.android.server.power.hint.HintManagerService;
+@@ -1682,10 +1681,6 @@ public final class SystemServer implements Dumpable {
+             mSystemServiceManager.startService(Smart5gService.class);
+             t.traceEnd();
+ 
+-            t.traceBegin("StartPowerOffAlarmService");
+-            mSystemServiceManager.startService(PowerOffAlarmService.class);
+-            t.traceEnd();
+-
+         } catch (Throwable e) {
+             Slog.e("System", "******************************************");
+             Slog.e("System", "************ Failure starting core service");
+-- 
+2.34.1
+

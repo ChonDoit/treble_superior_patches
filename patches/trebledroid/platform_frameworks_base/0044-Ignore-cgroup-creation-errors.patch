@@ -1,0 +1,51 @@
+From b65bdc652b7358cc42ef28d8874a4a4ee25cd3a7 Mon Sep 17 00:00:00 2001
+From: Pierre-Hugues Husson <phh@phh.me>
+Date: Wed, 18 Oct 2023 16:53:40 -0400
+Subject: [PATCH 42/47] Ignore cgroup creation errors
+
+For old kernels who don't have those modern cgroups
+---
+ core/jni/com_android_internal_os_Zygote.cpp               | 3 +++
+ services/core/java/com/android/server/am/ProcessList.java | 5 +++--
+ 2 files changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/core/jni/com_android_internal_os_Zygote.cpp b/core/jni/com_android_internal_os_Zygote.cpp
+index 0e0c4d2c6311..ea477b8f6b1f 100644
+--- a/core/jni/com_android_internal_os_Zygote.cpp
++++ b/core/jni/com_android_internal_os_Zygote.cpp
+@@ -1781,6 +1781,8 @@ static void SpecializeCommon(JNIEnv* env, uid_t uid, gid_t gid, jintArray gids,
+     if (!is_system_server && getuid() == 0) {
+         const int rc = createProcessGroup(uid, getpid());
+         if (rc != 0) {
++	    ALOGE("createProcessGroup(%d, %d) failed: %s", uid, /* pid= */ 0, strerror(-rc));
++#if 0
+             if (rc == -ESRCH) {
+                 // If process is dead, treat this as a non-fatal error
+                 ALOGE("createProcessGroup(%d, %d) failed: %s", uid, /* pid= */ 0, strerror(-rc));
+@@ -1790,6 +1792,7 @@ static void SpecializeCommon(JNIEnv* env, uid_t uid, gid_t gid, jintArray gids,
+                                      : CREATE_ERROR("createProcessGroup(%d, %d) failed: %s", uid,
+                                                     /* pid= */ 0, strerror(-rc)));
+             }
++#endif
+         }
+     }
+ 
+diff --git a/services/core/java/com/android/server/am/ProcessList.java b/services/core/java/com/android/server/am/ProcessList.java
+index efbac8737b21..e749c1d1e3dc 100644
+--- a/services/core/java/com/android/server/am/ProcessList.java
++++ b/services/core/java/com/android/server/am/ProcessList.java
+@@ -2327,8 +2327,9 @@ public final class ProcessList {
+             if (!regularZygote) {
+                 // webview and app zygote don't have the permission to create the nodes
+                 if (Process.createProcessGroup(uid, startResult.pid) < 0) {
+-                    throw new AssertionError("Unable to create process group for " + app.processName
+-                            + " (" + startResult.pid + ")");
++		    Slog.e(ActivityManagerService.TAG,
++                                        "Unable to create process group for "
++                                        + app.processName + " (" + startResult.pid + ")");
+                 }
+             }
+ 
+-- 
+2.34.1
+

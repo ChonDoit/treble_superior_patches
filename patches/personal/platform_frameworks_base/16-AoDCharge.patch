@@ -1,0 +1,310 @@
+From 35334fd833de32c0fa4557b98361df0d30081b54 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Thu, 2 Nov 2023 12:43:22 +0000
+Subject: [PATCH] AoDCharge
+
+---
+ .../display/AmbientDisplayConfiguration.java  | 24 ++++++++++++++--
+ core/java/android/provider/Settings.java      | 14 ++++++++++
+ .../settings/backup/SecureSettings.java       |  1 +
+ .../validators/SecureSettingsValidators.java  |  1 +
+ .../android/systemui/qs/tiles/AODTile.java    | 28 +++++++++++++++++--
+ .../statusbar/phone/DozeParameters.java       | 22 ++-------------
+ .../server/power/PowerManagerService.java     | 18 +++++++++++-
+ 7 files changed, 81 insertions(+), 27 deletions(-)
+
+diff --git a/core/java/android/hardware/display/AmbientDisplayConfiguration.java b/core/java/android/hardware/display/AmbientDisplayConfiguration.java
+index 16df1bc262e2..912de519d185 100644
+--- a/core/java/android/hardware/display/AmbientDisplayConfiguration.java
++++ b/core/java/android/hardware/display/AmbientDisplayConfiguration.java
+@@ -51,7 +51,8 @@ public class AmbientDisplayConfiguration {
+             Settings.Secure.DOZE_DOUBLE_TAP_GESTURE,
+             Settings.Secure.DOZE_WAKE_LOCK_SCREEN_GESTURE,
+             Settings.Secure.DOZE_WAKE_DISPLAY_GESTURE,
+-            Settings.Secure.DOZE_TAP_SCREEN_GESTURE
++            Settings.Secure.DOZE_TAP_SCREEN_GESTURE,
++	    Settings.Secure.DOZE_ON_CHARGE,
+     };
+ 
+     /** Non-user configurable doze settings */
+@@ -242,8 +243,25 @@ public class AmbientDisplayConfiguration {
+      */
+     @TestApi
+     public boolean alwaysOnEnabled(int user) {
+-        return boolSetting(Settings.Secure.DOZE_ALWAYS_ON, user, mAlwaysOnByDefault ? 1 : 0)
+-                && alwaysOnAvailable() && !accessibilityInversionEnabled(user);
++        return alwaysOnEnabledSetting(user) || alwaysOnChargingEnabled(user);
++    }
++
++    private boolean boolSettingSystem(String name, int user, int def) {
++        return Settings.System.getIntForUser(mContext.getContentResolver(), name, def, user) != 0;
++    }
++
++    public boolean alwaysOnEnabledSetting(int user) {
++        boolean alwaysOnEnabled = boolSetting(Settings.Secure.DOZE_ALWAYS_ON, user, mAlwaysOnByDefault ? 1 : 0);
++        return alwaysOnEnabled && alwaysOnAvailable() && !accessibilityInversionEnabled(user);
++    }
++
++    public boolean alwaysOnChargingEnabled(int user) {
++        final boolean dozeOnChargeEnabled = boolSetting(Settings.Secure.DOZE_ON_CHARGE, user, 0);
++        if (dozeOnChargeEnabled) {
++            final boolean dozeOnChargeEnabledNow = boolSetting(Settings.Secure.DOZE_ON_CHARGE_NOW, user, 0);
++            return dozeOnChargeEnabledNow && alwaysOnAvailable() && !accessibilityInversionEnabled(user);
++        }
++        return false;
+     }
+ 
+     /**
+diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
+index 7edcb1e6aefb..5974250e6ec9 100644
+--- a/core/java/android/provider/Settings.java
++++ b/core/java/android/provider/Settings.java
+@@ -11888,6 +11888,20 @@ public final class Settings {
+          */
+         public static final String SECURE_LOCKSCREEN_QS_DISABLED = "secure_lockscreen_qs_disabled";
+ 
++	/**
++         * Whether to enable DOZE only when charging
++         * @hide
++         */
++        @Readable
++        public static final String DOZE_ON_CHARGE = "doze_on_charge";
++
++        /**
++         * hidden stting of the current atate of DOZE only when charging
++         * @hide
++         */
++        @Readable
++        public static final String DOZE_ON_CHARGE_NOW = "doze_on_charge_now";
++
+         /**
+          * These entries are considered common between the personal and the managed profile,
+          * since the managed profile doesn't get to change them.
+diff --git a/packages/SettingsProvider/src/android/provider/settings/backup/SecureSettings.java b/packages/SettingsProvider/src/android/provider/settings/backup/SecureSettings.java
+index fca61de99e3e..60ae4aa3ced8 100644
+--- a/packages/SettingsProvider/src/android/provider/settings/backup/SecureSettings.java
++++ b/packages/SettingsProvider/src/android/provider/settings/backup/SecureSettings.java
+@@ -232,5 +232,6 @@ public class SecureSettings {
+         Settings.Secure.DOZE_PICK_UP_GESTURE_AMBIENT,
+         Settings.Secure.DOZE_SINGLE_TAP_GESTURE_AMBIENT,
+         Settings.Secure.SECURE_LOCKSCREEN_QS_DISABLED,
++	Settings.Secure.DOZE_ON_CHARGE,
+     };
+ }
+diff --git a/packages/SettingsProvider/src/android/provider/settings/validators/SecureSettingsValidators.java b/packages/SettingsProvider/src/android/provider/settings/validators/SecureSettingsValidators.java
+index 60bcfe327589..0db58e3edffb 100644
+--- a/packages/SettingsProvider/src/android/provider/settings/validators/SecureSettingsValidators.java
++++ b/packages/SettingsProvider/src/android/provider/settings/validators/SecureSettingsValidators.java
+@@ -366,5 +366,6 @@ public class SecureSettingsValidators {
+         VALIDATORS.put(Secure.DOZE_PICK_UP_GESTURE_AMBIENT, BOOLEAN_VALIDATOR);
+         VALIDATORS.put(Secure.DOZE_SINGLE_TAP_GESTURE_AMBIENT, BOOLEAN_VALIDATOR);
+         VALIDATORS.put(Secure.SECURE_LOCKSCREEN_QS_DISABLED, BOOLEAN_VALIDATOR);
++	VALIDATORS.put(Secure.DOZE_ON_CHARGE, BOOLEAN_VALIDATOR);
+     }
+ }
+diff --git a/packages/SystemUI/src/com/android/systemui/qs/tiles/AODTile.java b/packages/SystemUI/src/com/android/systemui/qs/tiles/AODTile.java
+index 00bdd3311852..59d4294c9e4c 100644
+--- a/packages/SystemUI/src/com/android/systemui/qs/tiles/AODTile.java
++++ b/packages/SystemUI/src/com/android/systemui/qs/tiles/AODTile.java
+@@ -21,6 +21,7 @@ import android.content.Intent;
+ import android.database.ContentObserver;
+ import android.os.Handler;
+ import android.os.Looper;
++import android.os.UserHandle;
+ import android.provider.Settings;
+ import android.service.quicksettings.Tile;
+ import android.view.View;
+@@ -47,6 +48,7 @@ public final class AODTile extends QSTileImpl<BooleanState> {
+     public static final String TILE_SPEC = "aod";
+ 
+     private boolean mAodDisabled;
++    private boolean mListening;
+     private final Icon mIcon = ResourceIcon.get(R.drawable.ic_qs_aod);
+ 
+     private static final Intent LS_DISPLAY_SETTINGS = new Intent().setComponent(
+@@ -87,9 +89,9 @@ public final class AODTile extends QSTileImpl<BooleanState> {
+     @Override
+     public void handleClick(@Nullable View view) {
+         mAodDisabled = !mAodDisabled;
+-        Settings.Secure.putInt(mContext.getContentResolver(),
++        Settings.Secure.putIntForUser(mContext.getContentResolver(),
+                 Settings.Secure.DOZE_ALWAYS_ON,
+-                mAodDisabled ? 0 : 1);
++                mAodDisabled ? 0 : 1, UserHandle.USER_CURRENT);
+         refreshState();
+     }
+ 
+@@ -108,6 +110,8 @@ public final class AODTile extends QSTileImpl<BooleanState> {
+         if (state.slash == null) {
+             state.slash = new SlashState();
+         }
++	mAodDisabled = Settings.Secure.getIntForUser(mContext.getContentResolver(),
++                Settings.Secure.DOZE_ALWAYS_ON, 1, UserHandle.USER_CURRENT) == 0;
+         state.icon = mIcon;
+         state.value = mAodDisabled;
+         state.slash.isSlashed = state.value;
+@@ -124,8 +128,26 @@ public final class AODTile extends QSTileImpl<BooleanState> {
+         return MetricsEvent.SUPERIOR;
+     }
+ 
++    private ContentObserver mObserver = new ContentObserver(mHandler) {
++        @Override
++        public void onChange(boolean selfChange, Uri uri) {
++            refreshState();
++        }
++    };
++
+     @Override
+     public void handleSetListening(boolean listening) {
+-        // Do nothing
++        if (mObserver == null) {
++            return;
++        }
++        if (mListening != listening) {
++            mListening = listening;
++            if (listening) {
++                mContext.getContentResolver().registerContentObserver(
++                        Settings.Secure.getUriFor(Settings.Secure.DOZE_ALWAYS_ON), false, mObserver);
++            } else {
++                mContext.getContentResolver().unregisterContentObserver(mObserver);
++            }
++        }
+     }
+ }
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/DozeParameters.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/DozeParameters.java
+index ae715b3f20c8..2b65549bd4df 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/DozeParameters.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/DozeParameters.java
+@@ -50,7 +50,6 @@ import com.android.systemui.statusbar.policy.BatteryController;
+ import com.android.systemui.statusbar.policy.BatteryController.BatteryStateChangeCallback;
+ import com.android.systemui.statusbar.policy.ConfigurationController;
+ import com.android.systemui.statusbar.policy.DevicePostureController;
+-import com.android.systemui.tuner.TunerService;
+ import com.android.systemui.unfold.FoldAodAnimationController;
+ import com.android.systemui.unfold.SysUIUnfoldComponent;
+ 
+@@ -66,7 +65,6 @@ import javax.inject.Inject;
+  */
+ @SysUISingleton
+ public class DozeParameters implements
+-        TunerService.Tunable,
+         com.android.systemui.plugins.statusbar.DozeParameters,
+         Dumpable, ConfigurationController.ConfigurationListener,
+         StatusBarStateController.StateListener, FoldAodAnimationController.FoldAodAnimationStatus {
+@@ -89,7 +87,6 @@ public class DozeParameters implements
+ 
+     private final Set<Callback> mCallbacks = new HashSet<>();
+ 
+-    private boolean mDozeAlwaysOn;
+     private boolean mControlScreenOffAnimation;
+     private boolean mIsQuickPickupEnabled;
+ 
+@@ -123,7 +120,6 @@ public class DozeParameters implements
+             AlwaysOnDisplayPolicy alwaysOnDisplayPolicy,
+             PowerManager powerManager,
+             BatteryController batteryController,
+-            TunerService tunerService,
+             DumpManager dumpManager,
+             ScreenOffAnimationController screenOffAnimationController,
+             Optional<SysUIUnfoldComponent> sysUiUnfoldComponent,
+@@ -146,10 +142,6 @@ public class DozeParameters implements
+         mUserTracker = userTracker;
+ 
+         keyguardUpdateMonitor.registerCallback(mKeyguardVisibilityCallback);
+-        tunerService.addTunable(
+-                this,
+-                Settings.Secure.DOZE_ALWAYS_ON,
+-                Settings.Secure.ACCESSIBILITY_DISPLAY_INVERSION_ENABLED);
+         configurationController.addCallback(this);
+         statusBarStateController.addCallback(this);
+ 
+@@ -264,7 +256,8 @@ public class DozeParameters implements
+      * @return {@code true} if enabled and available.
+      */
+     public boolean getAlwaysOn() {
+-        return mDozeAlwaysOn && !mBatteryController.isAodPowerSave();
++        return mAmbientDisplayConfiguration.alwaysOnEnabled(UserHandle.USER_CURRENT)
++                && !mBatteryController.isAodPowerSave();
+     }
+ 
+     /**
+@@ -420,17 +413,6 @@ public class DozeParameters implements
+         mCallbacks.remove(callback);
+     }
+ 
+-    @Override
+-    public void onTuningChanged(String key, String newValue) {
+-        mDozeAlwaysOn = mAmbientDisplayConfiguration.alwaysOnEnabled(mUserTracker.getUserId());
+-
+-        if (key.equals(Settings.Secure.DOZE_ALWAYS_ON)) {
+-            updateControlScreenOff();
+-        }
+-
+-        dispatchAlwaysOnEvent();
+-    }
+-
+     @Override
+     public void onConfigChanged(Configuration newConfig) {
+         updateControlScreenOff();
+diff --git a/services/core/java/com/android/server/power/PowerManagerService.java b/services/core/java/com/android/server/power/PowerManagerService.java
+index 60509906d53a..663f2546b69d 100644
+--- a/services/core/java/com/android/server/power/PowerManagerService.java
++++ b/services/core/java/com/android/server/power/PowerManagerService.java
+@@ -668,6 +668,9 @@ public final class PowerManagerService extends SystemService
+     // but the DreamService has not yet been told to start (it's an async process).
+     private boolean mDozeStartInProgress;
+ 
++    // doze on charge
++    private boolean mDozeOnChargeEnabled;
++
+     // Whether to keep dreaming when the device is undocked.
+     private boolean mKeepDreamingWhenUndocked;
+ 
+@@ -1246,6 +1249,9 @@ public final class PowerManagerService extends SystemService
+     private void systemReady() {
+         synchronized (mLock) {
+             mSystemReady = true;
++	    // set initial value
++            Settings.Secure.putIntForUser(mContext.getContentResolver(),
++                    Settings.Secure.DOZE_ON_CHARGE_NOW, 0, UserHandle.USER_CURRENT);
+             mDreamManager = getLocalService(DreamManagerInternal.class);
+             mDisplayManagerInternal = getLocalService(DisplayManagerInternal.class);
+             mPolicy = getLocalService(WindowManagerPolicy.class);
+@@ -1352,6 +1358,9 @@ public final class PowerManagerService extends SystemService
+         resolver.registerContentObserver(Settings.Global.getUriFor(
+                 Settings.Global.DEVICE_DEMO_MODE),
+                 false, mSettingsObserver, UserHandle.USER_SYSTEM);
++	resolver.registerContentObserver(Settings.Secure.getUriFor(
++                Settings.Secure.DOZE_ON_CHARGE),
++                false, mSettingsObserver, UserHandle.USER_ALL);
+         IVrManager vrManager = IVrManager.Stub.asInterface(getBinderService(Context.VR_SERVICE));
+         if (vrManager != null) {
+             try {
+@@ -1457,9 +1466,11 @@ public final class PowerManagerService extends SystemService
+                 UserHandle.USER_CURRENT);
+         mStayOnWhilePluggedInSetting = Settings.Global.getInt(resolver,
+                 Settings.Global.STAY_ON_WHILE_PLUGGED_IN, BatteryManager.BATTERY_PLUGGED_AC);
+-        mTheaterModeEnabled = Settings.Global.getInt(mContext.getContentResolver(),
++        mTheaterModeEnabled = Settings.Global.getInt(resolver,
+                 Settings.Global.THEATER_MODE_ON, 0) == 1;
+         mAlwaysOnEnabled = mAmbientDisplayConfiguration.alwaysOnEnabled(UserHandle.USER_CURRENT);
++	mDozeOnChargeEnabled = Settings.Secure.getIntForUser(resolver,
++                Settings.Secure.DOZE_ON_CHARGE, 0, UserHandle.USER_CURRENT) != 0;
+ 
+         if (mSupportsDoubleTapWakeConfig) {
+             boolean doubleTapWakeEnabled = Settings.Secure.getIntForUser(resolver,
+@@ -2490,6 +2501,11 @@ public final class PowerManagerService extends SystemService
+                 // Update wireless dock detection state.
+                 final boolean dockedOnWirelessCharger = mWirelessChargerDetector.update(
+                         mIsPowered, mPlugType);
++		if (mDozeOnChargeEnabled) {
++                    Settings.Secure.putIntForUser(mContext.getContentResolver(),
++                            Settings.Secure.DOZE_ON_CHARGE_NOW, mIsPowered ? 1 : 0,
++                            UserHandle.USER_CURRENT);
++                }
+ 
+                 // Treat plugging and unplugging the devices as a user activity.
+                 // Users find it disconcerting when they plug or unplug the device
+-- 
+2.34.1
+

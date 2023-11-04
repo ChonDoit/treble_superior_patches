@@ -93,17 +93,17 @@ index 0000000..09a67bf
 +    <string name="config_defaultListenerAccessPackages">com.android.launcher3</string>
 +</resources>
 diff --git a/overlay.mk b/overlay.mk
-index cb6465e..3208568 100644
+index ddc0453..2143d9c 100644
 --- a/overlay.mk
 +++ b/overlay.mk
-@@ -85,6 +85,7 @@ PRODUCT_PACKAGES += \
+@@ -86,6 +86,7 @@ PRODUCT_PACKAGES += \
  	treble-overlay-misc-aod \
  	treble-overlay-misc-aod-systemui \
  	treble-overlay-misc-dt2w \
 +	treble-overlay-misc-launcher3 \
  	treble-overlay-misc-minimal-brightness \
  	treble-overlay-misc-spen-pointer \
- 	treble-overlay-moto-e5 \
+ 	treble-overlay-misc-transparent-pointer \
 -- 
 2.34.1
 

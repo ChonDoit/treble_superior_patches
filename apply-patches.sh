@@ -3,7 +3,7 @@
 set -e
 
 source="$(readlink -f -- $1)"
-core="$source/patches/core"
+core="$source/patches/trebledroid"
 personal="$source/patches/personal"
 pre="$source/patches/pre"
 
@@ -43,7 +43,7 @@ if [ -e $pre ]; then
 fi
 
 if [ -e $core ]; then
-    printf "\n ##### APPLYING CORE PATCHES #####\n";
+    printf "\n ##### APPLYING TREBLEDROID PATCHES #####\n";
     sleep 1.0;
     for path in $(cd $core; echo *); do
     	tree="$(tr _ / <<<$path | sed -e 's;platform/;;g')"
@@ -115,3 +115,4 @@ if [ -e $personal ]; then
 fi
 
 rm -rf $1/patches
+rm $1/patches.zip
