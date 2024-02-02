@@ -1,0 +1,78 @@
+From 60fd12135b6c957d6265b8ac76981ca5cb8e15f5 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sat, 12 Aug 2023 18:52:10 +0000
+Subject: [PATCH] Nuke adb and APN from everywhere
+
+---
+ core/main.mk                          | 8 --------
+ target/board/gsi_system_ext.prop      | 3 ---
+ target/product/aosp_product.mk        | 7 -------
+ target/product/full_base_telephony.mk | 5 -----
+ 4 files changed, 23 deletions(-)
+
+diff --git a/core/main.mk b/core/main.mk
+index 2abd9d2d6..780b9f5f5 100644
+--- a/core/main.mk
++++ b/core/main.mk
+@@ -367,14 +367,6 @@ endif
+ enable_target_debugging := true
+ tags_to_install :=
+ ifneq (,$(user_variant))
+-  # Target is secure in user builds.
+-  ADDITIONAL_SYSTEM_PROPERTIES += ro.secure=1
+-  ADDITIONAL_SYSTEM_PROPERTIES += security.perf_harden=1
+-
+-  ifeq ($(user_variant),user)
+-    ADDITIONAL_SYSTEM_PROPERTIES += ro.adb.secure=1
+-  endif
+-
+   ifeq ($(user_variant),userdebug)
+     # Pick up some extra useful tools
+     tags_to_install += debug
+diff --git a/target/board/gsi_system_ext.prop b/target/board/gsi_system_ext.prop
+index 780aadc0a..217bd012a 100644
+--- a/target/board/gsi_system_ext.prop
++++ b/target/board/gsi_system_ext.prop
+@@ -1,9 +1,6 @@
+ # GSI always generate dex pre-opt in system image
+ ro.cp_system_other_odex=0
+ 
+-# GSI always disables adb authentication
+-ro.adb.secure=0
+-
+ # GSI disables non-AOSP nnapi extensions on product partition
+ ro.nnapi.extensions.deny_on_product=true
+ 
+diff --git a/target/product/aosp_product.mk b/target/product/aosp_product.mk
+index d04c9edf5..6a4632660 100644
+--- a/target/product/aosp_product.mk
++++ b/target/product/aosp_product.mk
+@@ -37,10 +37,3 @@ PRODUCT_PACKAGES += \
+     PhotoTable \
+     preinstalled-packages-platform-aosp-product.xml \
+     WallpaperPicker \
+-
+-# Telephony:
+-#   Provide a APN configuration to GSI product
+-ifeq ($(SUPERIOR_BUILD),)
+-PRODUCT_COPY_FILES += \
+-    device/sample/etc/apns-full-conf.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/apns-conf.xml
+-endif
+diff --git a/target/product/full_base_telephony.mk b/target/product/full_base_telephony.mk
+index 94be54b6c..5470ad2be 100644
+--- a/target/product/full_base_telephony.mk
++++ b/target/product/full_base_telephony.mk
+@@ -26,10 +26,5 @@ PRODUCT_VENDOR_PROPERTIES := \
+ PRODUCT_COPY_FILES := \
+     frameworks/native/data/etc/handheld_core_hardware.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/handheld_core_hardware.xml
+ 
+-ifeq ($(SUPERIOR_BUILD),)
+-PRODUCT_COPY_FILES += \
+-    device/sample/etc/apns-full-conf.xml:system/etc/apns-conf.xml
+-endif
+-
+ $(call inherit-product, $(SRC_TARGET_DIR)/product/aosp_base.mk)
+ $(call inherit-product, $(SRC_TARGET_DIR)/product/telephony.mk)
+-- 
+2.34.1
+

@@ -1,0 +1,55 @@
+From 37fcd9de9edfbd8bcde10798c718ed6b6f9016d9 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sat, 11 Nov 2023 17:03:04 +0000
+Subject: [PATCH] Add own build changes
+
+---
+ config/phh_gsi.mk | 36 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 36 insertions(+)
+ create mode 100644 config/phh_gsi.mk
+
+diff --git a/config/phh_gsi.mk b/config/phh_gsi.mk
+new file mode 100644
+index 00000000..9efcfcf2
+--- /dev/null
++++ b/config/phh_gsi.mk
+@@ -0,0 +1,36 @@
++# The Gapps
++WITH_THE_GAPPS := true
++ifeq ($(WITH_THE_GAPPS), true)
++    $(call inherit-product-if-exists, vendor/gapps/slim.mk)
++        else
++    $(call inherit-product-if-exists, vendor/gapps/vanilla.mk)
++endif
++
++# Don't Build Kernel
++TARGET_NO_KERNEL_OVERRIDE := true
++
++# Secure build?
++PHH-SECURE_BUILD := false
++
++# Use CCache
++USE_CCACHE := true
++
++PRODUCT_PACKAGES += \
++    QSDualRounded \
++    QSDualRoundedRectangle \
++    QSRounded \
++    QSRoundedRectangle
++
++# Set Build Variant prop for OTA
++ifeq ($(WITH_THE_GAPPS), false)
++    PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.phh.buildvariant=Vanilla
++    else ifeq ($(PHH-SECURE_BUILD),true)
++        PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.phh.buildvariant=Slim-Secure
++            else
++        PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.phh.buildvariant=Slim
++endif
++
++PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
++    persist.sys.binary_xml=false \
++    dalvik.vm.dex2oat64.enabled=true \
++    ro.system.ota.json_url=https://raw.githubusercontent.com/ChonDoit/treble_superior_patches/14/ota.json
+-- 
+2.34.1
+

@@ -1,0 +1,30 @@
+From 96a5792d7c747042448555c896a765e82e30ef8f Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sat, 11 Nov 2023 16:58:32 +0000
+Subject: [PATCH] Inherit call phh_gsi.mk
+
+---
+ config/common.mk | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/config/common.mk b/config/common.mk
+index 33fd0094..d51fa2b7 100644
+--- a/config/common.mk
++++ b/config/common.mk
+@@ -14,6 +14,13 @@
+ 
+ PRODUCT_BRAND ?= SuperiorOS
+ 
++# PHH GSI
++$(call inherit-product, vendor/superior/config/phh_gsi.mk)
++$(call inherit-product, device/superior/sepolicy/common/sepolicy.mk)
++
++# Set Bootanimation at 720P
++TARGET_BOOT_ANIMATION_RES := 720
++
+ PRODUCT_BUILD_PROP_OVERRIDES += BUILD_UTC_DATE=0
+ 
+ # Enable SIP+VoIP on all targets
+-- 
+2.34.1
+

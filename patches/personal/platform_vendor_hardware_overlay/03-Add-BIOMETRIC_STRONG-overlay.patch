@@ -1,0 +1,79 @@
+From fb2178caac7a284bd28ce19554469fbf3b5777f5 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Wed, 12 Apr 2023 18:49:28 +0000
+Subject: [PATCH] Add BIOMETRIC_STRONG overlay
+
+---
+ Misc/Biometrics/Android.mk            |  8 ++++++++
+ Misc/Biometrics/AndroidManifest.xml   | 17 +++++++++++++++++
+ Misc/Biometrics/res/values/arrays.xml |  6 ++++++
+ overlay.mk                            |  1 +
+ 4 files changed, 32 insertions(+)
+ create mode 100644 Misc/Biometrics/Android.mk
+ create mode 100644 Misc/Biometrics/AndroidManifest.xml
+ create mode 100644 Misc/Biometrics/res/values/arrays.xml
+
+diff --git a/Misc/Biometrics/Android.mk b/Misc/Biometrics/Android.mk
+new file mode 100644
+index 0000000..538c61c
+--- /dev/null
++++ b/Misc/Biometrics/Android.mk
+@@ -0,0 +1,8 @@
++LOCAL_PATH := $(call my-dir)
++include $(CLEAR_VARS)
++LOCAL_MODULE_TAGS := optional
++LOCAL_PACKAGE_NAME := treble-overlay-misc-biometrics
++LOCAL_MODULE_PATH := $(TARGET_OUT_PRODUCT)/overlay
++LOCAL_IS_RUNTIME_RESOURCE_OVERLAY := true
++LOCAL_PRIVATE_PLATFORM_APIS := true
++include $(BUILD_PACKAGE)
+diff --git a/Misc/Biometrics/AndroidManifest.xml b/Misc/Biometrics/AndroidManifest.xml
+new file mode 100644
+index 0000000..1d5131a
+--- /dev/null
++++ b/Misc/Biometrics/AndroidManifest.xml
+@@ -0,0 +1,17 @@
++<?xml version="1.0" encoding="utf-8" standalone="no"?>
++<manifest
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    package="me.phh.treble.overlay.misc.biometrics"
++    android:versionCode="1"
++    android:versionName="1.0">
++    <application
++        android:hasCode="false"
++        android:label="Biometrics Overlay"
++        android:usesNonSdkApi="true" />
++    <overlay
++        android:isStatic="true"
++        android:priority="0"
++        android:targetPackage="android"
++        android:requiredSystemPropertyName="persist.sys.phh.biometricstrong"
++        android:requiredSystemPropertyValue="true" />
++</manifest>
+diff --git a/Misc/Biometrics/res/values/arrays.xml b/Misc/Biometrics/res/values/arrays.xml
+new file mode 100644
+index 0000000..e3c63f1
+--- /dev/null
++++ b/Misc/Biometrics/res/values/arrays.xml
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<resources>
++    <string-array name="config_biometric_sensors">
++        <item>0:2:15</item>
++    </string-array>
++</resources>
+diff --git a/overlay.mk b/overlay.mk
+index 3208568..da1edbb 100644
+--- a/overlay.mk
++++ b/overlay.mk
+@@ -84,6 +84,7 @@ PRODUCT_PACKAGES += \
+ 	treble-overlay-meizu-m2181-systemui \
+ 	treble-overlay-misc-aod \
+ 	treble-overlay-misc-aod-systemui \
++	treble-overlay-misc-biometrics \
+ 	treble-overlay-misc-dt2w \
+ 	treble-overlay-misc-launcher3 \
+ 	treble-overlay-misc-minimal-brightness \
+-- 
+2.34.1
+

@@ -1,0 +1,23 @@
+{
+  "version": "v20240202",
+  "date": "1706904778",
+  "gsi": "SuperiorOS | by ChonDoe feat. TD",
+  "changelog": "https://raw.githubusercontent.com/ChonDoit/treble_superior_patches/13/changelog.txt",
+  "variants": [
+    {
+      "name": "Slim",
+      "size": "1252316440",
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14-v20240202/SuperiorOS_A14-arm64-bgS-slim_20240202.img.xz"
+    },
+    {
+      "name": "Slim-VNDK-Lite",
+      "size": "1181981336",
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14-v20240202/SuperiorOS_A14-arm64-bgS-slim-vndklite_20240202.img.xz"
+    },
+    {
+      "name": "Slim-Secure",
+      "size": "1059046704",
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14-v20240202/SuperiorOS_A14-RO-arm64-bgN-slim_20240202.img.xz"
+    }
+  ]
+}

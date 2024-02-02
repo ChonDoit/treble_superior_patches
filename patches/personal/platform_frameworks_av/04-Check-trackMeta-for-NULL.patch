@@ -1,0 +1,48 @@
+From 465aad4e1f388915c98feab43fa7d62e90432885 Mon Sep 17 00:00:00 2001
+From: Karthikeyan Periasamy <kperiasa@codeaurora.org>
+Date: Wed, 25 Jan 2017 14:53:12 -0800
+Subject: [PATCH 11/12] libstagefright: Check trackMeta for NULL
+
+getTrackMetaData will return NULL for failure. If we pass the NULL,
+we observe undefined behavior of mediaserver application .
+
+Check trackMeta and go to next index if it is NULL
+
+[neobuddy89]: Adapted for AOSP
+
+CRs-Fixed: 1115425
+Change-Id: I55a73cb0f327b6af31d30ed1b3d27c83578762d3
+Signed-off-by: Hưng Phan <phandinhhungvp2001@gmail.com>
+---
+ .../StagefrightMetadataRetriever.cpp                      | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/media/libmediaplayerservice/StagefrightMetadataRetriever.cpp b/media/libmediaplayerservice/StagefrightMetadataRetriever.cpp
+index b3f7f25..67b3dd2 100644
+--- a/media/libmediaplayerservice/StagefrightMetadataRetriever.cpp
++++ b/media/libmediaplayerservice/StagefrightMetadataRetriever.cpp
+@@ -353,6 +353,10 @@ sp<IMemory> StagefrightMetadataRetriever::getFrameInternal(
+             continue;
+         }
+ 
++        if (meta == NULL) {
++            continue;
++        }
++
+         const char *mime;
+         if (meta->findCString(kKeyMIMEType, &mime) && !strncasecmp(mime, "video/", 6)) {
+             break;
+@@ -618,6 +622,10 @@ void StagefrightMetadataRetriever::parseMetaData() {
+             continue;
+         }
+ 
++        if (trackMeta == NULL) {
++            continue;
++        }
++
+         int64_t durationUs;
+         if (trackMeta->findInt64(kKeyDuration, &durationUs)) {
+             if (durationUs > maxDurationUs) {
+-- 
+2.34.1
+

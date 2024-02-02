@@ -1,0 +1,41 @@
+From c198a1774788aa696341847d6974d812ed334202 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Fri, 2 Feb 2024 13:18:37 -0300
+Subject: [PATCH] Nuke duplicated ro.secure.adb
+
+---
+ config/superior_props.mk | 13 +------------
+ 1 file changed, 1 insertion(+), 12 deletions(-)
+
+diff --git a/config/superior_props.mk b/config/superior_props.mk
+index 522678bc..135b2ae4 100644
+--- a/config/superior_props.mk
++++ b/config/superior_props.mk
+@@ -20,17 +20,6 @@ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
+     ro.com.google.clientidbase=$(PRODUCT_GMS_CLIENTID_BASE)
+ endif
+ 
+-ifeq ($(TARGET_BUILD_VARIANT),eng)
+-# Disable ADB authentication
+-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += ro.adb.secure=0
+-else
+-# Enable ADB authentication
+-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += ro.adb.secure=1
+-
+-# Disable extra StrictMode features on all non-engineering builds
+-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.strictmode.disable=true
+-endif
+-
+ ifneq ($(TARGET_BUILD_VARIANT),eng)
+ # Disable extra StrictMode features on all non-engineering builds
+ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
+@@ -83,4 +72,4 @@ PRODUCT_DEXPREOPT_SPEED_APPS += \
+     SystemUI
+ 
+ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
+-    dalvik.vm.systemuicompilerfilter=speed
+\ No newline at end of file
++    dalvik.vm.systemuicompilerfilter=speed
+-- 
+2.34.1
+

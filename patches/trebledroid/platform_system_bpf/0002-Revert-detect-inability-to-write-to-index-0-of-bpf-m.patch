@@ -1,0 +1,33 @@
+From e806c007ea1076eb252f59b3bb11dfc767d657c7 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Fri, 2 Feb 2024 00:28:55 -0300
+Subject: [PATCH] dasdas
+
+---
+ bpfloader/BpfLoader.cpp | 11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
+
+diff --git a/bpfloader/BpfLoader.cpp b/bpfloader/BpfLoader.cpp
+index 29fd7f8..5e76edb 100644
+--- a/bpfloader/BpfLoader.cpp
++++ b/bpfloader/BpfLoader.cpp
+@@ -306,16 +306,7 @@ int main(int argc, char** argv) {
+ 	    return 0;
+         }
+     }
+-
+-    int key = 1;
+-    int value = 123;
+-    android::base::unique_fd map(
+-            android::bpf::createMap(BPF_MAP_TYPE_ARRAY, sizeof(key), sizeof(value), 2, 0));
+-    if (android::bpf::writeToMapEntry(map, &key, &value, BPF_ANY)) {
+-        ALOGE("Critical kernel bug - failure to write into index 1 of 2 element bpf map array.");
+-        return 1;
+-    }
+-
++ 
+     if (android::base::SetProperty("bpf.progs_loaded", "1") == false) {
+         ALOGE("Failed to set bpf.progs_loaded property");
+         return 1;
+-- 
+2.34.1
