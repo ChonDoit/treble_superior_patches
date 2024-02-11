@@ -13,7 +13,6 @@ false = Secure build (RO)
 Parsed with secure.mk, called trough base-pre.mk
 Managed with phh-root.sh to avoid issues with future merges on phh-prop-handler
 ---
- base-pre.mk            |   7 +++---
  base.mk                |   3 +--
  generate.sh            |   1 -
  phh-root.sh            |  48 +++++++++++++++++++++++++++++++++++++++++

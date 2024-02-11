@@ -10,21 +10,21 @@ Subject: [PATCH 49/53] Also override UDFPS infos on AIDL fingerprints --
  2 files changed, 28 insertions(+), 4 deletions(-)
 
 diff --git a/services/core/java/com/android/server/biometrics/AuthService.java b/services/core/java/com/android/server/biometrics/AuthService.java
-index 26ca8c9940f5..dfc268c07d76 100644
+index de2820e1b701..dd7c47a211c8 100644
 --- a/services/core/java/com/android/server/biometrics/AuthService.java
 +++ b/services/core/java/com/android/server/biometrics/AuthService.java
-@@ -915,8 +915,8 @@ public class AuthService extends SystemService {
+@@ -1004,8 +1004,8 @@ public class AuthService extends SystemService {
                  ? modality : (modality & ~BiometricAuthenticator.TYPE_CREDENTIAL);
      }
  
--    private int[] dynamicUdfpsProps() {
+-        private int[] dynamicUdfpsProps() {
 -        DisplayManager mDM = (DisplayManager) getContext().getSystemService(Context.DISPLAY_SERVICE);
-+    static public int[] dynamicUdfpsProps(Context ctxt) {
++        static public int[] dynamicUdfpsProps(Context ctxt) {
 +        DisplayManager mDM = (DisplayManager) ctxt.getSystemService(Context.DISPLAY_SERVICE);
          Point displayRealSize = new Point();
          DisplayMetrics displayMetrics = new DisplayMetrics();
          mDM.getDisplay(0).getRealSize(displayRealSize);
-@@ -1018,7 +1018,7 @@ public class AuthService extends SystemService {
+@@ -1142,7 +1142,7 @@ public class AuthService extends SystemService {
          boolean isUdfps = !ArrayUtils.isEmpty(udfpsProps);
          if(!isUdfps) {
              try {

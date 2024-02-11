@@ -1,2 +1,13 @@
+A14-v20240211
+| February SPL
+
+A14-v20220204
+| Fix Wallpapers FC
+| Fix Recents Issue
+| Remove duplicated apps
+| Nuke fuseblk sepolicies
+| Merge latest changes pushed to TD sources
+| Fixed LockScreen clocks on GApps builds
+
 A14-v20240202
 | Initial Build

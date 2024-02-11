@@ -1,0 +1,292 @@
+From 6f3a4016bb433c9329357b61f436c1b0f32707fc Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sat, 3 Feb 2024 08:26:00 -0300
+Subject: [PATCH] Revert "Adds support for fuseblk binaries."
+
+This reverts commit 30ae427ed0d31fa883a6ba6e0d458efbac1394c8.
+---
+ private/compat/33.0/33.0.ignore.cil |  5 --
+ private/file_contexts               |  2 -
+ private/fuseblkd.te                 | 31 -----------
+ private/fuseblkd_untrusted.te       | 82 -----------------------------
+ private/genfs_contexts              |  2 +-
+ private/mediaprovider_app.te        |  4 --
+ private/vold.te                     |  1 -
+ public/file.te                      |  2 +-
+ public/fsck_untrusted.te            | 17 ------
+ public/hal_configstore.te           |  4 +-
+ public/ioctl_defines                |  1 -
+ 11 files changed, 4 insertions(+), 147 deletions(-)
+ delete mode 100644 private/fuseblkd.te
+ delete mode 100644 private/fuseblkd_untrusted.te
+
+diff --git a/private/compat/33.0/33.0.ignore.cil b/private/compat/33.0/33.0.ignore.cil
+index 7cbb57452..ace603333 100644
+--- a/private/compat/33.0/33.0.ignore.cil
++++ b/private/compat/33.0/33.0.ignore.cil
+@@ -49,11 +49,6 @@
+     keystore_config_prop
+     ntfs
+     ondevicepersonalization_system_service
+-    fuseblk
+-    fuseblkd_untrusted
+-    fuseblkd_untrusted_exec
+-    fuseblkd
+-    fuseblkd_exec
+     permissive_mte_prop
+     persist_sysui_builder_extras_prop
+     prng_seeder
+diff --git a/private/file_contexts b/private/file_contexts
+index 4c03b5dd5..9214d4bbc 100644
+--- a/private/file_contexts
++++ b/private/file_contexts
+@@ -234,8 +234,6 @@
+ /system/bin/fsck\.exfat	--	u:object_r:fsck_exec:s0
+ /system/bin/fsck\.f2fs	--	u:object_r:fsck_exec:s0
+ /system/bin/ntfsfix	--	u:object_r:fsck_exec:s0
+-/system/bin/ntfs-3g	--	u:object_r:fuseblkd_untrusted_exec:s0
+-/system/bin/ntfs-3g-compart	--	u:object_r:fuseblkd_exec:s0
+ /system/bin/init		u:object_r:init_exec:s0
+ # TODO(/123600489): merge mini-keyctl into toybox
+ /system/bin/mini-keyctl	--	u:object_r:toolbox_exec:s0
+diff --git a/private/fuseblkd.te b/private/fuseblkd.te
+deleted file mode 100644
+index 4423913d0..000000000
+--- a/private/fuseblkd.te
++++ /dev/null
+@@ -1,31 +0,0 @@
+-# Compartmentalized domain specifically for mounting fuseblk filesystems.
+-# We need this to not grant fuseblkd_untrusted sys_admin permissions.
+-type fuseblkd_exec, system_file_type, exec_type, file_type;
+-type fuseblkd, domain;
+-
+-typeattribute fuseblkd coredomain;
+-
+-# Required for mount and unmounting. We can't minimize this permission,
+-# even though we only allow mount/unmount.
+-allow fuseblkd self:global_capability_class_set sys_admin;
+-
+-# Permissions for the fuseblk filesystem.
+-allow fuseblkd fuse_device:chr_file rw_file_perms;
+-allow fuseblkd fuseblk:filesystem { mount unmount };
+-allow fuseblkd fuseblkd_untrusted:fd use;
+-
+-# Look through block devices to find the correct one.
+-allow fuseblkd block_device:dir search;
+-
+-# Permissions to mount on the media_rw directory for USB drives.
+-allow fuseblkd mnt_media_rw_file:dir search;
+-allow fuseblkd mnt_media_rw_stub_file:dir mounton;
+-
+-###
+-### neverallow rules
+-###
+-
+-# Only allow entry from fuseblkd_untrusted, and only through fuseblkd_exec binary.
+-neverallow { domain -fuseblkd_untrusted } fuseblkd:process transition;
+-neverallow * fuseblkd:process dyntransition;
+-neverallow fuseblkd { file_type fs_type -fuseblkd_exec }:file entrypoint;
+diff --git a/private/fuseblkd_untrusted.te b/private/fuseblkd_untrusted.te
+deleted file mode 100644
+index b99a49ca8..000000000
+--- a/private/fuseblkd_untrusted.te
++++ /dev/null
+@@ -1,82 +0,0 @@
+-# Fuseblk is a Filesystem in USErspace for block device. It should only be used
+-# to mount untrusted blocks like USB drives.
+-type fuseblkd_untrusted_exec, system_file_type, exec_type, file_type;
+-type fuseblkd_untrusted, domain;
+-
+-typeattribute fuseblkd_untrusted coredomain;
+-
+-domain_auto_trans(fuseblkd_untrusted, fuseblkd_exec, fuseblkd);
+-
+-# Allow stdin/out back to vold.
+-allow fuseblkd_untrusted vold:fd use;
+-
+-# Allows fuseblk to read block devices.
+-allow fuseblkd_untrusted block_device:dir search;
+-
+-# Permissions to read dynamic partitions blocks.
+-allow fuseblkd_untrusted super_block_device:blk_file getattr;
+-
+-# Permissions to access FUSE character devices.
+-allow fuseblkd_untrusted fuse_device:chr_file { getattr open read write };
+-
+-# Permissions to access /mnt/media_rw/.
+-allow fuseblkd_untrusted mnt_media_rw_file:dir { getattr search };
+-allow fuseblkd_untrusted mnt_media_rw_stub_file:dir getattr;
+-
+-# Permissions to read device mappers.
+-allow fuseblkd_untrusted sysfs_dm:dir search;
+-allow fuseblkd_untrusted sysfs_dm:file { getattr open read };
+-allow fuseblkd_untrusted dm_device:blk_file getattr;
+-
+-# Permissions to read links in tmpfs.
+-allow fuseblkd_untrusted tmpfs:lnk_file read;
+-
+-# Permissions to read loop device blocks.
+-allow fuseblkd_untrusted loop_device:blk_file getattr;
+-
+-# Permissions to access the /proc/filesystems file.
+-allow fuseblkd_untrusted proc_filesystems:file { open read getattr };
+-
+-###
+-### dontaudit rules
+-###
+-
+-# ntfs-3g wants this permission to read a fork return code, for some reason.
+-# It's unclear why, because it still reads the fork return code correctly,
+-# and nothing breaks. If enforce is set to permissive, the audit goes away.
+-dontaudit fuseblkd_untrusted self:capability sys_admin;
+-
+-###
+-### neverallow rules
+-###
+-
+-# Fuseblk should never be run on block devices holding sensitive data.
+-neverallow fuseblkd_untrusted {
+-  boot_block_device
+-  frp_block_device
+-  metadata_block_device
+-  recovery_block_device
+-  root_block_device
+-  swap_block_device
+-  system_block_device
+-  userdata_block_device
+-  cache_block_device
+-  dm_device
+-}:blk_file no_rw_file_perms;
+-
+-# Only allow entry from vold, and only through fuseblkd_untrusted_exec binaries.
+-neverallow { domain -vold } fuseblkd_untrusted:process transition;
+-neverallow * fuseblkd_untrusted:process dyntransition;
+-neverallow fuseblkd_untrusted { file_type fs_type -fuseblkd_untrusted_exec }:file entrypoint;
+-
+-# Under no circumstances should fuseblkd_untrusted or any other fuseblk filesystem be
+-# given sys_admin access. They are fundementally untrusted, insecure filesystems.
+-# The correct solution here is to compartmentalize permissions correctly so that
+-# a smaller binary can get the required permissions. See fuseblkd.te.
+-# Similar to above, we don't need setgid or setuid permissions.
+-neverallow fuseblkd_untrusted self:capability { setgid setuid sys_admin };
+-neverallow fuseblkd_untrusted self:global_capability_class_set { setgid setuid sys_admin };
+-
+-# Since we can't have sys_admin permissions, we definitely can't have mount/unmount
+-# permissions, since we won't be able to use them. Same with relabel permissions.
+-neverallow fuseblkd_untrusted fuseblk:filesystem { mount unmount relabelto relabelfrom};
+diff --git a/private/genfs_contexts b/private/genfs_contexts
+index 6bb33bae0..a34ea2acf 100644
+--- a/private/genfs_contexts
++++ b/private/genfs_contexts
+@@ -400,9 +400,9 @@ genfscon inotifyfs / u:object_r:inotify:s0
+ genfscon vfat / u:object_r:vfat:s0
+ genfscon binder / u:object_r:binderfs:s0
+ genfscon exfat / u:object_r:exfat:s0
++genfscon ntfs / u:object_r:ntfs:s0
+ genfscon debugfs / u:object_r:debugfs:s0
+ genfscon fuse / u:object_r:fuse:s0
+-genfscon fuseblk / u:object_r:fuseblk:s0
+ genfscon configfs / u:object_r:configfs:s0
+ genfscon sdcardfs / u:object_r:sdcardfs:s0
+ genfscon esdfs / u:object_r:sdcardfs:s0
+diff --git a/private/mediaprovider_app.te b/private/mediaprovider_app.te
+index 69be973c0..595b84e39 100644
+--- a/private/mediaprovider_app.te
++++ b/private/mediaprovider_app.te
+@@ -11,10 +11,6 @@ r_dir_file(mediaprovider_app, mnt_pass_through_file)
+ # Allow MediaProvider to host a FUSE daemon for external storage
+ allow mediaprovider_app fuse_device:chr_file { read write ioctl getattr };
+ 
+-# Allow MediaProvider to access fuseblk devices for external storage.
+-allow mediaprovider_app fuseblk:dir create_dir_perms;
+-allow mediaprovider_app fuseblk:file create_file_perms;
+-
+ # Allow MediaProvider to read/write media_rw_data_file files and dirs
+ allow mediaprovider_app media_userdir_file:dir r_dir_perms;
+ allow mediaprovider_app media_rw_data_file:file create_file_perms;
+diff --git a/private/vold.te b/private/vold.te
+index 957e5d0ba..40c1a5728 100644
+--- a/private/vold.te
++++ b/private/vold.te
+@@ -5,7 +5,6 @@ init_daemon_domain(vold)
+ # Switch to more restrictive domains when executing common tools
+ domain_auto_trans(vold, sgdisk_exec, sgdisk);
+ domain_auto_trans(vold, sdcardd_exec, sdcardd);
+-domain_auto_trans(vold, fuseblkd_untrusted_exec, fuseblkd_untrusted);
+ 
+ # For a handful of probing tools, we choose an even more restrictive
+ # domain when working with untrusted block devices
+diff --git a/public/file.te b/public/file.te
+index 0ce5c3436..8e9471ff0 100644
+--- a/public/file.te
++++ b/public/file.te
+@@ -156,10 +156,10 @@ type tmpfs, fs_type;
+ type shm, fs_type;
+ type mqueue, fs_type;
+ type fuse, fusefs_type, fs_type, mlstrustedobject;
+-type fuseblk, sdcard_type, fusefs_type, fs_type, mlstrustedobject;
+ type sdcardfs, sdcard_type, fs_type, mlstrustedobject;
+ type vfat, sdcard_type, fs_type, mlstrustedobject;
+ type exfat, sdcard_type, fs_type, mlstrustedobject;
++type ntfs, sdcard_type, fs_type, mlstrustedobject;
+ type debugfs, fs_type, debugfs_type;
+ type debugfs_kprobes, fs_type, debugfs_type;
+ type debugfs_mmc, fs_type, debugfs_type;
+diff --git a/public/fsck_untrusted.te b/public/fsck_untrusted.te
+index 0975d3f10..ed439963c 100644
+--- a/public/fsck_untrusted.te
++++ b/public/fsck_untrusted.te
+@@ -48,20 +48,3 @@ neverallow { domain -vold } fsck_untrusted:process transition;
+ neverallow * fsck_untrusted:process dyntransition;
+ neverallow fsck_untrusted { file_type fs_type -fsck_exec }:file entrypoint;
+ 
+-# fsck_untrusted should never have sys_admin permissions. If it requires sys_admin
+-# permissions, that is a code mistake that needs to be fixed, not a permission that
+-# should be granted. Same with setgid and setuid.
+-neverallow fsck_untrusted self:global_capability_class_set { setgid setuid };
+-
+-###
+-### dontaudit rules
+-###
+-
+-# Ignores attempts to access sysfs. fsck binaries seem to like trying to go
+-# here, but nothing bad happens if they can't, and they shouldn't be allowed.
+-dontaudit fsck_untrusted sysfs:file rw_file_perms;
+-dontaudit fsck_untrusted sysfs_dm:file rw_file_perms;
+-dontaudit fsck_untrusted sysfs_dm:dir rw_dir_perms;
+-
+-# Ignore attempts to access tmpfs. fsck don't need to do this.
+-dontaudit fsck_untrusted tmpfs:lnk_file read;
+diff --git a/public/hal_configstore.te b/public/hal_configstore.te
+index d26e1db7a..8867a8de8 100644
+--- a/public/hal_configstore.te
++++ b/public/hal_configstore.te
+@@ -47,11 +47,11 @@ neverallow hal_configstore_server {
+ # Should never need sdcard access
+ neverallow hal_configstore_server {
+     sdcard_type
+-    fuse sdcardfs vfat exfat fuseblk     # manual expansion for completeness
++    fuse sdcardfs vfat exfat ntfs     # manual expansion for completeness
+ }:dir ~getattr;
+ neverallow hal_configstore_server {
+     sdcard_type
+-    fuse sdcardfs vfat exfat fuseblk     # manual expansion for completeness
++    fuse sdcardfs vfat exfat ntfs     # manual expansion for completeness
+ }:file *;
+ 
+ # Do not permit access to service_manager and vndservice_manager
+diff --git a/public/ioctl_defines b/public/ioctl_defines
+index 67466eacb..b020db86d 100644
+--- a/public/ioctl_defines
++++ b/public/ioctl_defines
+@@ -170,7 +170,6 @@ define(`BLKREPORTZONE', `0xc0101282')
+ define(`BLKRESETZONE', `0x40101283')
+ define(`BLKROGET', `0x0000125e')
+ define(`BLKROSET', `0x0000125d')
+-define(`BLKBSZSET', `0x00001271')
+ define(`BLKROTATIONAL', `0x0000127e')
+ define(`BLKRRPART', `0x0000125f')
+ define(`BLKSECDISCARD', `0x0000127d')
+-- 
+2.34.1
+

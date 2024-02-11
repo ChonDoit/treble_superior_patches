@@ -41,6 +41,19 @@ index 74e556ce50aa..f287f26dde87 100644
                         MathUtils.constrain(val, min, max)) : Math.round(MathUtils.lerp(GAMMA_SPACE_MIN, GAMMA_SPACE_MAX, ret));
      }
  }
+diff --git a/packages/SettingsLib/DisplayUtils/src/com/android/settingslib/display/BrightnessUtils.java b/packages/SettingsLib/DisplayUtils/src/com/android/settingslib/display/BrightnessUtils.java
+index f287f26dde87..44fde671d9af 100644
+--- a/packages/SettingsLib/DisplayUtils/src/com/android/settingslib/display/BrightnessUtils.java
++++ b/packages/SettingsLib/DisplayUtils/src/com/android/settingslib/display/BrightnessUtils.java
+@@ -27,7 +27,7 @@ public class BrightnessUtils {
+         SystemProperties.get("persist.sys.phh.low_gamma_brightness", "false"));
+ 
+     public static final int GAMMA_SPACE_MIN = 0;
+-    public static final int GAMMA_SPACE_MAX = sysUseLowGamma ? 255 : 65535;
++    public static final int GAMMA_SPACE_MAX = LowGammaBrightness ? 255 : 65535;
+ 
+     // Hybrid Log Gamma constant values
+     private static final float R = 0.5f;
 -- 
 2.34.1
 
