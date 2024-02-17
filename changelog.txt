@@ -1,3 +1,9 @@
+A13-v20240217
+| Fix Play Integrity
+| Add A11 QS Style
+| Add compatible patches from A14
+| Add another toggle for High Pitched Voice issue
+
 A13-v20231103
 | Blind shot at adding Samsung AIDL Fingerprint support
 | Add a prop to use linear backlight control
