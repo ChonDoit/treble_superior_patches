@@ -1,33 +1,33 @@
 {
-  "version": "v20231103",
-  "date": "1699039634",
+  "version": "v20240217",
+  "date": "1708139423",
   "gsi": "SuperiorOS | by ChonDoe feat. TD",
   "changelog": "https://raw.githubusercontent.com/ChonDoit/treble_superior_patches/13/changelog.txt",
   "variants": [
     {
       "name": "Slim",
       "size": "1137551028",
-      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A13-v20231103/SuperiorOS_A13-arm64-bgS-slim_20231103.img.xz"
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A13-v20240217/SuperiorOS_A13-arm64-bgS-slim_20240217.img.xz"
     },
     {
       "name": "Slim-VNDK-Lite",
       "size": "1075885876",
-      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A13-v20231103/SuperiorOS_A13-arm64-bgS-slim-vndklite_20231103.img.xz"
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A13-v20240217/SuperiorOS_A13-arm64-bgS-slim-vndklite_20240217.img.xz"
     },
     {
       "name": "Slim-Secure",
       "size": "989973604",
-      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A13-v20231103/SuperiorOS_A13-RO-arm64-bgN-slim_20231103.img.xz"
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A13-v20240217/SuperiorOS_A13-RO-arm64-bgN-slim_20240217.img.xz"
     },
     {
       "name": "Vanilla",
       "size": "993852156",
-      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A13-v20231103/SuperiorOS_A13-arm64-bvS_20231103.img.xz"
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A13-v20240217/SuperiorOS_A13-arm64-bvS_20240217.img.xz"
     },
     {
       "name": "Vanilla-VNDK-Lite",
       "size": "941604432",
-      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A13-v20231103/SuperiorOS_A13-arm64-bvS-vndklite_20231103.img.xz"
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A13-v20240217/SuperiorOS_A13-arm64-bvS-vndklite_20240217.img.xz"
     }
   ]
 }
