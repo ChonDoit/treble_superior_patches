@@ -1,3 +1,7 @@
+A14_v20240424
+| Fix major bootloop
+Thanks @Mitezuss and @rkvukda for logs.
+
 A14_v20240412
 | Fix February bootloop
 No, this doesn't include magical fixes for MTK
