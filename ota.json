@@ -1,33 +1,33 @@
 {
-  "version": "v20240212",
-  "date": "1707738090",
+  "version": "v20240224",
+  "date": "1708804542",
   "gsi": "SuperiorOS | by ChonDoe feat. TD",
   "changelog": "https://raw.githubusercontent.com/ChonDoit/treble_superior_patches/14/changelog.txt",
   "variants": [
     {
       "name": "Slim",
       "size": "1252316440",
-      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14-v20240212/SuperiorOS_A14-arm64-bgS-slim_20240212.img.xz"
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14-v20240224/SuperiorOS_A14-arm64-bgS-slim_20240224.img.xz"
     },
     {
       "name": "Slim-VNDK-Lite",
       "size": "1181981336",
-      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14-v20240212/SuperiorOS_A14-arm64-bgS-slim-vndklite_20240212.img.xz"
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14-v20240224/SuperiorOS_A14-arm64-bgS-slim-vndklite_20240224.img.xz"
     },
     {
       "name": "Slim-Secure",
       "size": "1059046704",
-      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14-v20240212/SuperiorOS_A14-RO-arm64-bgN-slim_20240212.img.xz"
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14-v20240224/SuperiorOS_A14-RO-arm64-bgN-slim_20240224.img.xz"
     },
     {
       "name": "Vanilla",
       "size": "993852156",
-      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14-v20240212/SuperiorOS_A14-arm64-bvS_20240212.img.xz"
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14-v20240224/SuperiorOS_A14-arm64-bvS_20240224.img.xz"
     },
     {
       "name": "Vanilla-VNDK-Lite",
       "size": "941604432",
-      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14-v20240212/SuperiorOS_A14-arm64-bvS-vndklite_20240212.img.xz"
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14-v20240224/SuperiorOS_A14-arm64-bvS-vndklite_20240224.img.xz"
     }
   ]
 }
