@@ -1,23 +1,33 @@
 {
-  "version": "v20240211",
-  "date": "1707653024",
+  "version": "v20240302",
+  "date": "1709401322",
   "gsi": "SuperiorOS | by ChonDoe feat. TD",
   "changelog": "https://raw.githubusercontent.com/ChonDoit/treble_superior_patches/14/changelog.txt",
   "variants": [
     {
       "name": "Slim",
       "size": "1252316440",
-      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14-v20240211/SuperiorOS_A14-arm64-bgS-slim_20240211.img.xz"
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14-v20240302/SuperiorOS_A14-arm64-bgS-slim_20240302.img.xz"
     },
     {
       "name": "Slim-VNDK-Lite",
       "size": "1181981336",
-      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14-v20240211/SuperiorOS_A14-arm64-bgS-slim-vndklite_20240211.img.xz"
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14-v20240302/SuperiorOS_A14-arm64-bgS-slim-vndklite_20240302.img.xz"
     },
     {
       "name": "Slim-Secure",
       "size": "1059046704",
-      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14-v20240211/SuperiorOS_A14-RO-arm64-bgN-slim_20240211.img.xz"
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14-v20240302/SuperiorOS_A14-RO-arm64-bgN-slim_20240302.img.xz"
+    },
+    {
+      "name": "Vanilla",
+      "size": "993852156",
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14-v20240302/SuperiorOS_A14-arm64-bvS_20240302.img.xz"
+    },
+    {
+      "name": "Vanilla-VNDK-Lite",
+      "size": "941604432",
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14-v20240302/SuperiorOS_A14-arm64-bvS-vndklite_20240302.img.xz"
     }
   ]
 }
