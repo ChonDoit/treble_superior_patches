@@ -6,31 +6,17 @@ Subject: [PATCH] Nuke charger animation
 Alredy exists on Superior source
 
 ---
- charger/Android.mk | 68 ----------------------------------------------
- 1 file changed, 68 deletions(-)
+ charger/Android.mk | 51 ----------------------------------------------
+ 1 file changed, 51 deletions(-)
 
 diff --git a/charger/Android.mk b/charger/Android.mk
-index cc18272..e69de29 100644
+index cc18272..773c697 100644
 --- a/charger/Android.mk
 +++ b/charger/Android.mk
-@@ -1,68 +0,0 @@
--#
--# Copyright (C) 2020 Raphielscape LLC. and Haruka LLC.
--#
--# Licensed under the Apache License, Version 2.0 (the License);
--# you may not use this file except in compliance with the License.
--# You may obtain a copy of the License at
--#
--#      http://www.apache.org/licenses/LICENSE-2.0
--#
--# Unless required by applicable law or agreed to in writing, software
--# distributed under the License is distributed on an AS IS BASIS,
--# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
--# See the License for the specific language governing permissions and
--# limitations under the License.
--#
--#
--
+@@ -15,54 +15,3 @@
+ #
+ #
+ 
 -LOCAL_PATH := $(call my-dir)
 -
 -### pixel_charger_res_images ###

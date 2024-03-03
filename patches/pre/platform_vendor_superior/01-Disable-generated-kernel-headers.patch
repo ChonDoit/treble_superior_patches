@@ -1,16 +1,15 @@
-From 3edd46ef4299389eec328ebeeb3eef4bb85c55ad Mon Sep 17 00:00:00 2001
+From 720b8eacd6ab1af6beb82052357d45a7b51364d8 Mon Sep 17 00:00:00 2001
 From: ChonDoit <thphantomblog@gmail.com>
 Date: Sat, 1 Oct 2022 18:03:17 +0000
-Subject: [PATCH] Disable Generated Kernel Headers
+Subject: [PATCH 1/6] Disable Generated Kernel Headers
 
 ...but done in a way so that there's no need to remove generated_kernel_headers from individual projects - thanks @ExpressLuke
-
 ---
  build/soong/Android.bp | 11 -----------
  1 file changed, 11 deletions(-)
 
 diff --git a/build/soong/Android.bp b/build/soong/Android.bp
-index 24ab5a9f..4e35eeb6 100644
+index 952ca705..8db2e8dc 100644
 --- a/build/soong/Android.bp
 +++ b/build/soong/Android.bp
 @@ -20,9 +20,6 @@ bootstrap_go_package {
@@ -37,7 +36,8 @@ index 24ab5a9f..4e35eeb6 100644
 -    ],
  }
  
- cc_library_headers {
+ cc_defaults {
 -- 
 2.34.1
+
 

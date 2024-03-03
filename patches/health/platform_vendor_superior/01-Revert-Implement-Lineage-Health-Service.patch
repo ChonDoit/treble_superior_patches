@@ -1,0 +1,78 @@
+From 7641be81d13f5f73a492e94ec1ffc7062de8724c Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sun, 18 Feb 2024 16:34:13 -0300
+Subject: [PATCH] Revert "vendor: Implement Lineage Health Service [3/3]"
+
+This reverts commit 3e0a2bb64d95120c753720a373bef2b27499181a.
+---
+ config/packages.mk                            |  5 ----
+ config/permissions/org.lineageos.health.xml   | 23 -------------------
+ .../privapp-permissions-lineagehw.xml         | 10 --------
+ 3 files changed, 38 deletions(-)
+ delete mode 100644 config/permissions/org.lineageos.health.xml
+ delete mode 100644 config/permissions/privapp-permissions-lineagehw.xml
+
+diff --git a/config/packages.mk b/config/packages.mk
+index 2eb2a2b0..6fe4dca8 100644
+--- a/config/packages.mk
++++ b/config/packages.mk
+@@ -73,11 +73,6 @@ PRODUCT_COPY_FILES += \
+     frameworks/native/data/etc/android.hardware.biometrics.face.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/permissions/android.hardware.biometrics.face.xml
+ endif
+ 
+-# Lineage Hardware
+-PRODUCT_COPY_FILES += \
+-    vendor/superior/config/permissions/privapp-permissions-lineagehw.xml:$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/permissions/privapp-permissions-lineagehw.xml \
+-    vendor/superior/config/permissions/org.lineageos.health.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/permissions/org.lineageos.health.xml
+-
+ # World APN list
+ PRODUCT_PACKAGES += \
+     apns-conf.xml
+diff --git a/config/permissions/org.lineageos.health.xml b/config/permissions/org.lineageos.health.xml
+deleted file mode 100644
+index 2825d766..00000000
+--- a/config/permissions/org.lineageos.health.xml
++++ /dev/null
+@@ -1,23 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!-- Copyright (C) 2023 The LineageOS Project
+-
+-     Licensed under the Apache License, Version 2.0 (the "License");
+-     you may not use this file except in compliance with the License.
+-     You may obtain a copy of the License at
+-
+-          http://www.apache.org/licenses/LICENSE-2.0
+-
+-     Unless required by applicable law or agreed to in writing, software
+-     distributed under the License is distributed on an "AS IS" BASIS,
+-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-     See the License for the specific language governing permissions and
+-     limitations under the License.
+--->
+-
+-<permissions>
+-    <!-- The feature listed here coincides with the HealthInterfaceService declared as
+-        part of the external lineage service init in SystemServer. If this xml isn't present
+-        on the device, the service will not be published as a binder service!
+-    -->
+-    <feature name="org.lineageos.health" />
+-</permissions>
+diff --git a/config/permissions/privapp-permissions-lineagehw.xml b/config/permissions/privapp-permissions-lineagehw.xml
+deleted file mode 100644
+index d6cd26da..00000000
+--- a/config/permissions/privapp-permissions-lineagehw.xml
++++ /dev/null
+@@ -1,10 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<permissions>
+-    <privapp-permissions package="com.android.systemui">
+-        <permission name="lineageos.permission.HARDWARE_ABSTRACTION_ACCESS" />
+-    </privapp-permissions>
+-
+-    <privapp-permissions package="com.android.settings">
+-        <permission name="lineageos.permission.HARDWARE_ABSTRACTION_ACCESS" />
+-    </privapp-permissions>
+-</permissions>
+-- 
+2.34.1
+

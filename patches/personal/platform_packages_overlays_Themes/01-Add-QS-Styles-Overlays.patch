@@ -1,0 +1,1668 @@
+From 084d0d75eb92f6f9fab3362e9cc99d28353fbab5 Mon Sep 17 00:00:00 2001
+From: minaripenguin <minaripenguin@users.noreply.github.com>
+Date: Thu, 17 Aug 2023 05:08:16 +0530
+Subject: [PATCH] themes: Add Quick Settings Styles [3/3]
+
+Signed-off-by: minaripenguin <minaripenguin@users.noreply.github.com>
+---
+ themes.mk                                     |  8 ++++
+ themes/qs/A11QSUI/Android.mk                  | 31 ++++++++++++++
+ themes/qs/A11QSUI/AndroidManifest.xml         | 25 +++++++++++
+ .../res/drawable/qs_customizer_toolbar.xml    | 20 +++++++++
+ themes/qs/A11QSUI/res/values-land/config.xml  | 13 ++++++
+ themes/qs/A11QSUI/res/values-land/dimens.xml  |  5 +++
+ themes/qs/A11QSUI/res/values/dimens.xml       | 15 +++++++
+ themes/qs/QSDualAccentRounded/Android.bp      |  5 +++
+ .../QSDualAccentRounded/AndroidManifest.xml   | 31 ++++++++++++++
+ .../notif_footer_btn_background.xml           | 33 +++++++++++++++
+ .../notification_material_bg.xml              | 30 ++++++++++++++
+ .../drawable/bg_qs_brightness_auto_off.xml    | 22 ++++++++++
+ .../res/drawable/bg_qs_brightness_auto_on.xml | 22 ++++++++++
+ .../res/drawable/brightness_bg.xml            |  8 ++++
+ .../drawable/brightness_progress_drawable.xml | 41 +++++++++++++++++++
+ .../brightness_progress_full_drawable.xml     | 29 +++++++++++++
+ .../res/drawable/color_accent_alpha.xml       |  4 ++
+ .../res/drawable/color_accent_bg_alpha.xml    |  4 ++
+ .../res/drawable/ic_brightness_full.xml       | 14 +++++++
+ .../res/drawable/ic_brightness_low.xml        | 14 +++++++
+ .../drawable/ic_qs_brightness_auto_off.xml    |  5 +++
+ .../res/drawable/ic_qs_brightness_auto_on.xml |  5 +++
+ .../drawable/ic_qs_brightness_auto_on_new.xml |  5 +++
+ .../drawable/notif_footer_btn_background.xml  | 33 +++++++++++++++
+ .../res/drawable/notification_material_bg.xml | 30 ++++++++++++++
+ .../res/drawable/qs_footer_action_circle.xml  | 37 +++++++++++++++++
+ .../drawable/qs_footer_actions_background.xml | 22 ++++++++++
+ .../res/values-night/colors.xml               | 21 ++++++++++
+ .../QSDualAccentRounded/res/values/colors.xml | 21 ++++++++++
+ .../QSDualAccentRounded/res/values/dimens.xml | 26 ++++++++++++
+ .../QSDualAccentRoundedRectangle/Android.bp   |  5 +++
+ .../AndroidManifest.xml                       | 31 ++++++++++++++
+ .../notif_footer_btn_background.xml           | 33 +++++++++++++++
+ .../notification_material_bg.xml              | 30 ++++++++++++++
+ .../drawable/bg_qs_brightness_auto_off.xml    | 22 ++++++++++
+ .../res/drawable/bg_qs_brightness_auto_on.xml | 22 ++++++++++
+ .../res/drawable/brightness_bg.xml            |  8 ++++
+ .../drawable/brightness_progress_drawable.xml | 41 +++++++++++++++++++
+ .../brightness_progress_full_drawable.xml     | 29 +++++++++++++
+ .../res/drawable/color_accent_alpha.xml       |  4 ++
+ .../res/drawable/color_accent_bg_alpha.xml    |  4 ++
+ .../res/drawable/ic_brightness_full.xml       | 14 +++++++
+ .../res/drawable/ic_brightness_low.xml        | 14 +++++++
+ .../drawable/ic_qs_brightness_auto_off.xml    |  5 +++
+ .../res/drawable/ic_qs_brightness_auto_on.xml |  5 +++
+ .../drawable/ic_qs_brightness_auto_on_new.xml |  5 +++
+ .../drawable/notif_footer_btn_background.xml  | 33 +++++++++++++++
+ .../res/drawable/notification_material_bg.xml | 30 ++++++++++++++
+ .../res/drawable/qs_footer_action_circle.xml  | 37 +++++++++++++++++
+ .../drawable/qs_footer_actions_background.xml | 22 ++++++++++
+ .../res/values-night/colors.xml               | 20 +++++++++
+ .../res/values/colors.xml                     | 20 +++++++++
+ .../res/values/dimens.xml                     | 26 ++++++++++++
+ themes/qs/QSRounded/Android.bp                |  5 +++
+ themes/qs/QSRounded/AndroidManifest.xml       | 31 ++++++++++++++
+ themes/qs/QSRounded/res/values/dimens.xml     | 26 ++++++++++++
+ themes/qs/QSRoundedRectangle/Android.bp       |  5 +++
+ .../qs/QSRoundedRectangle/AndroidManifest.xml | 31 ++++++++++++++
+ .../res/drawable/brightness_bg.xml            |  8 ++++
+ .../QSRoundedRectangle/res/values/dimens.xml  | 26 ++++++++++++
+ 60 files changed, 1171 insertions(+)
+ create mode 100644 themes/qs/A11QSUI/Android.mk
+ create mode 100644 themes/qs/A11QSUI/AndroidManifest.xml
+ create mode 100644 themes/qs/A11QSUI/res/drawable/qs_customizer_toolbar.xml
+ create mode 100644 themes/qs/A11QSUI/res/values-land/config.xml
+ create mode 100644 themes/qs/A11QSUI/res/values-land/dimens.xml
+ create mode 100644 themes/qs/A11QSUI/res/values/dimens.xml
+ create mode 100644 themes/qs/QSDualAccentRounded/Android.bp
+ create mode 100644 themes/qs/QSDualAccentRounded/AndroidManifest.xml
+ create mode 100644 themes/qs/QSDualAccentRounded/res/drawable-night/notif_footer_btn_background.xml
+ create mode 100644 themes/qs/QSDualAccentRounded/res/drawable-night/notification_material_bg.xml
+ create mode 100644 themes/qs/QSDualAccentRounded/res/drawable/bg_qs_brightness_auto_off.xml
+ create mode 100644 themes/qs/QSDualAccentRounded/res/drawable/bg_qs_brightness_auto_on.xml
+ create mode 100644 themes/qs/QSDualAccentRounded/res/drawable/brightness_bg.xml
+ create mode 100644 themes/qs/QSDualAccentRounded/res/drawable/brightness_progress_drawable.xml
+ create mode 100644 themes/qs/QSDualAccentRounded/res/drawable/brightness_progress_full_drawable.xml
+ create mode 100644 themes/qs/QSDualAccentRounded/res/drawable/color_accent_alpha.xml
+ create mode 100644 themes/qs/QSDualAccentRounded/res/drawable/color_accent_bg_alpha.xml
+ create mode 100644 themes/qs/QSDualAccentRounded/res/drawable/ic_brightness_full.xml
+ create mode 100644 themes/qs/QSDualAccentRounded/res/drawable/ic_brightness_low.xml
+ create mode 100644 themes/qs/QSDualAccentRounded/res/drawable/ic_qs_brightness_auto_off.xml
+ create mode 100644 themes/qs/QSDualAccentRounded/res/drawable/ic_qs_brightness_auto_on.xml
+ create mode 100644 themes/qs/QSDualAccentRounded/res/drawable/ic_qs_brightness_auto_on_new.xml
+ create mode 100644 themes/qs/QSDualAccentRounded/res/drawable/notif_footer_btn_background.xml
+ create mode 100644 themes/qs/QSDualAccentRounded/res/drawable/notification_material_bg.xml
+ create mode 100644 themes/qs/QSDualAccentRounded/res/drawable/qs_footer_action_circle.xml
+ create mode 100644 themes/qs/QSDualAccentRounded/res/drawable/qs_footer_actions_background.xml
+ create mode 100644 themes/qs/QSDualAccentRounded/res/values-night/colors.xml
+ create mode 100644 themes/qs/QSDualAccentRounded/res/values/colors.xml
+ create mode 100644 themes/qs/QSDualAccentRounded/res/values/dimens.xml
+ create mode 100644 themes/qs/QSDualAccentRoundedRectangle/Android.bp
+ create mode 100644 themes/qs/QSDualAccentRoundedRectangle/AndroidManifest.xml
+ create mode 100644 themes/qs/QSDualAccentRoundedRectangle/res/drawable-night/notif_footer_btn_background.xml
+ create mode 100644 themes/qs/QSDualAccentRoundedRectangle/res/drawable-night/notification_material_bg.xml
+ create mode 100644 themes/qs/QSDualAccentRoundedRectangle/res/drawable/bg_qs_brightness_auto_off.xml
+ create mode 100644 themes/qs/QSDualAccentRoundedRectangle/res/drawable/bg_qs_brightness_auto_on.xml
+ create mode 100644 themes/qs/QSDualAccentRoundedRectangle/res/drawable/brightness_bg.xml
+ create mode 100644 themes/qs/QSDualAccentRoundedRectangle/res/drawable/brightness_progress_drawable.xml
+ create mode 100644 themes/qs/QSDualAccentRoundedRectangle/res/drawable/brightness_progress_full_drawable.xml
+ create mode 100644 themes/qs/QSDualAccentRoundedRectangle/res/drawable/color_accent_alpha.xml
+ create mode 100644 themes/qs/QSDualAccentRoundedRectangle/res/drawable/color_accent_bg_alpha.xml
+ create mode 100644 themes/qs/QSDualAccentRoundedRectangle/res/drawable/ic_brightness_full.xml
+ create mode 100644 themes/qs/QSDualAccentRoundedRectangle/res/drawable/ic_brightness_low.xml
+ create mode 100644 themes/qs/QSDualAccentRoundedRectangle/res/drawable/ic_qs_brightness_auto_off.xml
+ create mode 100644 themes/qs/QSDualAccentRoundedRectangle/res/drawable/ic_qs_brightness_auto_on.xml
+ create mode 100644 themes/qs/QSDualAccentRoundedRectangle/res/drawable/ic_qs_brightness_auto_on_new.xml
+ create mode 100644 themes/qs/QSDualAccentRoundedRectangle/res/drawable/notif_footer_btn_background.xml
+ create mode 100644 themes/qs/QSDualAccentRoundedRectangle/res/drawable/notification_material_bg.xml
+ create mode 100644 themes/qs/QSDualAccentRoundedRectangle/res/drawable/qs_footer_action_circle.xml
+ create mode 100644 themes/qs/QSDualAccentRoundedRectangle/res/drawable/qs_footer_actions_background.xml
+ create mode 100644 themes/qs/QSDualAccentRoundedRectangle/res/values-night/colors.xml
+ create mode 100644 themes/qs/QSDualAccentRoundedRectangle/res/values/colors.xml
+ create mode 100644 themes/qs/QSDualAccentRoundedRectangle/res/values/dimens.xml
+ create mode 100644 themes/qs/QSRounded/Android.bp
+ create mode 100644 themes/qs/QSRounded/AndroidManifest.xml
+ create mode 100644 themes/qs/QSRounded/res/values/dimens.xml
+ create mode 100644 themes/qs/QSRoundedRectangle/Android.bp
+ create mode 100644 themes/qs/QSRoundedRectangle/AndroidManifest.xml
+ create mode 100644 themes/qs/QSRoundedRectangle/res/drawable/brightness_bg.xml
+ create mode 100644 themes/qs/QSRoundedRectangle/res/values/dimens.xml
+
+diff --git a/themes.mk b/themes.mk
+index 471d375..9638242 100644
+--- a/themes.mk
++++ b/themes.mk
+@@ -325,3 +325,11 @@ PRODUCT_PACKAGES += \
+     IconDataOne \
+     IconDataThree \
+     IconDataTwo
++
++# QS Styles
++PRODUCT_PACKAGES += \
++    A11QSUI \
++    QSDualRounded \
++    QSDualRoundedRectangle \
++    QSRounded \
++    QSRoundedRectangle
+diff --git a/themes/qs/A11QSUI/Android.mk b/themes/qs/A11QSUI/Android.mk
+new file mode 100644
+index 0000000..dd2a7ac
+--- /dev/null
++++ b/themes/qs/A11QSUI/Android.mk
+@@ -0,0 +1,31 @@
++#
++# Copyright (c) 2023, the RisingOS Android Project
++#
++# Licensed under the Apache License, Version 2.0 (the "License");
++# you may not use this file except in compliance with the License.
++# You may obtain a copy of the License at
++#
++#     http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS,
++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# See the License for the specific language governing permissions and
++# limitations under the License.
++#
++
++LOCAL_PATH := $(call my-dir)
++include $(CLEAR_VARS)
++
++LOCAL_RRO_THEME := A11QSUI
++
++LOCAL_PRODUCT_MODULE := true
++
++LOCAL_SRC_FILES := $(call all-subdir-java-files)
++
++LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
++
++LOCAL_PACKAGE_NAME := A11QSUI
++LOCAL_SDK_VERSION := current
++
++include $(BUILD_RRO_PACKAGE)
+diff --git a/themes/qs/A11QSUI/AndroidManifest.xml b/themes/qs/A11QSUI/AndroidManifest.xml
+new file mode 100644
+index 0000000..bbf9fc3
+--- /dev/null
++++ b/themes/qs/A11QSUI/AndroidManifest.xml
+@@ -0,0 +1,25 @@
++<!--
++/**
++ * Copyright (c) 2023, the RisingOS Android Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++-->
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.android.system.qs.ui.A11"
++    android:versionCode="1"
++    android:versionName="1.0">
++    <overlay android:targetPackage="com.android.systemui" android:category="android.theme.customization.qs_ui" android:priority="1"/>
++
++    <application android:label="A11 QS-UI" android:hasCode="false"/>
++</manifest>
+diff --git a/themes/qs/A11QSUI/res/drawable/qs_customizer_toolbar.xml b/themes/qs/A11QSUI/res/drawable/qs_customizer_toolbar.xml
+new file mode 100644
+index 0000000..50cbebc
+--- /dev/null
++++ b/themes/qs/A11QSUI/res/drawable/qs_customizer_toolbar.xml
+@@ -0,0 +1,20 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2014 The Android Open Source Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++<inset xmlns:android="http://schemas.android.com/apk/res/android">
++    <shape>
++        <solid android:color="@android:color/transparent"/>
++    </shape>
++</inset>
+diff --git a/themes/qs/A11QSUI/res/values-land/config.xml b/themes/qs/A11QSUI/res/values-land/config.xml
+new file mode 100644
+index 0000000..d2c446d
+--- /dev/null
++++ b/themes/qs/A11QSUI/res/values-land/config.xml
+@@ -0,0 +1,13 @@
++<?xml version="1.0" encoding="utf-8"?>
++<resources>
++    <!-- The maximum number of tiles in the QuickQSPanel -->
++    <integer name="quick_qs_panel_max_tiles">4</integer>
++
++    <!-- The maximum number of rows in the QuickQSPanel -->
++    <integer name="quick_qs_panel_max_rows">2</integer>
++
++    <!-- The maximum number of rows in the QuickSettings -->
++    <integer name="quick_settings_max_rows">2</integer>
++
++    <integer name="quick_settings_num_columns">4</integer>
++</resources>
+diff --git a/themes/qs/A11QSUI/res/values-land/dimens.xml b/themes/qs/A11QSUI/res/values-land/dimens.xml
+new file mode 100644
+index 0000000..f9cc4a9
+--- /dev/null
++++ b/themes/qs/A11QSUI/res/values-land/dimens.xml
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<resources>
++    <!-- A11 QS style -->
++    <dimen name="qs_tile_margin_vertical">8dp</dimen>
++</resources>
+diff --git a/themes/qs/A11QSUI/res/values/dimens.xml b/themes/qs/A11QSUI/res/values/dimens.xml
+new file mode 100644
+index 0000000..0a5ebc8
+--- /dev/null
++++ b/themes/qs/A11QSUI/res/values/dimens.xml
+@@ -0,0 +1,15 @@
++<?xml version="1.0" encoding="utf-8"?>
++<resources>
++    <!-- A11 QS style -->
++    <dimen name="custom_qs_panel_padding_top">24dp</dimen>
++    <dimen name="custom_notification_row_padding">0dp</dimen>
++    <dimen name="qs_tile_height">96dp</dimen>
++    <dimen name="qs_tile_margin_horizontal">22dp</dimen>
++    <dimen name="qs_footer_height">72dp</dimen>
++    <dimen name="qs_customize_internal_side_paddings">6dp</dimen>
++    <dimen name="qs_label_container_margin">6dp</dimen>
++    <dimen name="qs_quick_tile_size">55dp</dimen>
++    <dimen name="qs_tile_padding">18dp</dimen>
++    <dimen name="qs_tile_text_size">12sp</dimen>
++    <dimen name="qqs_top_brightness_margin_bottom">36dp</dimen>
++</resources>
+diff --git a/themes/qs/QSDualAccentRounded/Android.bp b/themes/qs/QSDualAccentRounded/Android.bp
+new file mode 100644
+index 0000000..c621d8a
+--- /dev/null
++++ b/themes/qs/QSDualAccentRounded/Android.bp
+@@ -0,0 +1,5 @@
++runtime_resource_overlay {
++    name: "QSDualRounded",
++    theme: "QSDualRounded",
++    product_specific: true,
++}
+diff --git a/themes/qs/QSDualAccentRounded/AndroidManifest.xml b/themes/qs/QSDualAccentRounded/AndroidManifest.xml
+new file mode 100644
+index 0000000..225dd3a
+--- /dev/null
++++ b/themes/qs/QSDualAccentRounded/AndroidManifest.xml
+@@ -0,0 +1,31 @@
++<!--
++/**
++ * Copyright (c) 2022, CorvusOS
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++-->
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.android.system.qs.dualaccentround"
++    android:versionCode="1"
++    android:versionName="1.0">
++
++    <overlay
++        android:targetPackage="com.android.systemui"
++        android:category="android.theme.customization.qs_panel"
++        android:priority="1"/>
++
++    <application
++        android:label="QS Dual Accent Rounded"
++        android:hasCode="false"/>
++</manifest>
+\ No newline at end of file
+diff --git a/themes/qs/QSDualAccentRounded/res/drawable-night/notif_footer_btn_background.xml b/themes/qs/QSDualAccentRounded/res/drawable-night/notif_footer_btn_background.xml
+new file mode 100644
+index 0000000..c9ce9eb
+--- /dev/null
++++ b/themes/qs/QSDualAccentRounded/res/drawable-night/notif_footer_btn_background.xml
+@@ -0,0 +1,33 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright (C) 2021 The Android Open Source Project
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License.
++  -->
++<ripple xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
++    android:color="@drawable/color_accent_alpha">
++    <item>
++        <inset
++            android:insetBottom="4dp"
++            android:insetTop="4dp">
++            <shape android:shape="rectangle">
++                <corners android:radius="?android:attr/dialogCornerRadius" />
++                <padding
++                    android:left="20dp"
++                    android:right="20dp" />
++                <solid android:color="#0FFFFFFF" />
++            </shape>
++        </inset>
++    </item>
++</ripple>
+diff --git a/themes/qs/QSDualAccentRounded/res/drawable-night/notification_material_bg.xml b/themes/qs/QSDualAccentRounded/res/drawable-night/notification_material_bg.xml
+new file mode 100644
+index 0000000..b4aae82
+--- /dev/null
++++ b/themes/qs/QSDualAccentRounded/res/drawable-night/notification_material_bg.xml
+@@ -0,0 +1,30 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright (C) 2014 The Android Open Source Project
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License
++  -->
++
++<ripple xmlns:android="http://schemas.android.com/apk/res/android"
++        xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
++        android:color="?android:attr/colorControlHighlight">
++    <item>
++        <shape android:shape="rectangle">
++                <corners android:radius="?android:attr/dialogCornerRadius" />
++                <padding
++                    android:left="12dp"
++                    android:right="12dp" />
++                <solid android:color="?androidprv:attr/colorSurface" />
++       </shape>
++    </item>
++</ripple>
+diff --git a/themes/qs/QSDualAccentRounded/res/drawable/bg_qs_brightness_auto_off.xml b/themes/qs/QSDualAccentRounded/res/drawable/bg_qs_brightness_auto_off.xml
+new file mode 100644
+index 0000000..f4d8625
+--- /dev/null
++++ b/themes/qs/QSDualAccentRounded/res/drawable/bg_qs_brightness_auto_off.xml
+@@ -0,0 +1,22 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright (C) 2021 The Android Open Source Project
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License.
++  -->
++
++<shape xmlns:android="http://schemas.android.com/apk/res/android">
++    <corners android:radius="?android:attr/dialogCornerRadius" />
++    <solid android:color="@drawable/color_accent_alpha" />
++    <size android:width="48dp" android:height="48dp" />
++</shape>
+diff --git a/themes/qs/QSDualAccentRounded/res/drawable/bg_qs_brightness_auto_on.xml b/themes/qs/QSDualAccentRounded/res/drawable/bg_qs_brightness_auto_on.xml
+new file mode 100644
+index 0000000..f4d8625
+--- /dev/null
++++ b/themes/qs/QSDualAccentRounded/res/drawable/bg_qs_brightness_auto_on.xml
+@@ -0,0 +1,22 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright (C) 2021 The Android Open Source Project
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License.
++  -->
++
++<shape xmlns:android="http://schemas.android.com/apk/res/android">
++    <corners android:radius="?android:attr/dialogCornerRadius" />
++    <solid android:color="@drawable/color_accent_alpha" />
++    <size android:width="48dp" android:height="48dp" />
++</shape>
+diff --git a/themes/qs/QSDualAccentRounded/res/drawable/brightness_bg.xml b/themes/qs/QSDualAccentRounded/res/drawable/brightness_bg.xml
+new file mode 100644
+index 0000000..e704261
+--- /dev/null
++++ b/themes/qs/QSDualAccentRounded/res/drawable/brightness_bg.xml
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="utf-8"?>
++<shape xmlns:android="http://schemas.android.com/apk/res/android">
++    <corners android:radius="28dp" />
++    <solid android:alpha="0.5" android:color="?android:attr/colorAccent" />
++    <size
++        android:width="48.0dip"
++        android:height="48.0dip" />
++</shape>
+diff --git a/themes/qs/QSDualAccentRounded/res/drawable/brightness_progress_drawable.xml b/themes/qs/QSDualAccentRounded/res/drawable/brightness_progress_drawable.xml
+new file mode 100644
+index 0000000..d9d262f
+--- /dev/null
++++ b/themes/qs/QSDualAccentRounded/res/drawable/brightness_progress_drawable.xml
+@@ -0,0 +1,41 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright (C) 2022 CorvusOS
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License.
++  -->
++<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
++            android:paddingMode="stack" >
++    <item android:id="@android:id/background"
++        android:gravity="center_vertical|fill_horizontal">
++        <shape android:shape="rectangle">
++            <size android:height="@dimen/rounded_slider_height" />
++            <corners android:radius="28dp" />
++            <solid android:color="@color/qs_translucent_brightness_bg" />
++        </shape>
++    </item>
++    <item android:id="@android:id/progress"
++          android:gravity="center|fill_horizontal">
++            <com.android.systemui.util.RoundedCornerProgressDrawable
++                android:drawable="@drawable/brightness_progress_full_drawable"
++            />
++    </item>
++    <item
++        android:gravity="start|center"
++        android:drawable="@drawable/ic_brightness_low"
++        android:start="18.0dip" />
++    <item
++        android:gravity="end|center"
++        android:drawable="@drawable/ic_brightness_full"
++        android:end="18.0dip" />
++</layer-list>
+diff --git a/themes/qs/QSDualAccentRounded/res/drawable/brightness_progress_full_drawable.xml b/themes/qs/QSDualAccentRounded/res/drawable/brightness_progress_full_drawable.xml
+new file mode 100644
+index 0000000..71c10a0
+--- /dev/null
++++ b/themes/qs/QSDualAccentRounded/res/drawable/brightness_progress_full_drawable.xml
+@@ -0,0 +1,29 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright 2018 The Android Open Source Project
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License.
++  -->
++
++<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:priv-android="http://schemas.android.com/apk/prv/res/android"
++    android:autoMirrored="true">
++    <item android:id="@+id/slider_foreground"
++        android:height="@dimen/rounded_slider_height">
++        <shape>
++            <size android:height="28dp" />
++            <solid android:color="@drawable/color_accent_alpha" />
++            <corners android:radius="@dimen/rounded_slider_corner_radius" />
++        </shape>
++    </item>
++</layer-list>
+diff --git a/themes/qs/QSDualAccentRounded/res/drawable/color_accent_alpha.xml b/themes/qs/QSDualAccentRounded/res/drawable/color_accent_alpha.xml
+new file mode 100644
+index 0000000..3c43da5
+--- /dev/null
++++ b/themes/qs/QSDualAccentRounded/res/drawable/color_accent_alpha.xml
+@@ -0,0 +1,4 @@
++<?xml version="1.0" encoding="utf-8"?>
++<selector xmlns:android="http://schemas.android.com/apk/res/android">
++    <item android:alpha="0.2" android:color="?android:attr/colorAccent" />
++</selector>
+diff --git a/themes/qs/QSDualAccentRounded/res/drawable/color_accent_bg_alpha.xml b/themes/qs/QSDualAccentRounded/res/drawable/color_accent_bg_alpha.xml
+new file mode 100644
+index 0000000..9c34bab
+--- /dev/null
++++ b/themes/qs/QSDualAccentRounded/res/drawable/color_accent_bg_alpha.xml
+@@ -0,0 +1,4 @@
++<?xml version="1.0" encoding="utf-8"?>
++<selector xmlns:android="http://schemas.android.com/apk/res/android">
++    <item android:alpha="0.93" android:color="@*android:color/system_neutral1_0" />
++</selector>
+diff --git a/themes/qs/QSDualAccentRounded/res/drawable/ic_brightness_full.xml b/themes/qs/QSDualAccentRounded/res/drawable/ic_brightness_full.xml
+new file mode 100644
+index 0000000..84976cd
+--- /dev/null
++++ b/themes/qs/QSDualAccentRounded/res/drawable/ic_brightness_full.xml
+@@ -0,0 +1,14 @@
++<?xml version="1.0" encoding="utf-8"?>
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
++    android:height="18dp"
++    android:width="18dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++
++
++    <path
++        android:fillColor="?android:colorAccent"
++        android:pathData="M11.1 5V1h1.8v4h-1.8zM12 6.1c-3.258 0-5.9 2.642-5.9 5.9 0 3.258 2.642 5.9 5.9 5.9 3.259 0 5.9-2.641 5.9-5.9 0-3.258-2.641-5.9-5.9-5.9zm7.142-2.514l-2.828 2.828 1.273 1.272 2.828-2.828-1.273-1.272zM19 11.1h4v1.8h-4v-1.8zm1.415 8.042l-2.828-2.828-1.273 1.272 2.828 2.828 1.273-1.272zM12.9 19v4h-1.8v-4h1.8zm-8.041 1.414l2.827-2.828-1.272-1.272-2.828 2.828 1.273 1.272zM5 12.9H1v-1.8h4v1.8zM3.586 4.858l2.828 2.828 1.272-1.272L4.86 3.586 3.586 4.858z"
++        android:strokeWidth="1.0"/>
++</vector>
+diff --git a/themes/qs/QSDualAccentRounded/res/drawable/ic_brightness_low.xml b/themes/qs/QSDualAccentRounded/res/drawable/ic_brightness_low.xml
+new file mode 100644
+index 0000000..0b646a6
+--- /dev/null
++++ b/themes/qs/QSDualAccentRounded/res/drawable/ic_brightness_low.xml
+@@ -0,0 +1,14 @@
++<?xml version="1.0" encoding="utf-8"?>
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
++    android:height="18dp"
++    android:width="18dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++
++    <path
++        android:fillColor="?android:colorAccent"
++        android:pathData="M11.25 3h1.5v2h-1.5V3zm-5 9c0 3.176 2.574 5.75 5.75 5.75s5.75-2.574 5.75-5.75S15.176 6.25 12 6.25 6.25 8.824 6.25 12zm10 0c0 2.347-1.903 4.25-4.25 4.25S7.75 14.347 7.75 12 9.653 7.75 12 7.75s4.25 1.903 4.25 4.25zm-5 9v-2h1.5v2h-1.5zM3 11.25v1.5h2v-1.5H3zm16 1.5h2v-1.5h-2v1.5zM6.17 18.89l-1.06-1.06 1.41-1.41 1.06 1.06-1.41 1.41zm0-13.78L5.11 6.17l1.41 1.41 1.06-1.06-1.41-1.41zm11.66 0l1.06 1.06-1.41 1.41-1.06-1.06 1.41-1.41zm0 13.78l1.06-1.06-1.41-1.41-1.06 1.06 1.41 1.41z"
++        android:fillType="evenOdd"
++        android:strokeWidth="1.0"/>
++</vector>
+diff --git a/themes/qs/QSDualAccentRounded/res/drawable/ic_qs_brightness_auto_off.xml b/themes/qs/QSDualAccentRounded/res/drawable/ic_qs_brightness_auto_off.xml
+new file mode 100644
+index 0000000..7ab9660
+--- /dev/null
++++ b/themes/qs/QSDualAccentRounded/res/drawable/ic_qs_brightness_auto_off.xml
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<vector android:tint="?android:attr/colorAccent" android:height="24.0dip" android:width="24.0dip" android:viewportWidth="24.0" android:viewportHeight="24.0"
++  xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:pathData="M4.469 15.107V18c0 .828.671 1.5 1.5 1.5h2.893l2.046 2.046c.586.586 1.536.586   2.121 0l2.046-2.046h2.894c.828 0 1.5-.672 1.5-1.5v-2.893l2.046-2.046c.585-.586.585-1.536   0-2.122l-2.046-2.046V6c0-.828-.672-1.5-1.5-1.5h-2.894l-2.046-2.046c-.585-.586-1.535-.586-2.121   0L8.862 4.5H5.969c-.829 0-1.5.672-1.5 1.5v2.893l-2.046 2.046c-.586.586-.586 1.536 0 2.122l2.046 2.046   M 12 8.5 C 13.9329966244 8.5 15.5 10.0670033756 15.5 12 C 15.5 13.9329966244 13.9329966244 15.5 12 15.5   C 10.0670033756 15.5 8.5 13.9329966244 8.5 12 C 8.5   10.0670033756 10.0670033756 8.5 12 8.5 Z" android:strokeColor="#ffffffff" android:strokeWidth="1.5" android:strokeLineCap="round" android:strokeLineJoin="round" />
++</vector>
+diff --git a/themes/qs/QSDualAccentRounded/res/drawable/ic_qs_brightness_auto_on.xml b/themes/qs/QSDualAccentRounded/res/drawable/ic_qs_brightness_auto_on.xml
+new file mode 100644
+index 0000000..e7cad59
+--- /dev/null
++++ b/themes/qs/QSDualAccentRounded/res/drawable/ic_qs_brightness_auto_on.xml
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<vector android:tint="?android:attr/colorAccent" android:height="24.0dip" android:width="24.0dip" android:viewportWidth="24.0" android:viewportHeight="24.0"
++  xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:pathData="M4.469 15.107V18c0 .828.671 1.5 1.5 1.5h2.893l2.046 2.046c.586.586 1.536.586   2.121 0l2.046-2.046h2.894c.828 0 1.5-.672 1.5-1.5v-2.893l2.046-2.046c.585-.586.585-1.536   0-2.122l-2.046-2.046V6c0-.828-.672-1.5-1.5-1.5h-2.894l-2.046-2.046c-.585-.586-1.535-.586-2.121   0L8.862 4.5H5.969c-.829 0-1.5.672-1.5 1.5v2.893l-2.046 2.046c-.586.586-.586 1.536 0 2.122l2.046 2.046   M9.195,15.25c0,0 1.792,-4.85 2.512,-6.796c0.045,-0.123 0.162,-0.204 0.293,-0.204c0.131,0 0.248,0.081   0.293,0.204c0.72,1.946 2.512,6.796 2.512,6.796m-4.512,-2.97l3.414,0" android:strokeColor="#ffffffff" android:strokeWidth="1.5" android:strokeLineCap="round" android:strokeLineJoin="round" />
++</vector>
+diff --git a/themes/qs/QSDualAccentRounded/res/drawable/ic_qs_brightness_auto_on_new.xml b/themes/qs/QSDualAccentRounded/res/drawable/ic_qs_brightness_auto_on_new.xml
+new file mode 100644
+index 0000000..e7cad59
+--- /dev/null
++++ b/themes/qs/QSDualAccentRounded/res/drawable/ic_qs_brightness_auto_on_new.xml
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<vector android:tint="?android:attr/colorAccent" android:height="24.0dip" android:width="24.0dip" android:viewportWidth="24.0" android:viewportHeight="24.0"
++  xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:pathData="M4.469 15.107V18c0 .828.671 1.5 1.5 1.5h2.893l2.046 2.046c.586.586 1.536.586   2.121 0l2.046-2.046h2.894c.828 0 1.5-.672 1.5-1.5v-2.893l2.046-2.046c.585-.586.585-1.536   0-2.122l-2.046-2.046V6c0-.828-.672-1.5-1.5-1.5h-2.894l-2.046-2.046c-.585-.586-1.535-.586-2.121   0L8.862 4.5H5.969c-.829 0-1.5.672-1.5 1.5v2.893l-2.046 2.046c-.586.586-.586 1.536 0 2.122l2.046 2.046   M9.195,15.25c0,0 1.792,-4.85 2.512,-6.796c0.045,-0.123 0.162,-0.204 0.293,-0.204c0.131,0 0.248,0.081   0.293,0.204c0.72,1.946 2.512,6.796 2.512,6.796m-4.512,-2.97l3.414,0" android:strokeColor="#ffffffff" android:strokeWidth="1.5" android:strokeLineCap="round" android:strokeLineJoin="round" />
++</vector>
+diff --git a/themes/qs/QSDualAccentRounded/res/drawable/notif_footer_btn_background.xml b/themes/qs/QSDualAccentRounded/res/drawable/notif_footer_btn_background.xml
+new file mode 100644
+index 0000000..6628c30
+--- /dev/null
++++ b/themes/qs/QSDualAccentRounded/res/drawable/notif_footer_btn_background.xml
+@@ -0,0 +1,33 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright (C) 2021 The Android Open Source Project
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License.
++  -->
++<ripple xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
++    android:color="@drawable/color_accent_alpha">
++    <item>
++        <inset
++            android:insetBottom="4dp"
++            android:insetTop="4dp">
++            <shape android:shape="rectangle">
++                <corners android:radius="?android:attr/dialogCornerRadius" />
++                <padding
++                    android:left="20dp"
++                    android:right="20dp" />
++                <solid android:color="#59FFFFFF" />
++            </shape>
++        </inset>
++    </item>
++</ripple>
+diff --git a/themes/qs/QSDualAccentRounded/res/drawable/notification_material_bg.xml b/themes/qs/QSDualAccentRounded/res/drawable/notification_material_bg.xml
+new file mode 100644
+index 0000000..858649f
+--- /dev/null
++++ b/themes/qs/QSDualAccentRounded/res/drawable/notification_material_bg.xml
+@@ -0,0 +1,30 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright (C) 2014 The Android Open Source Project
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License
++  -->
++
++<ripple xmlns:android="http://schemas.android.com/apk/res/android"
++        xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
++        android:color="?android:attr/colorControlHighlight">
++    <item>
++        <shape android:shape="rectangle">
++                <corners android:radius="?android:attr/dialogCornerRadius" />
++                <padding
++                    android:left="12dp"
++                    android:right="12dp" />
++             <solid android:color="?androidprv:attr/colorSurface" />
++       </shape>
++    </item>
++</ripple>
+diff --git a/themes/qs/QSDualAccentRounded/res/drawable/qs_footer_action_circle.xml b/themes/qs/QSDualAccentRounded/res/drawable/qs_footer_action_circle.xml
+new file mode 100644
+index 0000000..3c4aff3
+--- /dev/null
++++ b/themes/qs/QSDualAccentRounded/res/drawable/qs_footer_action_circle.xml
+@@ -0,0 +1,37 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright (C) 2022 The Android Open Source Project
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License.
++  -->
++<inset xmlns:android="http://schemas.android.com/apk/res/android"
++       android:inset="4dp">
++    <ripple
++        android:color="?android:attr/colorControlHighlight">
++        <item android:id="@android:id/mask">
++            <!-- We make this shape a rounded rectangle instead of a oval so that it can animate -->
++            <!-- properly into an app/dialog. -->
++            <shape android:shape="rectangle">
++                <solid android:color="@android:color/white"/>
++                <corners android:radius="20dp"/>
++            </shape>
++        </item>
++        <item>
++            <shape android:shape="rectangle">
++                <solid android:color="@*android:color/qs_translucent_brightness_bg" />
++                <corners android:radius="20dp"/>
++            </shape>
++        </item>
++
++    </ripple>
++</inset>
+diff --git a/themes/qs/QSDualAccentRounded/res/drawable/qs_footer_actions_background.xml b/themes/qs/QSDualAccentRounded/res/drawable/qs_footer_actions_background.xml
+new file mode 100644
+index 0000000..87cfe62
+--- /dev/null
++++ b/themes/qs/QSDualAccentRounded/res/drawable/qs_footer_actions_background.xml
+@@ -0,0 +1,22 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2014 The Android Open Source Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++<inset xmlns:android="http://schemas.android.com/apk/res/android">
++    <shape>
++        <solid android:color="@android:color/transparent"/>
++        <corners android:topLeftRadius="?android:attr/dialogCornerRadius"
++                 android:topRightRadius="?android:attr/dialogCornerRadius"/>
++    </shape>
++</inset>
+diff --git a/themes/qs/QSDualAccentRounded/res/values-night/colors.xml b/themes/qs/QSDualAccentRounded/res/values-night/colors.xml
+new file mode 100644
+index 0000000..6987ec4
+--- /dev/null
++++ b/themes/qs/QSDualAccentRounded/res/values-night/colors.xml
+@@ -0,0 +1,21 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright (C) 2023 crDroid Android Project
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License
++  -->
++
++<resources>
++
++    <color name="qs_translucent_brightness_bg">#0FFFFFFF</color>
++</resources>
+diff --git a/themes/qs/QSDualAccentRounded/res/values/colors.xml b/themes/qs/QSDualAccentRounded/res/values/colors.xml
+new file mode 100644
+index 0000000..d9e1984
+--- /dev/null
++++ b/themes/qs/QSDualAccentRounded/res/values/colors.xml
+@@ -0,0 +1,21 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright (C) 2023 crDroid Android Project
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License
++  -->
++
++<resources>
++
++    <color name="qs_translucent_brightness_bg">#33FFFFFF</color>
++</resources>
+diff --git a/themes/qs/QSDualAccentRounded/res/values/dimens.xml b/themes/qs/QSDualAccentRounded/res/values/dimens.xml
+new file mode 100644
+index 0000000..89aeaff
+--- /dev/null
++++ b/themes/qs/QSDualAccentRounded/res/values/dimens.xml
+@@ -0,0 +1,26 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright (C) 2022 CorvusOS
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License
++  -->
++<resources>
++    <dimen name="brightness_mirror_height">48dp</dimen>
++    <dimen name="qs_corner_radius">28dp</dimen>
++    <dimen name="rounded_slider_corner_radius">28dp</dimen>
++    <dimen name="rounded_slider_height">48dp</dimen>
++    <dimen name="rounded_slider_background_rounded_corner">28dp</dimen>
++    <dimen name="rounded_slider_track_corner_radius">28dp</dimen>
++    <dimen name="notification_corner_radius">28dp</dimen>
++    <dimen name="notification_corner_radius_small">12dp</dimen>
++</resources>
+diff --git a/themes/qs/QSDualAccentRoundedRectangle/Android.bp b/themes/qs/QSDualAccentRoundedRectangle/Android.bp
+new file mode 100644
+index 0000000..223ec96
+--- /dev/null
++++ b/themes/qs/QSDualAccentRoundedRectangle/Android.bp
+@@ -0,0 +1,5 @@
++runtime_resource_overlay {
++    name: "QSDualRoundedRectangle",
++    theme: "QSDualRoundedRectangle",
++    product_specific: true,
++}
+diff --git a/themes/qs/QSDualAccentRoundedRectangle/AndroidManifest.xml b/themes/qs/QSDualAccentRoundedRectangle/AndroidManifest.xml
+new file mode 100644
+index 0000000..4113b9c
+--- /dev/null
++++ b/themes/qs/QSDualAccentRoundedRectangle/AndroidManifest.xml
+@@ -0,0 +1,31 @@
++<!--
++/**
++ * Copyright (c) 2022, CorvusOS
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++-->
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.android.system.qs.dualaccentrect"
++    android:versionCode="1"
++    android:versionName="1.0">
++
++    <overlay
++        android:targetPackage="com.android.systemui"
++        android:category="android.theme.customization.qs_panel"
++        android:priority="1"/>
++
++    <application
++        android:label="QS Dual Accent Rectangle"
++        android:hasCode="false"/>
++</manifest>
+diff --git a/themes/qs/QSDualAccentRoundedRectangle/res/drawable-night/notif_footer_btn_background.xml b/themes/qs/QSDualAccentRoundedRectangle/res/drawable-night/notif_footer_btn_background.xml
+new file mode 100644
+index 0000000..c9ce9eb
+--- /dev/null
++++ b/themes/qs/QSDualAccentRoundedRectangle/res/drawable-night/notif_footer_btn_background.xml
+@@ -0,0 +1,33 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright (C) 2021 The Android Open Source Project
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License.
++  -->
++<ripple xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
++    android:color="@drawable/color_accent_alpha">
++    <item>
++        <inset
++            android:insetBottom="4dp"
++            android:insetTop="4dp">
++            <shape android:shape="rectangle">
++                <corners android:radius="?android:attr/dialogCornerRadius" />
++                <padding
++                    android:left="20dp"
++                    android:right="20dp" />
++                <solid android:color="#0FFFFFFF" />
++            </shape>
++        </inset>
++    </item>
++</ripple>
+diff --git a/themes/qs/QSDualAccentRoundedRectangle/res/drawable-night/notification_material_bg.xml b/themes/qs/QSDualAccentRoundedRectangle/res/drawable-night/notification_material_bg.xml
+new file mode 100644
+index 0000000..b4aae82
+--- /dev/null
++++ b/themes/qs/QSDualAccentRoundedRectangle/res/drawable-night/notification_material_bg.xml
+@@ -0,0 +1,30 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright (C) 2014 The Android Open Source Project
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License
++  -->
++
++<ripple xmlns:android="http://schemas.android.com/apk/res/android"
++        xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
++        android:color="?android:attr/colorControlHighlight">
++    <item>
++        <shape android:shape="rectangle">
++                <corners android:radius="?android:attr/dialogCornerRadius" />
++                <padding
++                    android:left="12dp"
++                    android:right="12dp" />
++                <solid android:color="?androidprv:attr/colorSurface" />
++       </shape>
++    </item>
++</ripple>
+diff --git a/themes/qs/QSDualAccentRoundedRectangle/res/drawable/bg_qs_brightness_auto_off.xml b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/bg_qs_brightness_auto_off.xml
+new file mode 100644
+index 0000000..f4d8625
+--- /dev/null
++++ b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/bg_qs_brightness_auto_off.xml
+@@ -0,0 +1,22 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright (C) 2021 The Android Open Source Project
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License.
++  -->
++
++<shape xmlns:android="http://schemas.android.com/apk/res/android">
++    <corners android:radius="?android:attr/dialogCornerRadius" />
++    <solid android:color="@drawable/color_accent_alpha" />
++    <size android:width="48dp" android:height="48dp" />
++</shape>
+diff --git a/themes/qs/QSDualAccentRoundedRectangle/res/drawable/bg_qs_brightness_auto_on.xml b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/bg_qs_brightness_auto_on.xml
+new file mode 100644
+index 0000000..f4d8625
+--- /dev/null
++++ b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/bg_qs_brightness_auto_on.xml
+@@ -0,0 +1,22 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright (C) 2021 The Android Open Source Project
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License.
++  -->
++
++<shape xmlns:android="http://schemas.android.com/apk/res/android">
++    <corners android:radius="?android:attr/dialogCornerRadius" />
++    <solid android:color="@drawable/color_accent_alpha" />
++    <size android:width="48dp" android:height="48dp" />
++</shape>
+diff --git a/themes/qs/QSDualAccentRoundedRectangle/res/drawable/brightness_bg.xml b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/brightness_bg.xml
+new file mode 100644
+index 0000000..06837df
+--- /dev/null
++++ b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/brightness_bg.xml
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="utf-8"?>
++<shape xmlns:android="http://schemas.android.com/apk/res/android">
++    <corners android:radius="12dp" />
++    <solid android:alpha="0.5" android:color="?android:attr/colorAccent" />
++    <size
++        android:width="48.0dip"
++        android:height="48.0dip" />
++</shape>
+diff --git a/themes/qs/QSDualAccentRoundedRectangle/res/drawable/brightness_progress_drawable.xml b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/brightness_progress_drawable.xml
+new file mode 100644
+index 0000000..1ae0a3a
+--- /dev/null
++++ b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/brightness_progress_drawable.xml
+@@ -0,0 +1,41 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright (C) 2022 CorvusOS
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License.
++  -->
++<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
++            android:paddingMode="stack" >
++    <item android:id="@android:id/background"
++        android:gravity="center_vertical|fill_horizontal">
++        <shape android:shape="rectangle">
++            <size android:height="@dimen/rounded_slider_height" />
++            <corners android:radius="@dimen/rounded_slider_corner_radius" />
++            <solid android:color="@color/qs_translucent_brightness_bg" />
++        </shape>
++    </item>
++    <item android:id="@android:id/progress"
++          android:gravity="center|fill_horizontal">
++            <com.android.systemui.util.RoundedCornerProgressDrawable
++                android:drawable="@drawable/brightness_progress_full_drawable"
++            />
++    </item>
++    <item
++        android:gravity="start|center"
++        android:drawable="@drawable/ic_brightness_low"
++        android:start="18.0dip" />
++    <item
++        android:gravity="end|center"
++        android:drawable="@drawable/ic_brightness_full"
++        android:end="18.0dip" />
++</layer-list>
+diff --git a/themes/qs/QSDualAccentRoundedRectangle/res/drawable/brightness_progress_full_drawable.xml b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/brightness_progress_full_drawable.xml
+new file mode 100644
+index 0000000..5a81dc6
+--- /dev/null
++++ b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/brightness_progress_full_drawable.xml
+@@ -0,0 +1,29 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright 2018 The Android Open Source Project
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License.
++  -->
++
++<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:priv-android="http://schemas.android.com/apk/prv/res/android"
++    android:autoMirrored="true">
++    <item android:id="@+id/slider_foreground"
++        android:height="@dimen/rounded_slider_height">
++        <shape>
++            <size android:height="@dimen/rounded_slider_height" />
++            <solid android:color="@drawable/color_accent_alpha" />
++            <corners android:radius="@dimen/rounded_slider_corner_radius" />
++        </shape>
++    </item>
++</layer-list>
+diff --git a/themes/qs/QSDualAccentRoundedRectangle/res/drawable/color_accent_alpha.xml b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/color_accent_alpha.xml
+new file mode 100644
+index 0000000..3c43da5
+--- /dev/null
++++ b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/color_accent_alpha.xml
+@@ -0,0 +1,4 @@
++<?xml version="1.0" encoding="utf-8"?>
++<selector xmlns:android="http://schemas.android.com/apk/res/android">
++    <item android:alpha="0.2" android:color="?android:attr/colorAccent" />
++</selector>
+diff --git a/themes/qs/QSDualAccentRoundedRectangle/res/drawable/color_accent_bg_alpha.xml b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/color_accent_bg_alpha.xml
+new file mode 100644
+index 0000000..9c34bab
+--- /dev/null
++++ b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/color_accent_bg_alpha.xml
+@@ -0,0 +1,4 @@
++<?xml version="1.0" encoding="utf-8"?>
++<selector xmlns:android="http://schemas.android.com/apk/res/android">
++    <item android:alpha="0.93" android:color="@*android:color/system_neutral1_0" />
++</selector>
+diff --git a/themes/qs/QSDualAccentRoundedRectangle/res/drawable/ic_brightness_full.xml b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/ic_brightness_full.xml
+new file mode 100644
+index 0000000..84976cd
+--- /dev/null
++++ b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/ic_brightness_full.xml
+@@ -0,0 +1,14 @@
++<?xml version="1.0" encoding="utf-8"?>
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
++    android:height="18dp"
++    android:width="18dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++
++
++    <path
++        android:fillColor="?android:colorAccent"
++        android:pathData="M11.1 5V1h1.8v4h-1.8zM12 6.1c-3.258 0-5.9 2.642-5.9 5.9 0 3.258 2.642 5.9 5.9 5.9 3.259 0 5.9-2.641 5.9-5.9 0-3.258-2.641-5.9-5.9-5.9zm7.142-2.514l-2.828 2.828 1.273 1.272 2.828-2.828-1.273-1.272zM19 11.1h4v1.8h-4v-1.8zm1.415 8.042l-2.828-2.828-1.273 1.272 2.828 2.828 1.273-1.272zM12.9 19v4h-1.8v-4h1.8zm-8.041 1.414l2.827-2.828-1.272-1.272-2.828 2.828 1.273 1.272zM5 12.9H1v-1.8h4v1.8zM3.586 4.858l2.828 2.828 1.272-1.272L4.86 3.586 3.586 4.858z"
++        android:strokeWidth="1.0"/>
++</vector>
+diff --git a/themes/qs/QSDualAccentRoundedRectangle/res/drawable/ic_brightness_low.xml b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/ic_brightness_low.xml
+new file mode 100644
+index 0000000..0b646a6
+--- /dev/null
++++ b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/ic_brightness_low.xml
+@@ -0,0 +1,14 @@
++<?xml version="1.0" encoding="utf-8"?>
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
++    android:height="18dp"
++    android:width="18dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++
++    <path
++        android:fillColor="?android:colorAccent"
++        android:pathData="M11.25 3h1.5v2h-1.5V3zm-5 9c0 3.176 2.574 5.75 5.75 5.75s5.75-2.574 5.75-5.75S15.176 6.25 12 6.25 6.25 8.824 6.25 12zm10 0c0 2.347-1.903 4.25-4.25 4.25S7.75 14.347 7.75 12 9.653 7.75 12 7.75s4.25 1.903 4.25 4.25zm-5 9v-2h1.5v2h-1.5zM3 11.25v1.5h2v-1.5H3zm16 1.5h2v-1.5h-2v1.5zM6.17 18.89l-1.06-1.06 1.41-1.41 1.06 1.06-1.41 1.41zm0-13.78L5.11 6.17l1.41 1.41 1.06-1.06-1.41-1.41zm11.66 0l1.06 1.06-1.41 1.41-1.06-1.06 1.41-1.41zm0 13.78l1.06-1.06-1.41-1.41-1.06 1.06 1.41 1.41z"
++        android:fillType="evenOdd"
++        android:strokeWidth="1.0"/>
++</vector>
+diff --git a/themes/qs/QSDualAccentRoundedRectangle/res/drawable/ic_qs_brightness_auto_off.xml b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/ic_qs_brightness_auto_off.xml
+new file mode 100644
+index 0000000..7ab9660
+--- /dev/null
++++ b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/ic_qs_brightness_auto_off.xml
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<vector android:tint="?android:attr/colorAccent" android:height="24.0dip" android:width="24.0dip" android:viewportWidth="24.0" android:viewportHeight="24.0"
++  xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:pathData="M4.469 15.107V18c0 .828.671 1.5 1.5 1.5h2.893l2.046 2.046c.586.586 1.536.586   2.121 0l2.046-2.046h2.894c.828 0 1.5-.672 1.5-1.5v-2.893l2.046-2.046c.585-.586.585-1.536   0-2.122l-2.046-2.046V6c0-.828-.672-1.5-1.5-1.5h-2.894l-2.046-2.046c-.585-.586-1.535-.586-2.121   0L8.862 4.5H5.969c-.829 0-1.5.672-1.5 1.5v2.893l-2.046 2.046c-.586.586-.586 1.536 0 2.122l2.046 2.046   M 12 8.5 C 13.9329966244 8.5 15.5 10.0670033756 15.5 12 C 15.5 13.9329966244 13.9329966244 15.5 12 15.5   C 10.0670033756 15.5 8.5 13.9329966244 8.5 12 C 8.5   10.0670033756 10.0670033756 8.5 12 8.5 Z" android:strokeColor="#ffffffff" android:strokeWidth="1.5" android:strokeLineCap="round" android:strokeLineJoin="round" />
++</vector>
+diff --git a/themes/qs/QSDualAccentRoundedRectangle/res/drawable/ic_qs_brightness_auto_on.xml b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/ic_qs_brightness_auto_on.xml
+new file mode 100644
+index 0000000..e7cad59
+--- /dev/null
++++ b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/ic_qs_brightness_auto_on.xml
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<vector android:tint="?android:attr/colorAccent" android:height="24.0dip" android:width="24.0dip" android:viewportWidth="24.0" android:viewportHeight="24.0"
++  xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:pathData="M4.469 15.107V18c0 .828.671 1.5 1.5 1.5h2.893l2.046 2.046c.586.586 1.536.586   2.121 0l2.046-2.046h2.894c.828 0 1.5-.672 1.5-1.5v-2.893l2.046-2.046c.585-.586.585-1.536   0-2.122l-2.046-2.046V6c0-.828-.672-1.5-1.5-1.5h-2.894l-2.046-2.046c-.585-.586-1.535-.586-2.121   0L8.862 4.5H5.969c-.829 0-1.5.672-1.5 1.5v2.893l-2.046 2.046c-.586.586-.586 1.536 0 2.122l2.046 2.046   M9.195,15.25c0,0 1.792,-4.85 2.512,-6.796c0.045,-0.123 0.162,-0.204 0.293,-0.204c0.131,0 0.248,0.081   0.293,0.204c0.72,1.946 2.512,6.796 2.512,6.796m-4.512,-2.97l3.414,0" android:strokeColor="#ffffffff" android:strokeWidth="1.5" android:strokeLineCap="round" android:strokeLineJoin="round" />
++</vector>
+diff --git a/themes/qs/QSDualAccentRoundedRectangle/res/drawable/ic_qs_brightness_auto_on_new.xml b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/ic_qs_brightness_auto_on_new.xml
+new file mode 100644
+index 0000000..e7cad59
+--- /dev/null
++++ b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/ic_qs_brightness_auto_on_new.xml
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<vector android:tint="?android:attr/colorAccent" android:height="24.0dip" android:width="24.0dip" android:viewportWidth="24.0" android:viewportHeight="24.0"
++  xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:pathData="M4.469 15.107V18c0 .828.671 1.5 1.5 1.5h2.893l2.046 2.046c.586.586 1.536.586   2.121 0l2.046-2.046h2.894c.828 0 1.5-.672 1.5-1.5v-2.893l2.046-2.046c.585-.586.585-1.536   0-2.122l-2.046-2.046V6c0-.828-.672-1.5-1.5-1.5h-2.894l-2.046-2.046c-.585-.586-1.535-.586-2.121   0L8.862 4.5H5.969c-.829 0-1.5.672-1.5 1.5v2.893l-2.046 2.046c-.586.586-.586 1.536 0 2.122l2.046 2.046   M9.195,15.25c0,0 1.792,-4.85 2.512,-6.796c0.045,-0.123 0.162,-0.204 0.293,-0.204c0.131,0 0.248,0.081   0.293,0.204c0.72,1.946 2.512,6.796 2.512,6.796m-4.512,-2.97l3.414,0" android:strokeColor="#ffffffff" android:strokeWidth="1.5" android:strokeLineCap="round" android:strokeLineJoin="round" />
++</vector>
+diff --git a/themes/qs/QSDualAccentRoundedRectangle/res/drawable/notif_footer_btn_background.xml b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/notif_footer_btn_background.xml
+new file mode 100644
+index 0000000..6628c30
+--- /dev/null
++++ b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/notif_footer_btn_background.xml
+@@ -0,0 +1,33 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright (C) 2021 The Android Open Source Project
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License.
++  -->
++<ripple xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
++    android:color="@drawable/color_accent_alpha">
++    <item>
++        <inset
++            android:insetBottom="4dp"
++            android:insetTop="4dp">
++            <shape android:shape="rectangle">
++                <corners android:radius="?android:attr/dialogCornerRadius" />
++                <padding
++                    android:left="20dp"
++                    android:right="20dp" />
++                <solid android:color="#59FFFFFF" />
++            </shape>
++        </inset>
++    </item>
++</ripple>
+diff --git a/themes/qs/QSDualAccentRoundedRectangle/res/drawable/notification_material_bg.xml b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/notification_material_bg.xml
+new file mode 100644
+index 0000000..858649f
+--- /dev/null
++++ b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/notification_material_bg.xml
+@@ -0,0 +1,30 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright (C) 2014 The Android Open Source Project
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License
++  -->
++
++<ripple xmlns:android="http://schemas.android.com/apk/res/android"
++        xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
++        android:color="?android:attr/colorControlHighlight">
++    <item>
++        <shape android:shape="rectangle">
++                <corners android:radius="?android:attr/dialogCornerRadius" />
++                <padding
++                    android:left="12dp"
++                    android:right="12dp" />
++             <solid android:color="?androidprv:attr/colorSurface" />
++       </shape>
++    </item>
++</ripple>
+diff --git a/themes/qs/QSDualAccentRoundedRectangle/res/drawable/qs_footer_action_circle.xml b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/qs_footer_action_circle.xml
+new file mode 100644
+index 0000000..3c4aff3
+--- /dev/null
++++ b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/qs_footer_action_circle.xml
+@@ -0,0 +1,37 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright (C) 2022 The Android Open Source Project
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License.
++  -->
++<inset xmlns:android="http://schemas.android.com/apk/res/android"
++       android:inset="4dp">
++    <ripple
++        android:color="?android:attr/colorControlHighlight">
++        <item android:id="@android:id/mask">
++            <!-- We make this shape a rounded rectangle instead of a oval so that it can animate -->
++            <!-- properly into an app/dialog. -->
++            <shape android:shape="rectangle">
++                <solid android:color="@android:color/white"/>
++                <corners android:radius="20dp"/>
++            </shape>
++        </item>
++        <item>
++            <shape android:shape="rectangle">
++                <solid android:color="@*android:color/qs_translucent_brightness_bg" />
++                <corners android:radius="20dp"/>
++            </shape>
++        </item>
++
++    </ripple>
++</inset>
+diff --git a/themes/qs/QSDualAccentRoundedRectangle/res/drawable/qs_footer_actions_background.xml b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/qs_footer_actions_background.xml
+new file mode 100644
+index 0000000..87cfe62
+--- /dev/null
++++ b/themes/qs/QSDualAccentRoundedRectangle/res/drawable/qs_footer_actions_background.xml
+@@ -0,0 +1,22 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2014 The Android Open Source Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++<inset xmlns:android="http://schemas.android.com/apk/res/android">
++    <shape>
++        <solid android:color="@android:color/transparent"/>
++        <corners android:topLeftRadius="?android:attr/dialogCornerRadius"
++                 android:topRightRadius="?android:attr/dialogCornerRadius"/>
++    </shape>
++</inset>
+diff --git a/themes/qs/QSDualAccentRoundedRectangle/res/values-night/colors.xml b/themes/qs/QSDualAccentRoundedRectangle/res/values-night/colors.xml
+new file mode 100644
+index 0000000..fb44af1
+--- /dev/null
++++ b/themes/qs/QSDualAccentRoundedRectangle/res/values-night/colors.xml
+@@ -0,0 +1,20 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright (C) 2023 crDroid Android Project
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License
++  -->
++
++<resources>
++    <color name="qs_translucent_brightness_bg">#0FFFFFFF</color>
++</resources>
+diff --git a/themes/qs/QSDualAccentRoundedRectangle/res/values/colors.xml b/themes/qs/QSDualAccentRoundedRectangle/res/values/colors.xml
+new file mode 100644
+index 0000000..eac3971
+--- /dev/null
++++ b/themes/qs/QSDualAccentRoundedRectangle/res/values/colors.xml
+@@ -0,0 +1,20 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright (C) 2023 crDroid Android Project
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License
++  -->
++
++<resources>
++    <color name="qs_translucent_brightness_bg">#33FFFFFF</color>
++</resources>
+diff --git a/themes/qs/QSDualAccentRoundedRectangle/res/values/dimens.xml b/themes/qs/QSDualAccentRoundedRectangle/res/values/dimens.xml
+new file mode 100644
+index 0000000..4c9467b
+--- /dev/null
++++ b/themes/qs/QSDualAccentRoundedRectangle/res/values/dimens.xml
+@@ -0,0 +1,26 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright (C) 2022 CorvusOS
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License
++  -->
++<resources>
++    <dimen name="brightness_mirror_height">48dp</dimen>
++    <dimen name="qs_corner_radius">12dp</dimen>
++    <dimen name="rounded_slider_corner_radius">12dp</dimen>
++    <dimen name="rounded_slider_height">48dp</dimen>
++    <dimen name="rounded_slider_background_rounded_corner">12dp</dimen>
++    <dimen name="rounded_slider_track_corner_radius">12dp</dimen>
++    <dimen name="notification_corner_radius">12dp</dimen>
++    <dimen name="notification_corner_radius_small">12dp</dimen>
++</resources>
+\ No newline at end of file
+diff --git a/themes/qs/QSRounded/Android.bp b/themes/qs/QSRounded/Android.bp
+new file mode 100644
+index 0000000..6d81b98
+--- /dev/null
++++ b/themes/qs/QSRounded/Android.bp
+@@ -0,0 +1,5 @@
++runtime_resource_overlay {
++    name: "QSRounded",
++    theme: "QSRounded",
++    product_specific: true,
++}
+diff --git a/themes/qs/QSRounded/AndroidManifest.xml b/themes/qs/QSRounded/AndroidManifest.xml
+new file mode 100644
+index 0000000..1d257cf
+--- /dev/null
++++ b/themes/qs/QSRounded/AndroidManifest.xml
+@@ -0,0 +1,31 @@
++<!--
++/**
++ * Copyright (c) 2022, CorvusOS
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++-->
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.android.system.qs.rounded"
++    android:versionCode="1"
++    android:versionName="1.0">
++
++    <overlay
++        android:targetPackage="com.android.systemui"
++        android:category="android.theme.customization.qs_panel"
++        android:priority="1"/>
++
++    <application
++        android:label="QS Dual Accent Rounded"
++        android:hasCode="false"/>
++</manifest>
+\ No newline at end of file
+diff --git a/themes/qs/QSRounded/res/values/dimens.xml b/themes/qs/QSRounded/res/values/dimens.xml
+new file mode 100644
+index 0000000..89aeaff
+--- /dev/null
++++ b/themes/qs/QSRounded/res/values/dimens.xml
+@@ -0,0 +1,26 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright (C) 2022 CorvusOS
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License
++  -->
++<resources>
++    <dimen name="brightness_mirror_height">48dp</dimen>
++    <dimen name="qs_corner_radius">28dp</dimen>
++    <dimen name="rounded_slider_corner_radius">28dp</dimen>
++    <dimen name="rounded_slider_height">48dp</dimen>
++    <dimen name="rounded_slider_background_rounded_corner">28dp</dimen>
++    <dimen name="rounded_slider_track_corner_radius">28dp</dimen>
++    <dimen name="notification_corner_radius">28dp</dimen>
++    <dimen name="notification_corner_radius_small">12dp</dimen>
++</resources>
+diff --git a/themes/qs/QSRoundedRectangle/Android.bp b/themes/qs/QSRoundedRectangle/Android.bp
+new file mode 100644
+index 0000000..b17cffa
+--- /dev/null
++++ b/themes/qs/QSRoundedRectangle/Android.bp
+@@ -0,0 +1,5 @@
++runtime_resource_overlay {
++    name: "QSRoundedRectangle",
++    theme: "QSRoundedRectangle",
++    product_specific: true,
++}
+diff --git a/themes/qs/QSRoundedRectangle/AndroidManifest.xml b/themes/qs/QSRoundedRectangle/AndroidManifest.xml
+new file mode 100644
+index 0000000..d2707d6
+--- /dev/null
++++ b/themes/qs/QSRoundedRectangle/AndroidManifest.xml
+@@ -0,0 +1,31 @@
++<!--
++/**
++ * Copyright (c) 2022, CorvusOS
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++-->
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.android.system.qs.roundedrect"
++    android:versionCode="1"
++    android:versionName="1.0">
++
++    <overlay
++        android:targetPackage="com.android.systemui"
++        android:category="android.theme.customization.qs_panel"
++        android:priority="1"/>
++
++    <application
++        android:label="QS Dual Accent Rectangle"
++        android:hasCode="false"/>
++</manifest>
+diff --git a/themes/qs/QSRoundedRectangle/res/drawable/brightness_bg.xml b/themes/qs/QSRoundedRectangle/res/drawable/brightness_bg.xml
+new file mode 100644
+index 0000000..ad4287f
+--- /dev/null
++++ b/themes/qs/QSRoundedRectangle/res/drawable/brightness_bg.xml
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="utf-8"?>
++<shape xmlns:android="http://schemas.android.com/apk/res/android">
++    <corners android:radius="12dp" />
++    <solid android:color="?android:attr/colorAccent" />
++    <size
++        android:width="48.0dip"
++        android:height="48.0dip" />
++</shape>
+diff --git a/themes/qs/QSRoundedRectangle/res/values/dimens.xml b/themes/qs/QSRoundedRectangle/res/values/dimens.xml
+new file mode 100644
+index 0000000..4c9467b
+--- /dev/null
++++ b/themes/qs/QSRoundedRectangle/res/values/dimens.xml
+@@ -0,0 +1,26 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright (C) 2022 CorvusOS
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License
++  -->
++<resources>
++    <dimen name="brightness_mirror_height">48dp</dimen>
++    <dimen name="qs_corner_radius">12dp</dimen>
++    <dimen name="rounded_slider_corner_radius">12dp</dimen>
++    <dimen name="rounded_slider_height">48dp</dimen>
++    <dimen name="rounded_slider_background_rounded_corner">12dp</dimen>
++    <dimen name="rounded_slider_track_corner_radius">12dp</dimen>
++    <dimen name="notification_corner_radius">12dp</dimen>
++    <dimen name="notification_corner_radius_small">12dp</dimen>
++</resources>
+\ No newline at end of file
+-- 
+2.34.1
+

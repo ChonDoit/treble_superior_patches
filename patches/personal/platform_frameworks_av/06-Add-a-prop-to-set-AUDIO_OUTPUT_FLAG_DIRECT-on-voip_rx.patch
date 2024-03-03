@@ -1,0 +1,29 @@
+From 3eb94aefcf66d75d9b139292e85f9822313ccb62 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Wed, 24 Jan 2024 18:23:14 -0300
+Subject: [PATCH] Add a prop to set AUDIO_OUTPUT_FLAG_DIRECT on voip_rx
+
+This Should fix High Pitched when set to MONO ONLY doesn't
+---
+ .../audiopolicy/common/managerdefinitions/src/Serializer.cpp | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/services/audiopolicy/common/managerdefinitions/src/Serializer.cpp b/services/audiopolicy/common/managerdefinitions/src/Serializer.cpp
+index 6bf5d14c3c..c049692dc0 100644
+--- a/services/audiopolicy/common/managerdefinitions/src/Serializer.cpp
++++ b/services/audiopolicy/common/managerdefinitions/src/Serializer.cpp
+@@ -511,6 +511,11 @@ std::variant<status_t, MixPortTraits::Element> PolicySerializer::deserialize<Mix
+             if (intFlags == (AUDIO_OUTPUT_FLAG_FAST | AUDIO_OUTPUT_FLAG_DEEP_BUFFER)) {
+                 intFlags = AUDIO_OUTPUT_FLAG_SPATIALIZER;
+             }
++
++	    bool flag_direct = property_get_bool("persist.sys.phh.voip_flag_direct", false);
++	    if (flag_direct && mMixPortName == "voip_rx") {
++		    intFlags = (AUDIO_OUTPUT_FLAG_DIRECT | AUDIO_OUTPUT_FLAG_VOIP_RX);
++	    }
+             mixPort->setFlags(intFlags);
+         } else {
+             // Sink role
+-- 
+2.34.1
+

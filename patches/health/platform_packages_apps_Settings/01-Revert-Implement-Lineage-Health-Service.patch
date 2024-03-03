@@ -1,0 +1,1212 @@
+From e342d07c28866102954e4398a19f9dedbf27bfba Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sun, 3 Mar 2024 10:23:48 -0300
+Subject: [PATCH] Revert "Settings: Implement Lineage Health Service [2/3]"
+
+This reverts commit b5597b90e0fea6fef7e28fe026b97236d027d461.
+---
+ res/drawable/ic_settings_backup_restore.xml   |  25 --
+ res/layout/dialog_time.xml                    |  30 --
+ res/layout/preference_charging_limit.xml      |  63 ----
+ res/values/superior_arrays.xml                |  23 +-
+ res/values/superior_strings.xml               |  22 +-
+ res/xml/charging_control_settings.xml         |  48 ---
+ res/xml/power_usage_summary.xml               |   7 -
+ .../lineage/CustomDialogPreference.java       | 215 --------------
+ .../ChargingControlPreferenceController.java  |  64 ----
+ .../health/ChargingControlSettings.java       | 276 ------------------
+ .../health/ChargingLimitPreference.java       |  97 ------
+ .../lineage/health/StartTimePreference.java   |  45 ---
+ .../lineage/health/TargetTimePreference.java  |  45 ---
+ .../lineage/health/TimePreference.java        | 106 -------
+ 14 files changed, 3 insertions(+), 1063 deletions(-)
+ delete mode 100644 res/drawable/ic_settings_backup_restore.xml
+ delete mode 100644 res/layout/dialog_time.xml
+ delete mode 100644 res/layout/preference_charging_limit.xml
+ delete mode 100644 res/xml/charging_control_settings.xml
+ delete mode 100644 src/com/android/settings/lineage/CustomDialogPreference.java
+ delete mode 100644 src/com/android/settings/lineage/health/ChargingControlPreferenceController.java
+ delete mode 100644 src/com/android/settings/lineage/health/ChargingControlSettings.java
+ delete mode 100644 src/com/android/settings/lineage/health/ChargingLimitPreference.java
+ delete mode 100644 src/com/android/settings/lineage/health/StartTimePreference.java
+ delete mode 100644 src/com/android/settings/lineage/health/TargetTimePreference.java
+ delete mode 100644 src/com/android/settings/lineage/health/TimePreference.java
+
+diff --git a/res/drawable/ic_settings_backup_restore.xml b/res/drawable/ic_settings_backup_restore.xml
+deleted file mode 100644
+index 245b0fcc85..0000000000
+--- a/res/drawable/ic_settings_backup_restore.xml
++++ /dev/null
+@@ -1,25 +0,0 @@
+-<!--
+-    Copyright (C) 2017 The Android Open Source Project
+-
+-    Licensed under the Apache License, Version 2.0 (the "License");
+-    you may not use this file except in compliance with the License.
+-    You may obtain a copy of the License at
+-
+-         http://www.apache.org/licenses/LICENSE-2.0
+-
+-    Unless required by applicable law or agreed to in writing, software
+-    distributed under the License is distributed on an "AS IS" BASIS,
+-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-    See the License for the specific language governing permissions and
+-    limitations under the License.
+--->
+-<vector xmlns:android="http://schemas.android.com/apk/res/android"
+-        android:width="24dp"
+-        android:height="24dp"
+-        android:viewportWidth="24.0"
+-        android:viewportHeight="24.0"
+-        android:tint="?android:attr/colorControlNormal">
+-    <path
+-        android:pathData="M14,12c0,-1.1 -0.9,-2 -2,-2s-2,0.9 -2,2 0.9,2 2,2 2,-0.9 2,-2zM12,3c-4.97,0 -9,4.03 -9,9L0,12l4,4 4,-4L5,12c0,-3.87 3.13,-7 7,-7s7,3.13 7,7 -3.13,7 -7,7c-1.51,0 -2.91,-0.49 -4.06,-1.3l-1.42,1.44C8.04,20.3 9.94,21 12,21c4.97,0 9,-4.03 9,-9s-4.03,-9 -9,-9z"
+-        android:fillColor="#FFFFFFFF"/>
+-</vector>
+diff --git a/res/layout/dialog_time.xml b/res/layout/dialog_time.xml
+deleted file mode 100644
+index 3572317841..0000000000
+--- a/res/layout/dialog_time.xml
++++ /dev/null
+@@ -1,30 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!--
+-     Copyright (C) 2023 The LineageOS Project
+-
+-     Licensed under the Apache License, Version 2.0 (the "License");
+-     you may not use this file except in compliance with the License.
+-     You may obtain a copy of the License at
+-
+-          http://www.apache.org/licenses/LICENSE-2.0
+-
+-     Unless required by applicable law or agreed to in writing, software
+-     distributed under the License is distributed on an "AS IS" BASIS,
+-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-     See the License for the specific language governing permissions and
+-     limitations under the License.
+--->
+-
+-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:paddingLeft="16dp"
+-    android:paddingRight="16dp"
+-    android:orientation="vertical">
+-
+-    <TimePicker
+-        android:id="@+id/time_picker"
+-        android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:layout_gravity="center_vertical"
+-        android:paddingTop="8dp" />
+-
+-</LinearLayout>
+diff --git a/res/layout/preference_charging_limit.xml b/res/layout/preference_charging_limit.xml
+deleted file mode 100644
+index 9c2b4fe5ee..0000000000
+--- a/res/layout/preference_charging_limit.xml
++++ /dev/null
+@@ -1,63 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!--
+-     Copyright (C) 2023 The LineageOS Project
+-
+-     Licensed under the Apache License, Version 2.0 (the "License");
+-     you may not use this file except in compliance with the License.
+-     You may obtain a copy of the License at
+-
+-          http://www.apache.org/licenses/LICENSE-2.0
+-
+-     Unless required by applicable law or agreed to in writing, software
+-     distributed under the License is distributed on an "AS IS" BASIS,
+-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-     See the License for the specific language governing permissions and
+-     limitations under the License.
+--->
+-
+-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:layout_width="match_parent"
+-    android:layout_height="wrap_content"
+-    android:gravity="center_vertical"
+-    android:paddingVertical="6dip"
+-    android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
+-    android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+-    android:background="?android:attr/selectableItemBackground"
+-    android:orientation="vertical">
+-
+-    <RelativeLayout
+-        android:layout_width="wrap_content"
+-        android:layout_height="0dp"
+-        android:layout_weight="1">
+-
+-        <TextView
+-            android:id="@android:id/title"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:singleLine="true"
+-            android:textAppearance="?android:attr/textAppearanceLarge"
+-            android:textColor="?android:attr/textColorPrimary"
+-            android:ellipsize="marquee"
+-            android:fadingEdge="horizontal" />
+-
+-        <TextView
+-            android:id="@+id/value"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:layout_alignParentEnd="true"
+-            android:layout_centerVertical="true"
+-            android:textAppearance="?android:attr/textAppearanceSmall"
+-            android:textColor="?android:attr/textColorSecondary"
+-            android:singleLine="true" />
+-
+-    </RelativeLayout>
+-
+-    <SeekBar
+-        android:id="@+id/seekbar_widget"
+-        android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:paddingVertical="15dip"
+-        android:min="70"
+-        android:max="100" />
+-
+-</LinearLayout>
+diff --git a/res/values/superior_arrays.xml b/res/values/superior_arrays.xml
+index e650e7695f..469c621f19 100644
+--- a/res/values/superior_arrays.xml
++++ b/res/values/superior_arrays.xml
+@@ -88,26 +88,6 @@
+           <item>@string/dashboard_random6</item>
+      </string-array>
+ 
+-     <!-- Values for the charging control modes -->
+-     <string-array name="charging_control_mode_entries" translatable="false">
+-          <item>@string/charging_control_mode_auto_title</item>
+-          <item>@string/charging_control_mode_custom_title</item>
+-     </string-array>
+-
+-     <string-array name="charging_control_mode_values" translatable="false">
+-          <item>1</item>
+-          <item>2</item>
+-     </string-array>
+-
+-     <!-- Values for the additional charging control modes if fine-grained control is supported -->
+-     <string-array name="charging_control_mode_entries_fine_grained_control" translatable="false">
+-          <item>@string/charging_control_mode_limit_title</item>
+-     </string-array>
+-
+-     <string-array name="charging_control_mode_values_fine_grained_control" translatable="false">
+-          <item>3</item>
+-     </string-array>
+-
+      <!-- Back swipe actions -->
+      <string-array name="swipe_actions_entries" translatable="false">
+           <item>@string/action_nothing</item>
+@@ -170,4 +150,5 @@
+           <item>0</item>
+           <item>1</item>
+      </string-array>
+-</resources>
+\ No newline at end of file
++
++</resources>
+diff --git a/res/values/superior_strings.xml b/res/values/superior_strings.xml
+index 777c45925a..6b10c2324d 100644
+--- a/res/values/superior_strings.xml
++++ b/res/values/superior_strings.xml
+@@ -173,26 +173,6 @@
+      <string name="show_navbar_gesture_bar_title">Gesture bar</string>
+      <string name="show_navbar_gesture_bar_summary">Show gesture bar at the bottom of the screen</string>
+ 
+-     <!-- Charging control settings -->
+-     <string name="charging_control_title">Charging control</string>
+-     <string name="charging_control_summary">Customize charging schedule and limits for battery</string>
+-     <string name="charging_control_enable_title">Enable charging control</string>
+-     <string name="charging_control_mode_title">Charging mode</string>
+-     <string name="charging_control_mode_auto_title">Automatic schedule</string>
+-     <string name="charging_control_mode_auto_summary">Automatically determine when to start
+-          charging based on alarms set</string>
+-     <string name="charging_control_mode_custom_title">Custom schedule</string>
+-     <string name="charging_control_mode_custom_summary">Set a target time to full charge</string>
+-     <string name="charging_control_mode_limit_title">Limit charging</string>
+-     <string name="charging_control_mode_limit_summary">Limit charging to a certain percentage</string>
+-     <string name="charging_control_start_time_title">Start time</string>
+-     <string name="charging_control_start_time_summary">Charging control activates when you start
+-          charging after %s</string>
+-     <string name="charging_control_target_time_title">Target time to full charge</string>
+-     <string name="charging_control_target_time_summary">Battery will be fully charged by %s</string>
+-     <string name="charging_control_limit_title">Limit</string>
+-     <string name="reset">Reset</string>
+-
+      <!-- Hotspot extras -->
+      <string name="tethering_allow_vpn_upstreams_title">Allow clients to use VPNs</string>
+      <string name="tethering_allow_vpn_upstreams_summary">Permit hotspot clients to use this
+@@ -325,4 +305,4 @@
+      <string name="face_unlock_method_default">When the screen is turned on</string>
+      <string name="face_unlock_method_swipe">When swiping on lock screen</string>
+ 
+-</resources>
+\ No newline at end of file
++</resources>
+diff --git a/res/xml/charging_control_settings.xml b/res/xml/charging_control_settings.xml
+deleted file mode 100644
+index 4ffcfbf360..0000000000
+--- a/res/xml/charging_control_settings.xml
++++ /dev/null
+@@ -1,48 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!--
+-     Copyright (C) 2023 The LineageOS Project
+-
+-     Licensed under the Apache License, Version 2.0 (the "License");
+-     you may not use this file except in compliance with the License.
+-     You may obtain a copy of the License at
+-
+-          http://www.apache.org/licenses/LICENSE-2.0
+-
+-     Unless required by applicable law or agreed to in writing, software
+-     distributed under the License is distributed on an "AS IS" BASIS,
+-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-     See the License for the specific language governing permissions and
+-     limitations under the License.
+--->
+-
+-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:key="charging_control"
+-    android:title="@string/charging_control_title">
+-
+-    <com.android.settingslib.widget.MainSwitchPreference
+-        android:key="charging_control_enabled"
+-        android:title="@string/charging_control_enable_title" />
+-
+-    <ListPreference
+-        android:key="charging_control_mode"
+-        android:title="@string/charging_control_mode_title"
+-        android:entries="@array/charging_control_mode_entries"
+-        android:entryValues="@array/charging_control_mode_values"
+-        android:dependency="charging_control_enabled" />
+-
+-    <com.android.settings.lineage.health.StartTimePreference
+-        android:key="charging_control_start_time"
+-        android:title="@string/charging_control_start_time_title"
+-        android:dependency="charging_control_enabled" />
+-
+-    <com.android.settings.lineage.health.TargetTimePreference
+-        android:key="charging_control_target_time"
+-        android:title="@string/charging_control_target_time_title"
+-        android:dependency="charging_control_enabled" />
+-
+-    <com.android.settings.lineage.health.ChargingLimitPreference
+-        android:key="charging_control_charging_limit"
+-        android:title="@string/charging_control_limit_title"
+-        android:dependency="charging_control_enabled" />
+-
+-</PreferenceScreen>
+diff --git a/res/xml/power_usage_summary.xml b/res/xml/power_usage_summary.xml
+index 17d53cb21a..121e1fe962 100644
+--- a/res/xml/power_usage_summary.xml
++++ b/res/xml/power_usage_summary.xml
+@@ -57,13 +57,6 @@
+         android:summary="@string/battery_percentage_description"
+         settings:controller="com.android.settings.display.BatteryPercentagePreferenceController" />
+ 
+-    <Preference
+-        android:key="charging_control"
+-        android:title="@string/charging_control_title"
+-        android:summary="@string/charging_control_summary"
+-        android:fragment="com.android.settings.lineage.health.ChargingControlSettings"
+-        settings:controller="com.android.settings.lineage.health.ChargingControlPreferenceController" />
+-
+     <com.android.settingslib.widget.FooterPreference
+         android:key="power_usage_footer"
+         android:title="@string/battery_footer_summary"
+diff --git a/src/com/android/settings/lineage/CustomDialogPreference.java b/src/com/android/settings/lineage/CustomDialogPreference.java
+deleted file mode 100644
+index 5c62c4115b..0000000000
+--- a/src/com/android/settings/lineage/CustomDialogPreference.java
++++ /dev/null
+@@ -1,215 +0,0 @@
+-/*
+- * Copyright (C) 2015 The Android Open Source Project
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *      http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-package com.android.settings.lineage;
+-
+-import android.app.Dialog;
+-import android.content.Context;
+-import android.content.DialogInterface;
+-import android.os.Bundle;
+-import android.util.AttributeSet;
+-import android.view.View;
+-
+-import androidx.annotation.NonNull;
+-import androidx.appcompat.app.AlertDialog;
+-import androidx.preference.PreferenceDialogFragmentCompat;
+-import androidx.preference.DialogPreference;
+-
+-public class CustomDialogPreference<T extends DialogInterface> extends DialogPreference {
+-
+-    private CustomPreferenceDialogFragment mFragment;
+-
+-    public CustomDialogPreference(Context context, AttributeSet attrs, int defStyleAttr,
+-            int defStyleRes) {
+-        super(context, attrs, defStyleAttr, defStyleRes);
+-    }
+-
+-    public CustomDialogPreference(Context context, AttributeSet attrs, int defStyleAttr) {
+-        super(context, attrs, defStyleAttr);
+-    }
+-
+-    public CustomDialogPreference(Context context, AttributeSet attrs) {
+-        super(context, attrs);
+-    }
+-
+-    public CustomDialogPreference(Context context) {
+-        super(context);
+-    }
+-
+-    public boolean isDialogOpen() {
+-        return getDialog() != null && getDialog() instanceof Dialog && ((Dialog)getDialog()).isShowing();
+-    }
+-
+-    public T getDialog() {
+-        return (T) (mFragment != null ? mFragment.getDialog() : null);
+-    }
+-
+-    protected void onPrepareDialogBuilder(AlertDialog.Builder builder,
+-            DialogInterface.OnClickListener listener) {
+-    }
+-
+-    protected void onDialogClosed(boolean positiveResult) {
+-    }
+-
+-    protected void onClick(T dialog, int which) {
+-    }
+-
+-    protected void onBindDialogView(View view) {
+-    }
+-
+-    protected void onStart() {
+-    }
+-
+-    protected void onStop() {
+-    }
+-
+-    protected void onPause() {
+-    }
+-
+-    protected void onResume() {
+-    }
+-
+-    public Dialog onCreateDialog(Bundle savedInstanceState) {
+-        return null;
+-    }
+-
+-    protected View onCreateDialogView(Context context) {
+-        return null;
+-    }
+-
+-    private void setFragment(CustomPreferenceDialogFragment fragment) {
+-        mFragment = fragment;
+-    }
+-
+-    protected boolean onDismissDialog(T dialog, int which) {
+-        return true;
+-    }
+-
+-    public static class CustomPreferenceDialogFragment extends PreferenceDialogFragmentCompat {
+-
+-        public static CustomPreferenceDialogFragment newInstance(String key) {
+-            final CustomPreferenceDialogFragment fragment = new CustomPreferenceDialogFragment();
+-            final Bundle b = new Bundle(1);
+-            b.putString(ARG_KEY, key);
+-            fragment.setArguments(b);
+-            return fragment;
+-        }
+-
+-        private CustomDialogPreference getCustomizablePreference() {
+-            return (CustomDialogPreference) getPreference();
+-        }
+-
+-        private class OnDismissListener implements View.OnClickListener {
+-            private final int mWhich;
+-            private final DialogInterface mDialog;
+-
+-            public OnDismissListener(DialogInterface dialog, int which) {
+-                mWhich = which;
+-                mDialog = dialog;
+-            }
+-
+-            @Override
+-            public void onClick(View view) {
+-                CustomPreferenceDialogFragment.this.onClick(mDialog, mWhich);
+-                if (getCustomizablePreference().onDismissDialog(mDialog, mWhich)) {
+-                    mDialog.dismiss();
+-                }
+-            }
+-        }
+-
+-        @Override
+-        public void onStart() {
+-            super.onStart();
+-            if (getDialog() instanceof AlertDialog) {
+-                AlertDialog a = (AlertDialog)getDialog();
+-                if (a.getButton(Dialog.BUTTON_NEUTRAL) != null) {
+-                    a.getButton(Dialog.BUTTON_NEUTRAL).setOnClickListener(
+-                            new OnDismissListener(a, Dialog.BUTTON_NEUTRAL));
+-                }
+-                if (a.getButton(Dialog.BUTTON_POSITIVE) != null) {
+-                    a.getButton(Dialog.BUTTON_POSITIVE).setOnClickListener(
+-                            new OnDismissListener(a, Dialog.BUTTON_POSITIVE));
+-                }
+-                if (a.getButton(Dialog.BUTTON_NEGATIVE) != null) {
+-                    a.getButton(Dialog.BUTTON_NEGATIVE).setOnClickListener(
+-                            new OnDismissListener(a, Dialog.BUTTON_NEGATIVE));
+-                }
+-            }
+-            getCustomizablePreference().onStart();
+-        }
+-
+-        @Override
+-        public void onStop() {
+-            super.onStop();
+-            getCustomizablePreference().onStop();
+-        }
+-
+-        @Override
+-        public void onPause() {
+-            super.onPause();
+-            getCustomizablePreference().onPause();
+-        }
+-
+-        @Override
+-        public void onResume() {
+-            super.onResume();
+-            getCustomizablePreference().onResume();
+-        }
+-
+-        @Override
+-        protected void onPrepareDialogBuilder(AlertDialog.Builder builder) {
+-            super.onPrepareDialogBuilder(builder);
+-            getCustomizablePreference().setFragment(this);
+-            getCustomizablePreference().onPrepareDialogBuilder(builder, this);
+-        }
+-
+-        @Override
+-        public void onDialogClosed(boolean positiveResult) {
+-            getCustomizablePreference().onDialogClosed(positiveResult);
+-        }
+-
+-        @Override
+-        protected void onBindDialogView(View view) {
+-            super.onBindDialogView(view);
+-            getCustomizablePreference().onBindDialogView(view);
+-        }
+-
+-        @Override
+-        public void onClick(DialogInterface dialog, int which) {
+-            super.onClick(dialog, which);
+-            getCustomizablePreference().onClick(dialog, which);
+-        }
+-
+-        @NonNull
+-        @Override
+-        public Dialog onCreateDialog(Bundle savedInstanceState) {
+-            getCustomizablePreference().setFragment(this);
+-            final Dialog sub = getCustomizablePreference().onCreateDialog(savedInstanceState);
+-            if (sub == null) {
+-                return super.onCreateDialog(savedInstanceState);
+-            }
+-            return sub;
+-        }
+-
+-        @Override
+-        protected View onCreateDialogView(Context context) {
+-            final View v = getCustomizablePreference().onCreateDialogView(context);
+-            if (v == null) {
+-                return super.onCreateDialogView(context);
+-            }
+-            return v;
+-        }
+-    }
+-}
+diff --git a/src/com/android/settings/lineage/health/ChargingControlPreferenceController.java b/src/com/android/settings/lineage/health/ChargingControlPreferenceController.java
+deleted file mode 100644
+index e41ea5289a..0000000000
+--- a/src/com/android/settings/lineage/health/ChargingControlPreferenceController.java
++++ /dev/null
+@@ -1,64 +0,0 @@
+-/*
+- * Copyright (C) 2022 The PixelExperience Project
+- * Copyright (C) 2023 The lineage Foundation
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *      http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
+-package com.android.settings.lineage.health;
+-
+-import android.content.Context;
+-import android.os.IBinder;
+-import android.os.ServiceManager;
+-
+-import com.android.settings.core.BasePreferenceController;
+-import com.android.settings.R;
+-
+-public class ChargingControlPreferenceController extends BasePreferenceController {
+-
+-    public static final String KEY = "charging_control";
+-
+-    private Context mContext;
+-
+-    public ChargingControlPreferenceController(Context context, String key) {
+-        super(context, key);
+-
+-        mContext = context;
+-    }
+-
+-    public ChargingControlPreferenceController(Context context) {
+-        this(context, KEY);
+-
+-        mContext = context;
+-    }
+-
+-    private boolean isNegated(String key) {
+-        return key != null && key.startsWith("!");
+-    }
+-
+-    @Override
+-    public int getAvailabilityStatus() {
+-        String rService =  "lineagehealth";
+-        boolean negated = isNegated(rService);
+-        if (negated) {
+-           rService = rService.substring(1);
+-        }
+-        IBinder value = ServiceManager.getService(rService);
+-        boolean available = value != null;
+-        if (available == negated) {
+-            return UNSUPPORTED_ON_DEVICE;
+-        }
+-        return AVAILABLE;
+-    }
+-
+-}
+diff --git a/src/com/android/settings/lineage/health/ChargingControlSettings.java b/src/com/android/settings/lineage/health/ChargingControlSettings.java
+deleted file mode 100644
+index 5a4d7ef4e7..0000000000
+--- a/src/com/android/settings/lineage/health/ChargingControlSettings.java
++++ /dev/null
+@@ -1,276 +0,0 @@
+-/*
+- * Copyright (C) 2023 The LineageOS Project
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *      http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
+-package com.android.settings.lineage.health;
+-
+-import android.content.Context;
+-import android.content.res.Resources;
+-import android.os.Bundle;
+-import android.provider.Settings;
+-import android.view.Menu;
+-import android.view.MenuInflater;
+-import android.view.MenuItem;
+-
+-import androidx.fragment.app.DialogFragment;
+-import androidx.preference.Preference;
+-import androidx.preference.PreferenceScreen;
+-
+-import java.lang.reflect.Array;
+-import java.util.Arrays;
+-import java.util.ArrayList;
+-import java.util.List;
+-import java.util.UUID;
+-import java.util.stream.Stream;
+-
+-import com.android.internal.lineage.health.HealthInterface;
+-import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
+-import com.android.settings.R;
+-import com.android.settings.SettingsPreferenceFragment;
+-import com.android.settings.search.BaseSearchIndexProvider;
+-import com.android.settingslib.search.SearchIndexable;
+-
+-import com.android.settings.lineage.CustomDialogPreference;
+-import androidx.preference.ListPreference;
+-import com.android.settingslib.widget.MainSwitchPreference;
+-
+-import static com.android.internal.lineage.health.HealthInterface.MODE_AUTO;
+-import static com.android.internal.lineage.health.HealthInterface.MODE_MANUAL;
+-import static com.android.internal.lineage.health.HealthInterface.MODE_LIMIT;
+-
+-@SearchIndexable
+-public class ChargingControlSettings extends SettingsPreferenceFragment implements
+-        Preference.OnPreferenceChangeListener {
+-    private static final String TAG = ChargingControlSettings.class.getSimpleName();
+-
+-    private static final String CHARGING_CONTROL_PREF = "charging_control";
+-    private static final String CHARGING_CONTROL_ENABLED_PREF = "charging_control_enabled";
+-    private static final String CHARGING_CONTROL_MODE_PREF = "charging_control_mode";
+-    private static final String CHARGING_CONTROL_START_TIME_PREF = "charging_control_start_time";
+-    private static final String CHARGING_CONTROL_TARGET_TIME_PREF = "charging_control_target_time";
+-    private static final String CHARGING_CONTROL_LIMIT_PREF = "charging_control_charging_limit";
+-
+-    private MainSwitchPreference mChargingControlEnabledPref;
+-    private ListPreference mChargingControlModePref;
+-    private StartTimePreference mChargingControlStartTimePref;
+-    private TargetTimePreference mChargingControlTargetTimePref;
+-    private ChargingLimitPreference mChargingControlLimitPref;
+-
+-    private HealthInterface mHealthInterface;
+-
+-    private static final int MENU_RESET = Menu.FIRST;
+-
+-    @Override
+-    public void onActivityCreated(final Bundle savedInstanceState) {
+-        super.onActivityCreated(savedInstanceState);
+-
+-        final Resources res = getResources();
+-
+-        addPreferencesFromResource(R.xml.charging_control_settings);
+-        getActivity().getActionBar().setTitle(R.string.charging_control_title);
+-
+-        mHealthInterface = HealthInterface.getInstance(getActivity());
+-
+-        final PreferenceScreen prefSet = getPreferenceScreen();
+-
+-        mChargingControlEnabledPref = prefSet.findPreference(CHARGING_CONTROL_ENABLED_PREF);
+-        mChargingControlEnabledPref.setOnPreferenceChangeListener(this);
+-        mChargingControlModePref = prefSet.findPreference(CHARGING_CONTROL_MODE_PREF);
+-        mChargingControlModePref.setOnPreferenceChangeListener(this);
+-        mChargingControlStartTimePref = prefSet.findPreference(CHARGING_CONTROL_START_TIME_PREF);
+-        mChargingControlTargetTimePref = prefSet.findPreference(CHARGING_CONTROL_TARGET_TIME_PREF);
+-        mChargingControlLimitPref = prefSet.findPreference(CHARGING_CONTROL_LIMIT_PREF);
+-
+-        if (mChargingControlLimitPref != null) {
+-            if (mHealthInterface.allowFineGrainedSettings()) {
+-                mChargingControlModePref.setEntries(concatStringArrays(
+-                        mChargingControlModePref.getEntries(),
+-                        res.getStringArray(
+-                                R.array.charging_control_mode_entries_fine_grained_control)));
+-                mChargingControlModePref.setEntryValues(concatStringArrays(
+-                        mChargingControlModePref.getEntryValues(),
+-                        res.getStringArray(
+-                                R.array.charging_control_mode_values_fine_grained_control)));
+-            }
+-        }
+-
+-        setHasOptionsMenu(true);
+-
+-        refreshValues();
+-
+-    }
+-
+-    @Override
+-    public void onResume() {
+-        super.onResume();
+-        refreshUi();
+-    }
+-
+-    @Override
+-    public int getMetricsCategory() {
+-        return -1;
+-    }
+-
+-    @Override
+-    public void onDisplayPreferenceDialog(Preference preference) {
+-        if (preference.getKey() == null) {
+-            // Auto-key preferences that don't have a key, so the dialog can find them.
+-            preference.setKey(UUID.randomUUID().toString());
+-        }
+-        DialogFragment f = null;
+-        if (preference instanceof CustomDialogPreference) {
+-            f = CustomDialogPreference.CustomPreferenceDialogFragment
+-                    .newInstance(preference.getKey());
+-        } else {
+-            super.onDisplayPreferenceDialog(preference);
+-            return;
+-        }
+-        f.setTargetFragment(this, 0);
+-        f.show(getFragmentManager(), "dialog_preference");
+-        onDialogShowing();
+-    }
+-
+-    private void refreshValues() {
+-        if (mChargingControlEnabledPref != null) {
+-            mChargingControlEnabledPref.setChecked(mHealthInterface.getEnabled());
+-        }
+-
+-        if (mChargingControlModePref != null) {
+-            final int chargingControlMode = mHealthInterface.getMode();
+-            mChargingControlModePref.setValue(Integer.toString(chargingControlMode));
+-            refreshUi();
+-        }
+-
+-        if (mChargingControlStartTimePref != null) {
+-            mChargingControlStartTimePref.setValue(
+-                    mChargingControlStartTimePref.getTimeSetting());
+-        }
+-
+-        if (mChargingControlTargetTimePref != null) {
+-            mChargingControlTargetTimePref.setValue(
+-                    mChargingControlTargetTimePref.getTimeSetting());
+-        }
+-
+-        if (mChargingControlLimitPref != null) {
+-            mChargingControlLimitPref.setValue(
+-                    mChargingControlLimitPref.getSetting());
+-        }
+-    }
+-
+-    private void refreshUi() {
+-        final int chargingControlMode = mHealthInterface.getMode();
+-
+-        refreshUi(chargingControlMode);
+-    }
+-
+-    private void refreshUi(final int chargingControlMode) {
+-        String summary = null;
+-        boolean isChargingControlStartTimePrefVisible = false;
+-        boolean isChargingControlTargetTimePrefVisible = false;
+-        boolean isChargingControlLimitPrefVisible = false;
+-
+-        final Resources res = getResources();
+-
+-        switch (chargingControlMode) {
+-            case MODE_AUTO:
+-                summary = res.getString(R.string.charging_control_mode_auto_summary);
+-                break;
+-            case MODE_MANUAL:
+-                summary = res.getString(R.string.charging_control_mode_custom_summary);
+-                isChargingControlStartTimePrefVisible = true;
+-                isChargingControlTargetTimePrefVisible = true;
+-                break;
+-            case MODE_LIMIT:
+-                summary = res.getString(R.string.charging_control_mode_limit_summary);
+-                isChargingControlLimitPrefVisible = true;
+-                break;
+-            default:
+-                return;
+-        }
+-
+-        mChargingControlModePref.setSummary(summary);
+-
+-        if (mChargingControlStartTimePref != null) {
+-            mChargingControlStartTimePref.setVisible(isChargingControlStartTimePrefVisible);
+-        }
+-
+-        if (mChargingControlTargetTimePref != null) {
+-            mChargingControlTargetTimePref.setVisible(isChargingControlTargetTimePrefVisible);
+-        }
+-
+-        if (mChargingControlLimitPref != null) {
+-            mChargingControlLimitPref.setVisible(isChargingControlLimitPrefVisible);
+-        }
+-    }
+-
+-    @Override
+-    public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
+-        menu.add(0, MENU_RESET, 0, R.string.reset)
+-                .setIcon(R.drawable.ic_settings_backup_restore)
+-                .setAlphabeticShortcut('r')
+-                .setShowAsActionFlags(
+-                        MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+-    }
+-
+-    @Override
+-    public boolean onOptionsItemSelected(final MenuItem item) {
+-        if (item.getItemId() == MENU_RESET) {
+-            resetToDefaults();
+-            return true;
+-        }
+-        return false;
+-    }
+-
+-    @Override
+-    public boolean onPreferenceChange(final Preference preference, final Object objValue) {
+-        if (preference == mChargingControlEnabledPref) {
+-            mHealthInterface.setEnabled((Boolean) objValue);
+-        } else if (preference == mChargingControlModePref) {
+-            final int chargingControlMode = Integer.parseInt((String) objValue);
+-            mHealthInterface.setMode(chargingControlMode);
+-            refreshUi(chargingControlMode);
+-        }
+-        return true;
+-    }
+-
+-    private void resetToDefaults() {
+-        mHealthInterface.reset();
+-
+-        refreshValues();
+-    }
+-
+-    private CharSequence[] concatStringArrays(CharSequence[] array1, CharSequence[] array2) {
+-        return Stream.concat(Arrays.stream(array1), Arrays.stream(array2)).toArray(size ->
+-                (CharSequence[]) Array.newInstance(CharSequence.class, size));
+-    }
+-
+-    public static final BaseSearchIndexProvider SEARCH_INDEX_DATA_PROVIDER =
+-            new BaseSearchIndexProvider() {
+-        @Override
+-        public List<String> getNonIndexableKeys(Context context) {
+-            final List<String> result = new ArrayList<String>();
+-            if (!HealthInterface.isChargingControlSupported(context)) {
+-                result.add(CHARGING_CONTROL_PREF);
+-                result.add(CHARGING_CONTROL_ENABLED_PREF);
+-                result.add(CHARGING_CONTROL_MODE_PREF);
+-                result.add(CHARGING_CONTROL_START_TIME_PREF);
+-                result.add(CHARGING_CONTROL_TARGET_TIME_PREF);
+-                result.add(CHARGING_CONTROL_LIMIT_PREF);
+-            }
+-            return result;
+-        }
+-    };
+-
+-}
+diff --git a/src/com/android/settings/lineage/health/ChargingLimitPreference.java b/src/com/android/settings/lineage/health/ChargingLimitPreference.java
+deleted file mode 100644
+index 8577fb36f2..0000000000
+--- a/src/com/android/settings/lineage/health/ChargingLimitPreference.java
++++ /dev/null
+@@ -1,97 +0,0 @@
+-/*
+- * Copyright (C) 2023 The LineageOS Project
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *      http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
+-package com.android.settings.lineage.health;
+-
+-import android.content.Context;
+-import android.util.AttributeSet;
+-import android.widget.SeekBar;
+-import android.widget.TextView;
+-
+-import androidx.preference.Preference;
+-import androidx.preference.PreferenceViewHolder;
+-
+-import com.android.internal.lineage.health.HealthInterface;
+-
+-import com.android.settings.R;
+-
+-public class ChargingLimitPreference extends Preference
+-        implements SeekBar.OnSeekBarChangeListener {
+-    private static final String TAG = ChargingLimitPreference.class.getSimpleName();
+-
+-    private TextView mChargingLimitValue;
+-    private SeekBar mChargingLimitBar;
+-
+-    private final HealthInterface mHealthInterface;
+-
+-    public ChargingLimitPreference(final Context context, final AttributeSet attrs) {
+-        super(context, attrs);
+-
+-        setLayoutResource(R.layout.preference_charging_limit);
+-
+-        mHealthInterface = HealthInterface.getInstance(context);
+-    }
+-
+-    @Override
+-    public void onBindViewHolder(final PreferenceViewHolder holder) {
+-        super.onBindViewHolder(holder);
+-
+-        mChargingLimitValue = (TextView) holder.findViewById(R.id.value);
+-
+-        mChargingLimitBar = (SeekBar) holder.findViewById(R.id.seekbar_widget);
+-        mChargingLimitBar.setOnSeekBarChangeListener(this);
+-
+-        int currLimit = getSetting();
+-        mChargingLimitBar.setProgress(currLimit);
+-        updateValue(currLimit);
+-    }
+-
+-    @Override
+-    public void onStartTrackingTouch(final SeekBar seekBar) {
+-    }
+-
+-    @Override
+-    public void onStopTrackingTouch(final SeekBar seekBar) {
+-        setSetting(seekBar.getProgress());
+-    }
+-
+-    @Override
+-    public void onProgressChanged(final SeekBar seekBar, final int progress,
+-            final boolean fromUser) {
+-        updateValue(progress);
+-    }
+-
+-    public void setValue(final int value) {
+-        if (mChargingLimitBar != null) {
+-            mChargingLimitBar.setProgress(value);
+-        }
+-        updateValue(value);
+-    }
+-
+-    protected int getSetting() {
+-        return mHealthInterface.getLimit();
+-    }
+-
+-    protected void setSetting(final int chargingLimit) {
+-        mHealthInterface.setLimit(chargingLimit);
+-    }
+-
+-    private void updateValue(final int value) {
+-        if (mChargingLimitValue != null) {
+-            mChargingLimitValue.setText(String.format("%d%%", value));
+-        }
+-    }
+-}
+diff --git a/src/com/android/settings/lineage/health/StartTimePreference.java b/src/com/android/settings/lineage/health/StartTimePreference.java
+deleted file mode 100644
+index 6d12c6659b..0000000000
+--- a/src/com/android/settings/lineage/health/StartTimePreference.java
++++ /dev/null
+@@ -1,45 +0,0 @@
+-/*
+- * Copyright (C) 2023 The LineageOS Project
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *      http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
+-package com.android.settings.lineage.health;
+-
+-import android.content.Context;
+-import android.util.AttributeSet;
+-
+-import com.android.settings.R;
+-
+-public class StartTimePreference extends TimePreference {
+-    private static final String TAG = StartTimePreference.class.getSimpleName();
+-
+-    public StartTimePreference(Context context, AttributeSet attrs) {
+-        super(context, attrs);
+-    }
+-
+-    @Override
+-    protected int getSummaryResourceId() {
+-        return R.string.charging_control_start_time_summary;
+-    }
+-
+-    @Override
+-    protected int getTimeSetting() {
+-        return mHealthInterface.getStartTime();
+-    }
+-
+-    @Override
+-    protected void setTimeSetting(int secondOfDay) {
+-        mHealthInterface.setStartTime(secondOfDay);
+-    }
+-}
+diff --git a/src/com/android/settings/lineage/health/TargetTimePreference.java b/src/com/android/settings/lineage/health/TargetTimePreference.java
+deleted file mode 100644
+index 87351e4a0a..0000000000
+--- a/src/com/android/settings/lineage/health/TargetTimePreference.java
++++ /dev/null
+@@ -1,45 +0,0 @@
+-/*
+- * Copyright (C) 2023 The LineageOS Project
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *      http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
+-package com.android.settings.lineage.health;
+-
+-import android.content.Context;
+-import android.util.AttributeSet;
+-
+-import com.android.settings.R;
+-
+-public class TargetTimePreference extends TimePreference {
+-    private static final String TAG = TargetTimePreference.class.getSimpleName();
+-
+-    public TargetTimePreference(Context context, AttributeSet attrs) {
+-        super(context, attrs);
+-    }
+-
+-    @Override
+-    protected int getSummaryResourceId() {
+-        return R.string.charging_control_target_time_summary;
+-    }
+-
+-    @Override
+-    protected int getTimeSetting() {
+-        return mHealthInterface.getTargetTime();
+-    }
+-
+-    @Override
+-    protected void setTimeSetting(int secondOfDay) {
+-        mHealthInterface.setTargetTime(secondOfDay);
+-    }
+-}
+diff --git a/src/com/android/settings/lineage/health/TimePreference.java b/src/com/android/settings/lineage/health/TimePreference.java
+deleted file mode 100644
+index aae2d7c563..0000000000
+--- a/src/com/android/settings/lineage/health/TimePreference.java
++++ /dev/null
+@@ -1,106 +0,0 @@
+-/*
+- * Copyright (C) 2023 The LineageOS Project
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *      http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
+-package com.android.settings.lineage.health;
+-
+-import static java.time.format.FormatStyle.SHORT;
+-
+-import android.content.Context;
+-import android.content.DialogInterface;
+-import android.util.AttributeSet;
+-import android.view.View;
+-import android.widget.TimePicker;
+-
+-import androidx.appcompat.app.AlertDialog;
+-import androidx.preference.PreferenceViewHolder;
+-
+-import com.android.settings.lineage.CustomDialogPreference;
+-import com.android.settings.R;
+-
+-import java.time.LocalTime;
+-import java.time.format.DateTimeFormatter;
+-
+-import com.android.internal.lineage.health.HealthInterface;
+-
+-public abstract class TimePreference extends CustomDialogPreference<AlertDialog> {
+-    private static final String TAG = TimePreference.class.getSimpleName();
+-    private static final DateTimeFormatter mFormatter = DateTimeFormatter.ofLocalizedTime(SHORT);
+-
+-    private TimePicker mTimePicker;
+-    private LocalTime mLocalTime;
+-
+-    protected HealthInterface mHealthInterface;
+-
+-    public TimePreference(final Context context, final AttributeSet attrs) {
+-        super(context, attrs);
+-
+-        setDialogLayoutResource(R.layout.dialog_time);
+-        mHealthInterface = HealthInterface.getInstance(context);
+-    }
+-
+-    @Override
+-    public void onBindViewHolder(final PreferenceViewHolder holder) {
+-        mLocalTime = LocalTime.ofSecondOfDay(getTimeSetting());
+-        super.onBindViewHolder(holder);
+-    }
+-
+-    @Override
+-    protected void onPrepareDialogBuilder(final AlertDialog.Builder builder,
+-            final DialogInterface.OnClickListener listener) {
+-        super.onPrepareDialogBuilder(builder, listener);
+-
+-        builder.setNegativeButton(R.string.cancel, null);
+-        builder.setPositiveButton(R.string.dlg_ok, null);
+-    }
+-
+-    @Override
+-    protected void onDialogClosed(final boolean positiveResult) {
+-        super.onDialogClosed(positiveResult);
+-
+-        if (positiveResult) {
+-            mLocalTime = LocalTime.of(mTimePicker.getHour(),
+-                    mTimePicker.getMinute());
+-            setTimeSetting(mLocalTime.toSecondOfDay());
+-            setSummary(getSummary());
+-        }
+-    }
+-
+-    @Override
+-    protected void onBindDialogView(View view) {
+-        super.onBindDialogView(view);
+-
+-        mTimePicker = view.findViewById(R.id.time_picker);
+-        mTimePicker.setHour(mLocalTime.getHour());
+-        mTimePicker.setMinute(mLocalTime.getMinute());
+-    }
+-
+-    @Override
+-    public CharSequence getSummary() {
+-        return String.format(getContext().getString(getSummaryResourceId()),
+-                mLocalTime.format(mFormatter));
+-    }
+-
+-    public void setValue(final int value) {
+-        mLocalTime = LocalTime.ofSecondOfDay(value);
+-        setSummary(getSummary());
+-    }
+-
+-    protected abstract int getSummaryResourceId();
+-
+-    protected abstract int getTimeSetting();
+-
+-    protected abstract void setTimeSetting(int secondOfDay);
+-}
+-- 
+2.34.1
+

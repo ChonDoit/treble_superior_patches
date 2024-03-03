@@ -27,17 +27,17 @@ Change-Id: I9f1eac5a20b98920a5d0c8204fe4d165ba069f5a
  2 files changed, 50 insertions(+)
 
 diff --git a/services/core/Android.bp b/services/core/Android.bp
-index 12657c0b6d54..58445795f606 100644
+index 80215acddb3f..35a09d0ad0e2 100644
 --- a/services/core/Android.bp
 +++ b/services/core/Android.bp
-@@ -185,6 +185,7 @@ java_library_static {
-         "com.android.sysprop.watchdog",
-         "ImmutabilityAnnotation",
-         "securebox",
-+        "vendor.mediatek.hardware.mtkpower-V1.1-java",
-         "vendor.samsung.hardware.sysinput-V1.2-java",
+@@ -188,6 +188,7 @@ java_library_static {
          "vendor.aac.hardware.richtap.vibrator",
+         "vendor.samsung.hardware.sysinput-V1-java",
+         "vendor.samsung.hardware.sysinput-V1.2-java",
++        "vendor.mediatek.hardware.mtkpower-V1.1-java",
+         "faceunlock_framework",
      ],
+     javac_shard_size: 50,
 diff --git a/services/core/java/com/android/server/wm/DisplayPolicy.java b/services/core/java/com/android/server/wm/DisplayPolicy.java
 index 4a740f4fdd2f..6aefe7bf8de9 100644
 --- a/services/core/java/com/android/server/wm/DisplayPolicy.java

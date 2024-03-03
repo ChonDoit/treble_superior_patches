@@ -1,11 +1,14 @@
+A14_v20240303
+| Sync with Superior source
+
+######
+
 A14_v20240302
 | Sync with TD
 
 OWN CHANGES
 | Allow disable clipboard overlay
 | Add Quick Settings styles
-
-######
 
 A14_v20240424
 | Fix major bootloop

@@ -5,24 +5,10 @@ Subject: [PATCH 46/53] Add support for Samsung full brightness on their AIDL
  HAL
 
 ---
- services/core/Android.bp                      |  4 ++
  .../android/server/lights/LightsService.java  | 40 +++++++++++++++++++
- 2 files changed, 44 insertions(+)
+ 1 files changed, 40 insertions(+)
 
-diff --git a/services/core/Android.bp b/services/core/Android.bp
-index ae448d5da997..3fbf8034f47a 100644
---- a/services/core/Android.bp
-+++ b/services/core/Android.bp
-@@ -193,6 +193,9 @@ java_library_static {
-         "vendor.oppo.hardware.biometrics.fingerprint-V2.1-java",
-         "vendor.xiaomi.hardware.fingerprintextension-V1.0-java",
-         "vendor.aac.hardware.richtap.vibrator",
-+        //AIDL
-+        "vendor.samsung.hardware.biometrics.fingerprint-V1-java",
-+        "vendor.samsung.hardware.light-V1-java",
-     ],
-     javac_shard_size: 50,
-     javacflags: [
+
 diff --git a/services/core/java/com/android/server/lights/LightsService.java b/services/core/java/com/android/server/lights/LightsService.java
 index 8fa9c4f3a698..390c6ac6c50f 100644
 --- a/services/core/java/com/android/server/lights/LightsService.java

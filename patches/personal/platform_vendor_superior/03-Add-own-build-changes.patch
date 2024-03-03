@@ -1,19 +1,19 @@
-From 37fcd9de9edfbd8bcde10798c718ed6b6f9016d9 Mon Sep 17 00:00:00 2001
+From 1296bbe77a13191d685c09f2853c6fe811a045c5 Mon Sep 17 00:00:00 2001
 From: ChonDoit <thphantomblog@gmail.com>
 Date: Sat, 11 Nov 2023 17:03:04 +0000
-Subject: [PATCH] Add own build changes
+Subject: [PATCH 1/2] Add own build changes
 
 ---
- config/phh_gsi.mk | 36 ++++++++++++++++++++++++++++++++++++
- 1 file changed, 36 insertions(+)
+ config/phh_gsi.mk | 31 +++++++++++++++++++++++++++++++
+ 1 file changed, 31 insertions(+)
  create mode 100644 config/phh_gsi.mk
 
 diff --git a/config/phh_gsi.mk b/config/phh_gsi.mk
 new file mode 100644
-index 00000000..9efcfcf2
+index 00000000..64590b7d
 --- /dev/null
 +++ b/config/phh_gsi.mk
-@@ -0,0 +1,36 @@
+@@ -0,0 +1,31 @@
 +# The Gapps
 +WITH_THE_GAPPS := true
 +ifeq ($(WITH_THE_GAPPS), true)
@@ -25,17 +25,12 @@ index 00000000..9efcfcf2
 +# Don't Build Kernel
 +TARGET_NO_KERNEL_OVERRIDE := true
 +
-+# Secure build?
++# Call for Secure build
++$(call inherit-product, device/phh/treble/secure.mk)
 +PHH-SECURE_BUILD := false
 +
 +# Use CCache
 +USE_CCACHE := true
-+
-+PRODUCT_PACKAGES += \
-+    QSDualRounded \
-+    QSDualRoundedRectangle \
-+    QSRounded \
-+    QSRoundedRectangle
 +
 +# Set Build Variant prop for OTA
 +ifeq ($(WITH_THE_GAPPS), false)
@@ -52,4 +47,5 @@ index 00000000..9efcfcf2
 +    ro.system.ota.json_url=https://raw.githubusercontent.com/ChonDoit/treble_superior_patches/14/ota.json
 -- 
 2.34.1
+
 

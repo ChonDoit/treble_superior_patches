@@ -24,7 +24,7 @@ Change-Id: Ibd0f9ea8fba584a38c060fd9271549a5e106b4eb
  7 files changed, 585 insertions(+), 6 deletions(-)
 
 diff --git a/packages/SystemUI/Android.bp b/packages/SystemUI/Android.bp
-index 7eccfe6f82b1..1623901662a8 100644
+index 416dd91967a2..acdde03f0976 100644
 --- a/packages/SystemUI/Android.bp
 +++ b/packages/SystemUI/Android.bp
 @@ -200,6 +200,10 @@ android_library {
@@ -36,8 +36,8 @@ index 7eccfe6f82b1..1623901662a8 100644
 +        "vendor.xiaomi.hardware.fingerprintextension-V1.0-java",
 +        "vendor.nubia.ifaa-V1.0-java",
          "vendor.lineage.powershare-V1.0-java",
+         "faceunlock_framework",
      ],
-     manifest: "AndroidManifest.xml",
 diff --git a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java
 index 3472a859ac82..19b67b5f3def 100644
 --- a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java
@@ -442,19 +442,26 @@ index ef7fcc954590..c164b3d6f351 100644
      }
  }
 diff --git a/services/core/Android.bp b/services/core/Android.bp
-index 58445795f606..ae448d5da997 100644
+index 35a09d0ad0e2..4d1be2045f1a 100644
 --- a/services/core/Android.bp
 +++ b/services/core/Android.bp
-@@ -187,6 +187,11 @@ java_library_static {
+@@ -186,9 +186,17 @@ java_library_static {
+         "ImmutabilityAnnotation",
          "securebox",
-         "vendor.mediatek.hardware.mtkpower-V1.1-java",
+         "vendor.aac.hardware.richtap.vibrator",
+-        "vendor.samsung.hardware.sysinput-V1-java",
          "vendor.samsung.hardware.sysinput-V1.2-java",
+         "vendor.mediatek.hardware.mtkpower-V1.1-java",
 +        "vendor.goodix.hardware.biometrics.fingerprint-V2.1-java",
 +        "vendor.samsung.hardware.biometrics.fingerprint-V3.0-java",
 +        "vendor.oplus.hardware.biometrics.fingerprint-V2.1-java",
 +        "vendor.oppo.hardware.biometrics.fingerprint-V2.1-java",
 +        "vendor.xiaomi.hardware.fingerprintextension-V1.0-java",
-         "vendor.aac.hardware.richtap.vibrator",
++        // AIDL
++        "vendor.samsung.hardware.sysinput-V1-java",
++        "vendor.samsung.hardware.biometrics.fingerprint-V1-java",
++        "vendor.samsung.hardware.light-V1-java",
+         "faceunlock_framework",
      ],
      javac_shard_size: 50,
 diff --git a/services/core/java/com/android/server/biometrics/AuthService.java b/services/core/java/com/android/server/biometrics/AuthService.java

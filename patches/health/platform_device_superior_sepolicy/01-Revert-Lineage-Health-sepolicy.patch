@@ -1,0 +1,133 @@
+From d07dafe5685c2b2bd7089cbbb830c5bcd3b0d0ee Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sun, 3 Mar 2024 09:24:31 -0300
+Subject: [PATCH 3/3] Revert "common: Add sepolicy rules for Lineage Health HAL
+ and service"
+
+This reverts commit c86fda9bf6b12a905947ba09a147102fb09e42c5.
+---
+ common/dynamic/hal_lineage_health.te        | 5 -----
+ common/dynamic/service.te                   | 1 -
+ common/dynamic/service_contexts             | 1 -
+ common/private/service.te                   | 1 -
+ common/private/service_contexts             | 1 -
+ common/private/system_server.te             | 1 -
+ common/public/attributes                    | 1 -
+ common/vendor/file_contexts                 | 3 ---
+ common/vendor/hal_lineage_health_default.te | 7 -------
+ qcom/vendor/hal_lineage_health_default.te   | 2 --
+ 10 files changed, 23 deletions(-)
+ delete mode 100644 common/dynamic/hal_lineage_health.te
+ delete mode 100644 common/dynamic/service_contexts
+ delete mode 100644 common/vendor/hal_lineage_health_default.te
+ delete mode 100644 qcom/vendor/hal_lineage_health_default.te
+
+diff --git a/common/dynamic/hal_lineage_health.te b/common/dynamic/hal_lineage_health.te
+deleted file mode 100644
+index 3ba6b68..0000000
+--- a/common/dynamic/hal_lineage_health.te
++++ /dev/null
+@@ -1,5 +0,0 @@
+-# HwBinder IPC from client to server
+-binder_call(hal_lineage_health_client, hal_lineage_health_server)
+-
+-add_service(hal_lineage_health_server, hal_lineage_health_service)
+-allow hal_lineage_health_client hal_lineage_health_service:service_manager find;
+diff --git a/common/dynamic/service.te b/common/dynamic/service.te
+index 7453853..e69de29 100644
+--- a/common/dynamic/service.te
++++ b/common/dynamic/service.te
+@@ -1 +0,0 @@
+-type hal_lineage_health_service, hal_service_type, service_manager_type;
+diff --git a/common/dynamic/service_contexts b/common/dynamic/service_contexts
+deleted file mode 100644
+index 9d0d2a6..0000000
+--- a/common/dynamic/service_contexts
++++ /dev/null
+@@ -1 +0,0 @@
+-vendor.lineage.health.IChargingControl/default        u:object_r:hal_lineage_health_service:s0
+diff --git a/common/private/service.te b/common/private/service.te
+index 86f6e4c..053d448 100644
+--- a/common/private/service.te
++++ b/common/private/service.te
+@@ -1,6 +1,5 @@
+ type adbroot_service,                   service_manager_type;
+ type lineage_hardware_service, system_api_service, system_server_service, service_manager_type;
+-type lineage_health_interface_service, system_api_service, system_server_service, service_manager_type;
+ type lineage_globalactions_service, system_api_service, system_server_service, service_manager_type;
+ type lineage_livedisplay_service, system_api_service, system_server_service, service_manager_type;
+ type lineage_profile_service, system_api_service, system_server_service, service_manager_type;
+diff --git a/common/private/service_contexts b/common/private/service_contexts
+index cd984cb..633c6ac 100644
+--- a/common/private/service_contexts
++++ b/common/private/service_contexts
+@@ -1,6 +1,5 @@
+ lineageglobalactions                      u:object_r:lineage_globalactions_service:s0
+ lineagehardware                           u:object_r:lineage_hardware_service:s0
+-lineagehealth                             u:object_r:lineage_health_interface_service:s0
+ lineagelivedisplay                        u:object_r:lineage_livedisplay_service:s0
+ lineagetrust                              u:object_r:lineage_trust_service:s0
+ profile                                   u:object_r:lineage_profile_service:s0
+diff --git a/common/private/system_server.te b/common/private/system_server.te
+index e396fa5..84c9185 100644
+--- a/common/private/system_server.te
++++ b/common/private/system_server.te
+@@ -4,7 +4,6 @@ allow system_server adbroot_service:service_manager find;
+ 
+ # Use HALs
+ hal_client_domain(system_server, hal_lineage_fastcharge)
+-hal_client_domain(system_server, hal_lineage_health)
+ hal_client_domain(system_server, hal_lineage_livedisplay)
+ hal_client_domain(system_server, hal_lineage_touch)
+ hal_client_domain(system_server, hal_lineage_trust)
+diff --git a/common/public/attributes b/common/public/attributes
+index 8a98193..76a373d 100644
+--- a/common/public/attributes
++++ b/common/public/attributes
+@@ -1,7 +1,6 @@
+ # HALs
+ hal_attribute_lineage(lineage_camera_motor)
+ hal_attribute_lineage(lineage_fastcharge)
+-hal_attribute_lineage(lineage_health)
+ hal_attribute_lineage(lineage_livedisplay)
+ hal_attribute_lineage(lineage_touch)
+ hal_attribute_lineage(lineage_trust)
+diff --git a/common/vendor/file_contexts b/common/vendor/file_contexts
+index fd4174d..0565b00 100644
+--- a/common/vendor/file_contexts
++++ b/common/vendor/file_contexts
+@@ -4,9 +4,6 @@
+ # GNSS HAL
+ /(vendor|system/vendor)/bin/hw/android\.hardware\.gnss@1\.0-service\.legacy u:object_r:hal_gnss_default_exec:s0
+ 
+-# Health HAL
+-/(vendor|system/vendor)/bin/hw/vendor\.lineage\.health-service\.default u:object_r:hal_lineage_health_default_exec:s0
+-
+ # Light HAL
+ /(vendor|system/vendor)/bin/hw/android\.hardware\.light@2\.0-service\.aw2013 u:object_r:hal_light_default_exec:s0
+ 
+diff --git a/common/vendor/hal_lineage_health_default.te b/common/vendor/hal_lineage_health_default.te
+deleted file mode 100644
+index 243a1ac..0000000
+--- a/common/vendor/hal_lineage_health_default.te
++++ /dev/null
+@@ -1,7 +0,0 @@
+-type hal_lineage_health_default, domain;
+-hal_server_domain(hal_lineage_health_default, hal_lineage_health)
+-
+-type hal_lineage_health_default_exec, exec_type, vendor_file_type, file_type;
+-init_daemon_domain(hal_lineage_health_default)
+-
+-binder_call(hal_lineage_health_default, servicemanager);
+diff --git a/qcom/vendor/hal_lineage_health_default.te b/qcom/vendor/hal_lineage_health_default.te
+deleted file mode 100644
+index 26de236..0000000
+--- a/qcom/vendor/hal_lineage_health_default.te
++++ /dev/null
+@@ -1,2 +0,0 @@
+-rw_dir_file(hal_lineage_health_default, sysfs_battery_supply)
+-rw_dir_file(hal_lineage_health_default, sysfs_usb_supply)
+-- 
+2.34.1
+
+

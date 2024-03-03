@@ -1,0 +1,2017 @@
+From 00b4732f5669081ae3bef20be448e93ec6dab2cf Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sun, 3 Mar 2024 10:18:23 -0300
+Subject: [PATCH] Revert "base: Implement Lineage Health Service [1/3]"
+
+This reverts commit 869d9d47eda722763a6798110ee10a26f19a5dda.
+---
+ Android.bp                                    |   1 -
+ core/java/android/provider/Settings.java      |  33 -
+ .../lineage/app/LineageContextConstants.java  |  45 -
+ .../lineage/health/HealthInterface.java       | 283 ------
+ .../lineage/health/IHealthInterface.aidl      |  40 -
+ core/res/AndroidManifest.xml                  |   2 -
+ core/res/res/drawable/ic_charging_control.xml |  27 -
+ core/res/res/values/superior_config.xml       |  30 +-
+ core/res/res/values/superior_strings.xml      |  12 +-
+ core/res/res/values/superior_symbols.xml      |  19 +-
+ .../server/lineage/LineageBaseFeature.java    | 122 ---
+ .../lineage/common/UserContentObserver.java   |  98 --
+ .../health/ChargingControlController.java     | 915 ------------------
+ .../health/HealthInterfaceService.java        | 164 ----
+ .../lineage/health/LineageHealthFeature.java  |  33 -
+ .../java/com/android/server/SystemServer.java |   5 -
+ 16 files changed, 3 insertions(+), 1826 deletions(-)
+ delete mode 100644 core/java/com/android/internal/lineage/app/LineageContextConstants.java
+ delete mode 100644 core/java/com/android/internal/lineage/health/HealthInterface.java
+ delete mode 100644 core/java/com/android/internal/lineage/health/IHealthInterface.aidl
+ delete mode 100644 core/res/res/drawable/ic_charging_control.xml
+ delete mode 100644 services/core/java/com/android/server/lineage/LineageBaseFeature.java
+ delete mode 100644 services/core/java/com/android/server/lineage/common/UserContentObserver.java
+ delete mode 100644 services/core/java/com/android/server/lineage/health/ChargingControlController.java
+ delete mode 100644 services/core/java/com/android/server/lineage/health/HealthInterfaceService.java
+ delete mode 100644 services/core/java/com/android/server/lineage/health/LineageHealthFeature.java
+
+diff --git a/Android.bp b/Android.bp
+index fecec4659fc1..72ac137ef9b9 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -251,7 +251,6 @@ java_library {
+         "com.android.sysprop.init",
+         "com.android.sysprop.localization",
+         "PlatformProperties",
+-        "vendor.lineage.health-V1-java",
+         "vendor.lineage.touch-V1.0-java",
+         "SurfaceFlingerProperties",
+     ],
+diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
+index 8e12e8a45e93..732b86e45bbc 100644
+--- a/core/java/android/provider/Settings.java
++++ b/core/java/android/provider/Settings.java
+@@ -5779,39 +5779,6 @@ public final class Settings {
+          */
+         public static final String LOCALE_PREFERENCES = "locale_preferences";
+ 
+-        /**
+-         * Whether charging control should be enabled.
+-         * The value is boolean (1 or 0).
+-         * @hide
+-         */
+-        public static final String CHARGING_CONTROL_ENABLED = "charging_control_enabled";
+-
+-        /**
+-         * Charging control mode, one of AUTO (1; default), CUSTOM (2), or LIMIT (3).
+-         * @hide
+-         */
+-        public static final String CHARGING_CONTROL_MODE = "charging_control_mode";
+-
+-        /**
+-         * Time when charging control is automatically activated in CUSTOM mode.
+-         * The value is represented as seconds from midnight.
+-         * @hide
+-         */
+-        public static final String CHARGING_CONTROL_START_TIME = "charging_control_start_time";
+-
+-        /**
+-         * Target time when battery is fully charged in CUSTOM mode.
+-         * The value is represented as seconds from midnight.
+-         * @hide
+-         */
+-        public static final String CHARGING_CONTROL_TARGET_TIME = "charging_control_target_time";
+-
+-        /**
+-         * Limit to stop charging.
+-         * @hide
+-         */
+-        public static final String CHARGING_CONTROL_LIMIT = "charging_control_charging_limit";
+-
+         /**
+          * Setting to enable camera flash notification feature.
+          * <ul>
+diff --git a/core/java/com/android/internal/lineage/app/LineageContextConstants.java b/core/java/com/android/internal/lineage/app/LineageContextConstants.java
+deleted file mode 100644
+index 1e55bfb8429c..000000000000
+--- a/core/java/com/android/internal/lineage/app/LineageContextConstants.java
++++ /dev/null
+@@ -1,45 +0,0 @@
+-/**
+- * Copyright (c) 2015, The CyanogenMod Project
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *     http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
+-package com.android.internal.lineage.app;
+-
+-import android.annotation.SdkConstant;
+-
+-/**
+- * @hide
+- * TODO: We need to somehow make these managers accessible via getSystemService
+- */
+-public final class LineageContextConstants {
+-
+-    /**
+-     * @hide
+-     */
+-    private LineageContextConstants() {
+-        // Empty constructor
+-    }
+-
+-    /**
+-     * Use with {@link android.content.Context#getSystemService} to retrieve a
+-     * {@link lineageos.health.HealthInterface} to access the Health interface.
+-     *
+-     * @see android.content.Context#getSystemService
+-     * @see lineageos.health.HealthInterface
+-     *
+-     * @hide
+-     */
+-    public static final String LINEAGE_HEALTH_INTERFACE = "lineagehealth";
+-
+-}
+diff --git a/core/java/com/android/internal/lineage/health/HealthInterface.java b/core/java/com/android/internal/lineage/health/HealthInterface.java
+deleted file mode 100644
+index 5fc7f1c021a2..000000000000
+--- a/core/java/com/android/internal/lineage/health/HealthInterface.java
++++ /dev/null
+@@ -1,283 +0,0 @@
+-/*
+- * Copyright (C) 2023 The LineageOS Project
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *      http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
+-package com.android.internal.lineage.health;
+-
+-import android.content.Context;
+-import android.os.IBinder;
+-import android.os.RemoteException;
+-import android.os.ServiceManager;
+-import android.util.Log;
+-
+-import com.android.internal.lineage.app.LineageContextConstants;
+-
+-public class HealthInterface {
+-    /**
+-     * No config set. This value is invalid and does not have any effects
+-     */
+-    public static final int MODE_NONE = 0;
+-
+-    /**
+-     * Automatic config
+-     */
+-    public static final int MODE_AUTO = 1;
+-
+-    /**
+-     * Manual config mode
+-     */
+-    public static final int MODE_MANUAL = 2;
+-
+-    /**
+-     * Limit config mode
+-     */
+-    public static final int MODE_LIMIT = 3;
+-
+-    private static final String TAG = "HealthInterface";
+-    private static IHealthInterface sService;
+-    private static HealthInterface sInstance;
+-    private Context mContext;
+-    private HealthInterface(Context context) {
+-        Context appContext = context.getApplicationContext();
+-        mContext = appContext == null ? context : appContext;
+-        sService = getService();
+-    }
+-    /**
+-     * Get or create an instance of the {@link lineageos.health.HealthInterface}
+-     *
+-     * @param context Used to get the service
+-     * @return {@link HealthInterface}
+-     */
+-    public static synchronized HealthInterface getInstance(Context context) {
+-        if (sInstance == null) {
+-            sInstance = new HealthInterface(context);
+-        }
+-        return sInstance;
+-    }
+-    /** @hide **/
+-    public static IHealthInterface getService() {
+-        if (sService != null) {
+-            return sService;
+-        }
+-        IBinder b = ServiceManager.getService(LineageContextConstants.LINEAGE_HEALTH_INTERFACE);
+-        sService = IHealthInterface.Stub.asInterface(b);
+-        if (sService == null) {
+-            Log.e(TAG, "null health service, SAD!");
+-            return null;
+-        }
+-        return sService;
+-    }
+-
+-    /**
+-     * @return true if service is valid
+-     */
+-    private boolean checkService() {
+-        if (sService == null) {
+-            Log.w(TAG, "not connected to LineageHardwareManagerService");
+-            return false;
+-        }
+-        return true;
+-    }
+-
+-    /**
+-     * Returns whether charging control is supported
+-     *
+-     * @return true if charging control is supported
+-     */
+-    public boolean isChargingControlSupported() {
+-        try {
+-            return checkService() && sService.isChargingControlSupported();
+-        } catch (RemoteException e) {
+-            Log.e(TAG, e.getLocalizedMessage(), e);
+-        }
+-
+-        return false;
+-    }
+-
+-    /**
+-     * Returns whether charging control is supported
+-     *
+-     * @return true if charging control is supported
+-     */
+-    public static boolean isChargingControlSupported(Context context) {
+-        try {
+-            return getInstance(context).isChargingControlSupported();
+-        } catch (RuntimeException e) {
+-            Log.e(TAG, e.getLocalizedMessage(), e);
+-        }
+-        return false;
+-    }
+-
+-    /**
+-     * Returns the charging control enabled status
+-     *
+-     * @return whether charging control has been enabled
+-     */
+-    public boolean getEnabled() {
+-        try {
+-            return checkService() && sService.getChargingControlEnabled();
+-        } catch (RemoteException e) {
+-            return false;
+-        }
+-    }
+-
+-    /**
+-     * Set charging control enable status
+-     *
+-     * @param enabled whether charging control should be enabled
+-     * @return true if the enabled status was successfully set
+-     */
+-    public boolean setEnabled(boolean enabled) {
+-        try {
+-            return checkService() && sService.setChargingControlEnabled(enabled);
+-        } catch (RemoteException e) {
+-            return false;
+-        }
+-    }
+-
+-    /**
+-     * Returns the current charging control mode
+-     *
+-     * @return id of the charging control mode
+-     */
+-    public int getMode() {
+-        try {
+-            return checkService() ? sService.getChargingControlMode() : MODE_NONE;
+-        } catch (RemoteException e) {
+-            return MODE_NONE;
+-        }
+-    }
+-
+-    /**
+-     * Selects the new charging control mode
+-     *
+-     * @param mode the new charging control mode
+-     * @return true if the mode was successfully set
+-     */
+-    public boolean setMode(int mode) {
+-        try {
+-            return checkService() && sService.setChargingControlMode(mode);
+-        } catch (RemoteException e) {
+-            return false;
+-        }
+-    }
+-
+-    /**
+-     * Gets the charging control start time
+-     *
+-     * @return the seconds of the day of the start time
+-     */
+-    public int getStartTime() {
+-        try {
+-            return checkService() ? sService.getChargingControlStartTime() : 0;
+-        } catch (RemoteException e) {
+-            return 0;
+-        }
+-    }
+-
+-    /**
+-     * Sets the charging control start time
+-     *
+-     * @param time the seconds of the day of the start time
+-     * @return true if the start time was successfully set
+-     */
+-    public boolean setStartTime(int time) {
+-        try {
+-            return checkService() && sService.setChargingControlStartTime(time);
+-        } catch (RemoteException e) {
+-            return false;
+-        }
+-    }
+-
+-    /**
+-     * Gets the charging control target time
+-     *
+-     * @return the seconds of the day of the target time
+-     */
+-    public int getTargetTime() {
+-        try {
+-            return checkService() ? sService.getChargingControlTargetTime() : 0;
+-        } catch (RemoteException e) {
+-            return 0;
+-        }
+-    }
+-
+-    /**
+-     * Sets the charging control target time
+-     *
+-     * @param time the seconds of the day of the target time
+-     * @return true if the target time was successfully set
+-     */
+-    public boolean setTargetTime(int time) {
+-        try {
+-            return checkService() && sService.setChargingControlTargetTime(time);
+-        } catch (RemoteException e) {
+-            return false;
+-        }
+-    }
+-
+-    /**
+-     * Gets the charging control limit
+-     *
+-     * @return the charging control limit
+-     */
+-    public int getLimit() {
+-        try {
+-            return checkService() ? sService.getChargingControlLimit() : 100;
+-        } catch (RemoteException e) {
+-            return 0;
+-        }
+-    }
+-
+-    /**
+-     * Sets the charging control limit
+-     *
+-     * @param limit the charging control limit
+-     * @return true if the limit was successfully set
+-     */
+-    public boolean setLimit(int limit) {
+-        try {
+-            return checkService() && sService.setChargingControlLimit(limit);
+-        } catch (RemoteException e) {
+-            return false;
+-        }
+-    }
+-
+-    /**
+-     * Resets the charging control setting to default
+-     *
+-     * @return true if the setting was successfully reset
+-     */
+-    public boolean reset() {
+-        try {
+-            return checkService() && sService.resetChargingControl();
+-        } catch (RemoteException e) {
+-            return false;
+-        }
+-    }
+-
+-    /**
+-     * Returns whether the device's battery control bypasses battery
+-     *
+-     * @return true if the charging control bypasses battery
+-     */
+-    public boolean allowFineGrainedSettings() {
+-        try {
+-            return checkService() && sService.allowFineGrainedSettings();
+-        } catch (RemoteException e) {
+-            return false;
+-        }
+-    }
+-}
+diff --git a/core/java/com/android/internal/lineage/health/IHealthInterface.aidl b/core/java/com/android/internal/lineage/health/IHealthInterface.aidl
+deleted file mode 100644
+index c2e9759ce6f1..000000000000
+--- a/core/java/com/android/internal/lineage/health/IHealthInterface.aidl
++++ /dev/null
+@@ -1,40 +0,0 @@
+-/**
+- * Copyright (c) 2023 The LineageOS Project
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *     http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
+-package com.android.internal.lineage.health;
+-
+-/** @hide */
+-interface IHealthInterface {
+-    boolean isChargingControlSupported();
+-
+-    boolean getChargingControlEnabled();
+-    boolean setChargingControlEnabled(boolean enabled);
+-
+-    int getChargingControlMode();
+-    boolean setChargingControlMode(int mode);
+-
+-    int getChargingControlStartTime();
+-    boolean setChargingControlStartTime(int time);
+-
+-    int getChargingControlTargetTime();
+-    boolean setChargingControlTargetTime(int time);
+-
+-    int getChargingControlLimit();
+-    boolean setChargingControlLimit(int limit);
+-
+-    boolean resetChargingControl();
+-    boolean allowFineGrainedSettings();
+-}
+diff --git a/core/res/AndroidManifest.xml b/core/res/AndroidManifest.xml
+index 62eb8ab660e2..83561c92ccbb 100644
+--- a/core/res/AndroidManifest.xml
++++ b/core/res/AndroidManifest.xml
+@@ -7698,8 +7698,6 @@
+     <!-- Attribution for Gnss Time Update service. -->
+     <attribution android:tag="GnssTimeUpdateService"
+                  android:label="@string/gnss_time_update_service"/>
+-    <!-- LineageHealth -->
+-    <protected-broadcast android:name="lineageos.platform.intent.action.CHARGING_CONTROL_CANCEL_ONCE" />
+     <!-- Attribution for MusicRecognitionManagerService.
+          <p>Not for use by third-party applications.</p> -->
+     <attribution android:tag="MusicRecognitionManagerService"
+diff --git a/core/res/res/drawable/ic_charging_control.xml b/core/res/res/drawable/ic_charging_control.xml
+deleted file mode 100644
+index 830853230a47..000000000000
+--- a/core/res/res/drawable/ic_charging_control.xml
++++ /dev/null
+@@ -1,27 +0,0 @@
+-<!--
+-    Copyright (C) 2018 The Android Open Source Project
+-
+-    Licensed under the Apache License, Version 2.0 (the "License");
+-    you may not use this file except in compliance with the License.
+-    You may obtain a copy of the License at
+-
+-         http://www.apache.org/licenses/LICENSE-2.0
+-
+-    Unless required by applicable law or agreed to in writing, software
+-    distributed under the License is distributed on an "AS IS" BASIS,
+-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-    See the License for the specific language governing permissions and
+-    limitations under the License.
+--->
+-<vector xmlns:android="http://schemas.android.com/apk/res/android"
+-        android:width="24dp"
+-        android:height="24dp"
+-        android:viewportWidth="24.0"
+-        android:viewportHeight="24.0">
+-    <path
+-        android:fillColor="#FF000000"
+-        android:pathData="M16.2,22.5H7.8c-1.3,0 -2.3,-1 -2.3,-2.3V5.8c0,-1.3 1,-2.3 2.3,-2.3h0.7v-2h7v2h0.7c1.3,0 2.3,1.1 2.3,2.3v14.3C18.5,21.5 17.5,22.5 16.2,22.5zM7.8,5.5c-0.2,0 -0.3,0.2 -0.3,0.3v14.3c0,0.2 0.2,0.3 0.3,0.3h8.3c0.2,0 0.3,-0.1 0.3,-0.3V5.8c0,-0.2 -0.1,-0.3 -0.3,-0.3h-2.7v-2h-3v2H7.8z"/>
+-    <path
+-        android:fillColor="#FF000000"
+-        android:pathData="M11.17,18.42v-4.58H9.5l3.33,-6.25v4.58h1.67L11.17,18.42z"/>
+-</vector>
+diff --git a/core/res/res/values/superior_config.xml b/core/res/res/values/superior_config.xml
+index b78bf4c1319b..a21b029d7115 100644
+--- a/core/res/res/values/superior_config.xml
++++ b/core/res/res/values/superior_config.xml
+@@ -56,34 +56,6 @@
+          causes a poor experience. -->
+      <bool name="config_fingerprintWakeAndUnlock">true</bool>
+ 
+-     <!-- Whether charging control should be enabled by default -->
+-     <bool name="config_chargingControlEnabled">false</bool>
+-     <!-- Default charging control mode.
+-         This integer should be set to:
+-         1 - auto - Use the alarm to calculate the time range when to activate charging control
+-         2 - custom - Use time range when the device is usually charging for hours
+-         3 - limit - Just limit charging -->
+-     <integer name="config_defaultChargingControlMode">1</integer>
+-     <!-- Default time when charging control is activated.
+-         Represented as seconds from midnight (e.g. 79200 == 10pm). -->
+-     <integer name="config_defaultChargingControlStartTime">79200</integer>
+-     <!-- Default time when battery will be fully charged.
+-         Represented as seconds from midnight (e.g. 21600 == 6am). -->
+-     <integer name="config_defaultChargingControlTargetTime">21600</integer>
+-     <!-- Default charging limit. -->
+-     <integer name="config_defaultChargingControlLimit">80</integer>
+-     <!-- Considering the fact that the system might have an incorrect estimation of the time to
+-         full. Set a time margin to make the device fully charged before the target time arrives.
+-         The unit is minutes and the default value is 30 minutes. If you find that it is not enough
+-         to make the device to be fully charged at the target time, increase the value
+-    -->
+-     <integer name="config_chargingControlTimeMargin">30</integer>
+-     <!-- For a device that cannot bypass battery when charging stops (that is, the battery current
+-         is 0mA when charging stops), the battery will gradually discharge. So we need to make it
+-         recharge when the battery level is lower than a threshold. Set this so that the device
+-         will be charged between (limit - val) and limit. -->
+-     <integer name="config_chargingControlBatteryRechargeMargin">10</integer>
+-
+      <!-- Define device configs on boot -->
+      <string-array name="global_device_configs_override" translatable="false">
+      </string-array>
+@@ -103,4 +75,4 @@
+ 
+      <!-- Whether Pixel props is enabled -->
+      <bool name="config_enablePixelProps">true</bool>
+-</resources>
+\ No newline at end of file
++</resources>
+diff --git a/core/res/res/values/superior_strings.xml b/core/res/res/values/superior_strings.xml
+index fffc7101b9b4..b58b3784568e 100644
+--- a/core/res/res/values/superior_strings.xml
++++ b/core/res/res/values/superior_strings.xml
+@@ -36,19 +36,9 @@
+     <!-- Cycle through ringer modes -->
+     <string name="volume_dialog_ringer_guidance_normal">Calls and notifications will ring</string>
+ 
+-    <!-- Health interface -->
+-    <string name="charging_control_notification_channel">Charging control</string>
+-    <string name="charging_control_notification_title">Charging control</string>
+-    <string name="charging_control_notification_cancel_once">Cancel</string>
+-    <string name="charging_control_notification_content_limit">Battery will be charged to %1$d%%</string>
+-    <string name="charging_control_notification_content_limit_reached">Battery is charged to %1$d%%</string>
+-    <string name="charging_control_notification_content_target">Battery will be fully charged at
+-        %1$s</string>
+-    <string name="charging_control_notification_content_target_reached">Battery is charged</string>
+-
+     <!-- Lock gesture -->
+     <string name="gesture_locked_warning">Swipe again to unlock gestures</string>
+ 
+     <!-- Face unlock -->
+     <string name="face_unlock_disabled_idle">Face unlock disabled due to inactivity</string>
+-</resources>
+\ No newline at end of file
++</resources>
+diff --git a/core/res/res/values/superior_symbols.xml b/core/res/res/values/superior_symbols.xml
+index a622664c711c..174c49f828b0 100644
+--- a/core/res/res/values/superior_symbols.xml
++++ b/core/res/res/values/superior_symbols.xml
+@@ -83,23 +83,6 @@
+      <!-- Cycle through ringer modes -->
+      <java-symbol type="string" name="volume_dialog_ringer_guidance_normal" />
+ 
+-     <!-- Health interface -->
+-     <java-symbol type="bool" name="config_chargingControlEnabled" />
+-     <java-symbol type="integer" name="config_defaultChargingControlMode" />
+-     <java-symbol type="integer" name="config_defaultChargingControlStartTime" />
+-     <java-symbol type="integer" name="config_defaultChargingControlTargetTime" />
+-     <java-symbol type="integer" name="config_defaultChargingControlLimit" />
+-     <java-symbol type="drawable" name="ic_charging_control" />
+-     <java-symbol type="integer" name="config_chargingControlTimeMargin" />
+-     <java-symbol type="integer" name="config_chargingControlBatteryRechargeMargin" />
+-     <java-symbol type="string" name="charging_control_notification_channel" />
+-     <java-symbol type="string" name="charging_control_notification_title" />
+-     <java-symbol type="string" name="charging_control_notification_cancel_once" />
+-     <java-symbol type="string" name="charging_control_notification_content_limit" />
+-     <java-symbol type="string" name="charging_control_notification_content_limit_reached" />
+-     <java-symbol type="string" name="charging_control_notification_content_target" />
+-     <java-symbol type="string" name="charging_control_notification_content_target_reached" />
+-
+      <!-- Define device configs on boot -->
+      <java-symbol type="array" name="global_device_configs_override" />
+      <java-symbol type="array" name="device_configs_override" />
+@@ -118,4 +101,4 @@
+ 
+      <!-- Whether Pixel props is enabled -->
+      <java-symbol type="bool" name="config_enablePixelProps" />
+-</resources>
+\ No newline at end of file
++</resources>
+diff --git a/services/core/java/com/android/server/lineage/LineageBaseFeature.java b/services/core/java/com/android/server/lineage/LineageBaseFeature.java
+deleted file mode 100644
+index c8a915e1eff2..000000000000
+--- a/services/core/java/com/android/server/lineage/LineageBaseFeature.java
++++ /dev/null
+@@ -1,122 +0,0 @@
+-/*
+- * Copyright (C) 2023 The LineageOS Project
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *      http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
+-package com.android.server.lineage;
+-
+-import android.content.ContentResolver;
+-import android.content.Context;
+-import android.net.Uri;
+-import android.os.Handler;
+-import android.os.UserHandle;
+-
+-import com.android.server.lineage.common.UserContentObserver;
+-
+-import java.io.PrintWriter;
+-
+-import android.provider.Settings;
+-
+-public abstract class LineageBaseFeature {
+-    protected final Context mContext;
+-    protected final Handler mHandler;
+-    protected SettingsObserver mSettingsObserver;
+-
+-    public LineageBaseFeature(Context context, Handler handler) {
+-        mContext = context;
+-        mHandler = handler;
+-    }
+-
+-    public abstract void onStart();
+-
+-    protected abstract void onSettingsChanged(Uri uri);
+-
+-    public abstract void dump(PrintWriter pw);
+-
+-    public void start() {
+-        if (mSettingsObserver == null) {
+-            mSettingsObserver = new SettingsObserver(mHandler);
+-            onStart();
+-        }
+-    }
+-
+-    protected final void registerSettings(Uri... settings) {
+-        mSettingsObserver.register(settings);
+-    }
+-
+-    protected final boolean getBoolean(String setting, boolean defaultValue) {
+-        return Settings.System.getIntForUser(mContext.getContentResolver(),
+-                setting, (defaultValue ? 1 : 0), UserHandle.USER_CURRENT) == 1;
+-    }
+-
+-    protected final void putBoolean(String setting, boolean value) {
+-        Settings.System.putIntForUser(mContext.getContentResolver(),
+-                setting, (value ? 1 : 0), UserHandle.USER_CURRENT);
+-    }
+-
+-    protected final int getInt(String setting, int defaultValue) {
+-        return Settings.System.getIntForUser(mContext.getContentResolver(),
+-                setting, defaultValue, UserHandle.USER_CURRENT);
+-    }
+-
+-    protected final void putInt(String setting, int value) {
+-        Settings.System.putIntForUser(mContext.getContentResolver(),
+-                setting, value, UserHandle.USER_CURRENT);
+-    }
+-
+-    protected final String getString(String setting) {
+-        return Settings.System.getStringForUser(mContext.getContentResolver(),
+-                setting, UserHandle.USER_CURRENT);
+-    }
+-
+-    protected final void putString(String setting, String value) {
+-        Settings.System.putStringForUser(mContext.getContentResolver(),
+-                setting, value, UserHandle.USER_CURRENT);
+-    }
+-
+-    public void onDestroy() {
+-        mSettingsObserver.unregister();
+-    }
+-
+-    final class SettingsObserver extends UserContentObserver {
+-
+-        public SettingsObserver(Handler handler) {
+-            super(handler);
+-        }
+-
+-        public void register(Uri... uris) {
+-            final ContentResolver cr = mContext.getContentResolver();
+-            for (Uri uri : uris) {
+-                cr.registerContentObserver(uri, false, this, UserHandle.USER_ALL);
+-            }
+-
+-            observe();
+-        }
+-
+-        public void unregister() {
+-            mContext.getContentResolver().unregisterContentObserver(this);
+-            unobserve();
+-        }
+-
+-        @Override
+-        protected void update() {
+-            onSettingsChanged(null);
+-        }
+-
+-        @Override
+-        public void onChange(boolean selfChange, Uri uri) {
+-            onSettingsChanged(uri);
+-        }
+-    }
+-}
+diff --git a/services/core/java/com/android/server/lineage/common/UserContentObserver.java b/services/core/java/com/android/server/lineage/common/UserContentObserver.java
+deleted file mode 100644
+index c25ef8b361b8..000000000000
+--- a/services/core/java/com/android/server/lineage/common/UserContentObserver.java
++++ /dev/null
+@@ -1,98 +0,0 @@
+-/*
+- * Copyright (C) 2016 The CyanogenMod Project
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *      http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License
+- */
+-package com.android.server.lineage.common;
+-
+-import android.app.ActivityManagerNative;
+-import android.app.IUserSwitchObserver;
+-import android.database.ContentObserver;
+-import android.net.Uri;
+-import android.os.Handler;
+-import android.os.IRemoteCallback;
+-import android.os.RemoteException;
+-import android.util.Log;
+-
+-/**
+- * Simple extension of ContentObserver that also listens for user switch events to call update
+- */
+-public abstract class UserContentObserver extends ContentObserver {
+-    private static final String TAG = "UserContentObserver";
+-
+-    private Runnable mUpdateRunnable;
+-
+-    private IUserSwitchObserver mUserSwitchObserver = new IUserSwitchObserver.Stub() {
+-        @Override
+-        public void onBeforeUserSwitching(int newUserId) {
+-        }
+-        @Override
+-        public void onUserSwitching(int newUserId, IRemoteCallback reply) {
+-        }
+-        @Override
+-        public void onUserSwitchComplete(int newUserId) throws RemoteException {
+-            mHandler.post(mUpdateRunnable);
+-        }
+-        @Override
+-        public void onForegroundProfileSwitch(int newProfileId) {
+-        }
+-        @Override
+-        public void onLockedBootComplete(int newUserId) {
+-        }
+-    };
+-
+-    private Handler mHandler;
+-
+-    /**
+-     * Content observer that tracks user switches
+-     * to allow clients to re-load settings for current user
+-     */
+-    public UserContentObserver(Handler handler) {
+-        super(handler);
+-        mHandler = handler;
+-        mUpdateRunnable = new Runnable() {
+-            @Override
+-            public void run() {
+-                update();
+-            }
+-        };
+-    }
+-
+-    protected void observe() {
+-        try {
+-            ActivityManagerNative.getDefault().registerUserSwitchObserver(mUserSwitchObserver, TAG);
+-        } catch (RemoteException e) {
+-            Log.w(TAG, "Unable to register user switch observer!", e);
+-        }
+-    }
+-
+-    protected void unobserve() {
+-        try {
+-            mHandler.removeCallbacks(mUpdateRunnable);
+-            ActivityManagerNative.getDefault().unregisterUserSwitchObserver(mUserSwitchObserver);
+-        } catch (RemoteException e) {
+-            Log.w(TAG, "Unable to unregister user switch observer!", e);
+-        }
+-    }
+-
+-    /**
+-     *  Called to notify of registered uri changes and user switches.
+-     *  Always invoked on the handler passed in at construction
+-     */
+-    protected abstract void update();
+-
+-    @Override
+-    public void onChange(boolean selfChange, Uri uri) {
+-        update();
+-    }
+-}
+diff --git a/services/core/java/com/android/server/lineage/health/ChargingControlController.java b/services/core/java/com/android/server/lineage/health/ChargingControlController.java
+deleted file mode 100644
+index 748d91c31d4e..000000000000
+--- a/services/core/java/com/android/server/lineage/health/ChargingControlController.java
++++ /dev/null
+@@ -1,915 +0,0 @@
+-/*
+- * Copyright (C) 2023 The LineageOS Project
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *      http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
+-package com.android.server.lineage.health;
+-
+-import static java.time.format.FormatStyle.SHORT;
+-
+-import android.app.AlarmManager;
+-import android.app.Notification;
+-import android.app.NotificationChannel;
+-import android.app.NotificationManager;
+-import android.app.PendingIntent;
+-import android.content.BroadcastReceiver;
+-import android.content.ContentResolver;
+-import android.content.Context;
+-import android.content.Intent;
+-import android.content.IntentFilter;
+-import android.net.Uri;
+-import android.os.BatteryManager;
+-import android.os.BatteryStatsManager;
+-import android.os.BatteryUsageStats;
+-import android.os.Handler;
+-import android.os.RemoteException;
+-import android.os.ServiceManager;
+-import android.text.format.DateUtils;
+-import android.util.Log;
+-
+-import com.android.internal.R;
+-
+-import java.io.PrintWriter;
+-import java.text.SimpleDateFormat;
+-import java.time.Instant;
+-import java.time.LocalDate;
+-import java.time.LocalTime;
+-import java.time.ZoneId;
+-import java.time.ZoneOffset;
+-import java.time.ZonedDateTime;
+-import java.time.format.DateTimeFormatter;
+-import java.util.Calendar;
+-
+-import android.provider.Settings;
+-
+-import vendor.lineage.health.ChargingControlSupportedMode;
+-import vendor.lineage.health.IChargingControl;
+-
+-import static com.android.internal.lineage.health.HealthInterface.MODE_NONE;
+-import static com.android.internal.lineage.health.HealthInterface.MODE_AUTO;
+-import static com.android.internal.lineage.health.HealthInterface.MODE_MANUAL;
+-import static com.android.internal.lineage.health.HealthInterface.MODE_LIMIT;
+-
+-public class ChargingControlController extends LineageHealthFeature {
+-    private final IChargingControl mChargingControl;
+-    private final ContentResolver mContentResolver;
+-    private ChargingControlNotification mChargingNotification;
+-    private LineageHealthBatteryBroadcastReceiver mBattReceiver;
+-
+-    // Defaults
+-    private boolean mDefaultEnabled = false;
+-    private int mDefaultMode;
+-    private int mDefaultLimit;
+-    private int mDefaultStartTime;
+-    private int mDefaultTargetTime;
+-
+-    // User configs
+-    private boolean mConfigEnabled;
+-    private int mConfigStartTime;
+-    private int mConfigTargetTime;
+-    private int mConfigMode = MODE_NONE;
+-    private int mConfigLimit = 100;
+-
+-    // Settings uris
+-    private final Uri MODE_URI = Settings.System.getUriFor(
+-            Settings.System.CHARGING_CONTROL_MODE);
+-    private final Uri LIMIT_URI = Settings.System.getUriFor(
+-            Settings.System.CHARGING_CONTROL_LIMIT);
+-    private final Uri ENABLED_URI = Settings.System.getUriFor(
+-            Settings.System.CHARGING_CONTROL_ENABLED);
+-    private final Uri START_TIME_URI = Settings.System.getUriFor(
+-            Settings.System.CHARGING_CONTROL_START_TIME);
+-    private final Uri TARGET_TIME_URI = Settings.System.getUriFor(
+-            Settings.System.CHARGING_CONTROL_TARGET_TIME);
+-
+-    // Internal state
+-    private float mBatteryPct;
+-    private long mEstimatedFullTime;
+-    private long mSavedAlarmTime;
+-    private long mSavedTargetTime;
+-    private boolean mIsPowerConnected;
+-    private boolean mIsControlCancelledOnce;
+-    private boolean mIsChargingToggleSupported;
+-    private boolean mIsChargingBypassSupported;
+-    private boolean mIsChargingDeadlineSupported;
+-    private int mChargingStopReason;
+-    private int mChargingTimeMargin;
+-    private int mChargingLimitMargin;
+-
+-    private static final DateTimeFormatter mFormatter = DateTimeFormatter.ofLocalizedTime(SHORT);
+-    private static final SimpleDateFormat mDateFormatter = new SimpleDateFormat("hh:mm:ss a");
+-
+-    // Only when the battery level is above this limit will the charging control be activated.
+-    private static int CHARGE_CTRL_MIN_LEVEL = 80;
+-    private static final String INTENT_PARTS =
+-            "com.android.settings.lineage.health.CHARGING_CONTROL_SETTINGS";
+-
+-    private static class ChargingStopReason {
+-        private static int BIT(int shift) {
+-            return 1 << shift;
+-        }
+-
+-        /**
+-         * No stop charging
+-         */
+-        public static final int NONE = 0;
+-
+-        /**
+-         * The charging stopped because it reaches limit
+-         */
+-        public static final int REACH_LIMIT = BIT(0);
+-
+-        /**
+-         * The charging stopped because the battery level is decent, and we are waiting to resume
+-         * charging when the time approaches the target time.
+-         */
+-        public static final int WAITING = BIT(1);
+-    }
+-
+-    public ChargingControlController(Context context, Handler handler) {
+-        super(context, handler);
+-
+-        mContentResolver = mContext.getContentResolver();
+-        mChargingControl = IChargingControl.Stub.asInterface(
+-                ServiceManager.waitForDeclaredService(
+-                        IChargingControl.DESCRIPTOR + "/default"));
+-
+-        if (mChargingControl == null) {
+-            Log.i(TAG, "Lineage Health HAL not found");
+-            return;
+-        }
+-
+-        mChargingNotification = new ChargingControlNotification(context);
+-
+-        mChargingTimeMargin = mContext.getResources().getInteger(
+-                R.integer.config_chargingControlTimeMargin) * 60 * 1000;
+-
+-        mDefaultEnabled = mContext.getResources().getBoolean(
+-                R.bool.config_chargingControlEnabled);
+-        mDefaultMode = mContext.getResources().getInteger(
+-                R.integer.config_defaultChargingControlMode);
+-        mDefaultStartTime = mContext.getResources().getInteger(
+-                R.integer.config_defaultChargingControlStartTime);
+-        mDefaultTargetTime = mContext.getResources().getInteger(
+-                R.integer.config_defaultChargingControlTargetTime);
+-        mDefaultLimit = mContext.getResources().getInteger(
+-                R.integer.config_defaultChargingControlLimit);
+-
+-        mIsChargingToggleSupported = isChargingModeSupported(ChargingControlSupportedMode.TOGGLE);
+-        mIsChargingBypassSupported = isChargingModeSupported(ChargingControlSupportedMode.BYPASS);
+-        mIsChargingDeadlineSupported = isChargingModeSupported(
+-                ChargingControlSupportedMode.DEADLINE);
+-
+-        if (mIsChargingBypassSupported) {
+-            // This is a workaround for devices that support charging bypass, but is not able to
+-            // hold the charging current to 0mA, which causes battery to lose power very slowly.
+-            // This will become a problem in limit mode because it will stop charge at limit and
+-            // immediately resume charging at (limit - 1). So we add a small margin here.
+-            mChargingLimitMargin = 1;
+-        } else {
+-            mChargingLimitMargin = mContext.getResources().getInteger(
+-                    R.integer.config_chargingControlBatteryRechargeMargin);
+-        }
+-    }
+-
+-    @Override
+-    public boolean isSupported() {
+-        return mChargingControl != null;
+-    }
+-
+-    public boolean isEnabled() {
+-        return mConfigEnabled;
+-    }
+-
+-    public boolean setEnabled(boolean enabled) {
+-        putBoolean(Settings.System.CHARGING_CONTROL_ENABLED, enabled);
+-        return true;
+-    }
+-
+-    public int getMode() {
+-        return mConfigMode;
+-    }
+-
+-    public boolean setMode(int mode) {
+-        if (mode < MODE_NONE || mode > MODE_LIMIT) {
+-            return false;
+-        }
+-
+-        putInt(Settings.System.CHARGING_CONTROL_MODE, mode);
+-        return true;
+-    }
+-
+-    public int getStartTime() {
+-        return mConfigStartTime;
+-    }
+-
+-    public boolean setStartTime(int time) {
+-        if (time < 0 || time > 24 * 60 * 60) {
+-            return false;
+-        }
+-
+-        putInt(Settings.System.CHARGING_CONTROL_START_TIME, time);
+-        return true;
+-    }
+-
+-    public int getTargetTime() {
+-        return mConfigTargetTime;
+-    }
+-
+-    public boolean setTargetTime(int time) {
+-        if (time < 0 || time > 24 * 60 * 60) {
+-            return false;
+-        }
+-
+-        putInt(Settings.System.CHARGING_CONTROL_TARGET_TIME, time);
+-        return true;
+-    }
+-
+-    public int getLimit() {
+-        return mConfigLimit;
+-    }
+-
+-    public boolean setLimit(int limit) {
+-        if (limit < 0 || limit > 100) {
+-            return false;
+-        }
+-
+-        putInt(Settings.System.CHARGING_CONTROL_LIMIT, limit);
+-        return true;
+-    }
+-
+-    public boolean reset() {
+-        return setEnabled(mDefaultEnabled) && setMode(mDefaultMode) && setLimit(mDefaultLimit)
+-                && setStartTime(mDefaultStartTime) && setTargetTime(mDefaultTargetTime);
+-    }
+-
+-    public boolean isChargingModeSupported(int mode) {
+-        try {
+-            return isSupported() && (mChargingControl.getSupportedMode() & mode) != 0;
+-        } catch (RemoteException e) {
+-            throw new RuntimeException(e);
+-        }
+-    }
+-
+-    @Override
+-    public void onStart() {
+-        if (mChargingControl == null) {
+-            return;
+-        }
+-
+-        // Register setting observer
+-        registerSettings(MODE_URI, LIMIT_URI, ENABLED_URI, START_TIME_URI, TARGET_TIME_URI);
+-
+-        // For devices that do not support bypass, we can only always listen to battery change
+-        // because we can't distinguish between "unplugged" and "plugged in but not charging".
+-        if (mIsChargingToggleSupported && !mIsChargingBypassSupported) {
+-            mIsPowerConnected = true;
+-            onPowerStatus(true);
+-            handleSettingChange();
+-            return;
+-        }
+-
+-        // Start monitor battery status when power connected
+-        IntentFilter connectedFilter = new IntentFilter(Intent.ACTION_POWER_CONNECTED);
+-        mContext.registerReceiver(new BroadcastReceiver() {
+-            @Override
+-            public void onReceive(Context context, Intent intent) {
+-                Log.i(TAG, "Power connected, start monitoring battery");
+-                mIsPowerConnected = true;
+-                onPowerStatus(true);
+-            }
+-        }, connectedFilter);
+-
+-        // Stop monitor battery status when power disconnected
+-        IntentFilter disconnectedFilter = new IntentFilter(Intent.ACTION_POWER_DISCONNECTED);
+-        mContext.registerReceiver(new BroadcastReceiver() {
+-            @Override
+-            public void onReceive(Context context, Intent intent) {
+-                Log.i(TAG, "Power disconnected, stop monitoring battery");
+-                mIsPowerConnected = false;
+-                onPowerStatus(false);
+-            }
+-        }, disconnectedFilter);
+-
+-        // Initial monitor
+-        IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+-        Intent batteryStatus = mContext.registerReceiver(null, ifilter);
+-        mIsPowerConnected = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1) != 0;
+-        if (mIsPowerConnected) {
+-            onPowerConnected();
+-        }
+-
+-        // Restore settings
+-        handleSettingChange();
+-    }
+-
+-    private void resetInternalState() {
+-        mSavedAlarmTime = 0;
+-        mSavedTargetTime = 0;
+-        mEstimatedFullTime = 0;
+-        mChargingStopReason = 0;
+-        mIsControlCancelledOnce = false;
+-        mChargingNotification.cancel();
+-    }
+-
+-    private void onPowerConnected() {
+-        if (mBattReceiver == null) {
+-            mBattReceiver = new LineageHealthBatteryBroadcastReceiver();
+-        }
+-        IntentFilter battFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+-        mContext.registerReceiver(mBattReceiver, battFilter);
+-    }
+-
+-    private void onPowerDisconnected() {
+-        if (mBattReceiver != null) {
+-            mContext.unregisterReceiver(mBattReceiver);
+-        }
+-
+-        // On disconnected, reset internal state
+-        resetInternalState();
+-    }
+-
+-    private void onPowerStatus(boolean enable) {
+-        if (enable) {
+-            onPowerConnected();
+-        } else {
+-            onPowerDisconnected();
+-        }
+-
+-        updateChargeControl();
+-    }
+-
+-    private void updateChargingReasonBitmask(int flag, boolean set) {
+-        if (set) {
+-            mChargingStopReason |= flag;
+-        } else {
+-            mChargingStopReason &= ~flag;
+-        }
+-    }
+-
+-    private boolean isChargingReasonSet(int flag) {
+-        return (mChargingStopReason & flag) != 0;
+-    }
+-
+-    private ChargeTime getChargeTime() {
+-        // Get duration to target full time
+-        final long currentTime = System.currentTimeMillis();
+-        Log.i(TAG, "Current time is " + msToString(currentTime));
+-        long targetTime = 0, startTime = currentTime;
+-        if (mConfigMode == MODE_AUTO) {
+-            // Use alarm as the target time. Maybe someday we can use a model.
+-            AlarmManager m = mContext.getSystemService(AlarmManager.class);
+-            if (m == null) {
+-                Log.e(TAG, "Failed to get alarm service!");
+-                mChargingNotification.cancel();
+-                return null;
+-            }
+-            AlarmManager.AlarmClockInfo alarmClockInfo = m.getNextAlarmClock();
+-            if (alarmClockInfo == null) {
+-                // We didn't find an alarm. Clear waiting flags because we can't predict anyway
+-                mChargingNotification.cancel();
+-                return null;
+-            }
+-            targetTime = alarmClockInfo.getTriggerTime();
+-        } else if (mConfigMode == MODE_MANUAL) {
+-            // User manually controlled time
+-            startTime = getTimeMillisFromSecondOfDay(mConfigStartTime);
+-            targetTime = getTimeMillisFromSecondOfDay(mConfigTargetTime);
+-
+-            if (startTime > targetTime) {
+-                if (currentTime > targetTime) {
+-                    targetTime += DateUtils.DAY_IN_MILLIS;
+-                } else {
+-                    startTime -= DateUtils.DAY_IN_MILLIS;
+-                }
+-            }
+-        } else {
+-            Log.e(TAG, "invalid charging control mode " + mConfigMode);
+-            return null;
+-        }
+-
+-        Log.i(TAG, "Target time is " + msToString(targetTime));
+-
+-        return new ChargeTime(startTime, targetTime);
+-    }
+-
+-    private void updateChargeControl() {
+-        if (mIsChargingToggleSupported) {
+-            updateChargeToggle();
+-        } else if (mIsChargingDeadlineSupported) {
+-            updateChargeDeadline();
+-        }
+-    }
+-
+-    private boolean shouldSetLimitFlag() {
+-        if (mConfigMode != MODE_LIMIT) {
+-            return false;
+-        }
+-
+-        if (isChargingReasonSet(ChargingStopReason.REACH_LIMIT)) {
+-            return mBatteryPct >= mConfigLimit - mChargingLimitMargin;
+-        }
+-
+-        if (mBatteryPct >= mConfigLimit) {
+-            mChargingNotification.post(null, true);
+-            return true;
+-        } else {
+-            mChargingNotification.post(null, false);
+-            return false;
+-        }
+-    }
+-
+-    private boolean shouldSetWaitFlag() {
+-        if (mConfigMode != MODE_AUTO && mConfigMode != MODE_MANUAL) {
+-            return false;
+-        }
+-
+-        // Now it is time to see whether charging should be stopped. We make decisions in the
+-        // following manner:
+-        //
+-        //  1. If STOP_REASON_WAITING is set, compare the remaining time with the saved estimated
+-        //     full time. Resume charging the remain time <= saved estimated time
+-        //  2. If the system estimated remaining time already exceeds the target full time, continue
+-        //  3. Otherwise, stop charging, save the estimated time, set stop reason to
+-        //     STOP_REASON_WAITING.
+-
+-        final ChargeTime t = getChargeTime();
+-
+-        if (t == null) {
+-            mChargingNotification.cancel();
+-            return false;
+-        }
+-
+-        final long targetTime = t.getTargetTime();
+-        final long startTime = t.getStartTime();
+-        final long currentTime = System.currentTimeMillis();
+-
+-        Log.i(TAG, "Got target time " + msToString(targetTime) + ", start time " +
+-                msToString(startTime) + ", current time " + msToString(currentTime));
+-
+-        if (mConfigMode == MODE_AUTO) {
+-            if (mSavedAlarmTime != targetTime) {
+-                mChargingNotification.cancel();
+-
+-                if (mSavedAlarmTime != 0 && mSavedAlarmTime < currentTime) {
+-                    Log.i(TAG, "Not fully charged when alarm goes off, continue charging.");
+-                    mIsControlCancelledOnce = true;
+-                    return false;
+-                }
+-
+-                Log.i(TAG, "User changed alarm, reconstruct notification");
+-                mSavedAlarmTime = targetTime;
+-            }
+-
+-            // Don't activate if we are more than 9 hrs away from the target alarm
+-            if (targetTime - currentTime >= 9 * 60 * 60 * 1000) {
+-                mChargingNotification.cancel();
+-                return false;
+-            }
+-        } else if (mConfigMode == MODE_MANUAL) {
+-            if (startTime > currentTime) {
+-                // Not yet entering user configured time frame
+-                mChargingNotification.cancel();
+-                return false;
+-            }
+-        }
+-
+-        if (mBatteryPct == 100) {
+-            mChargingNotification.post(targetTime, true);
+-            return true;
+-        }
+-
+-        // Now we have the target time and current time, we can post a notification stating that
+-        // the system will be charged by targetTime.
+-        mChargingNotification.post(targetTime, false);
+-
+-        // If current battery level is less than the fast charge limit, don't set this flag
+-        if (mBatteryPct < CHARGE_CTRL_MIN_LEVEL) {
+-            return false;
+-        }
+-
+-        long deltaTime = targetTime - currentTime;
+-        Log.i(TAG, "Current time to target: " + msToString(deltaTime));
+-
+-        if (isChargingReasonSet(ChargingStopReason.WAITING)) {
+-            Log.i(TAG, "Current saved estimation to full: " + msToString(mEstimatedFullTime));
+-            if (deltaTime <= mEstimatedFullTime) {
+-                Log.i(TAG, "Unset waiting flag");
+-                return false;
+-            }
+-            return true;
+-        }
+-
+-        final BatteryUsageStats batteryUsageStats = mContext.getSystemService(
+-                BatteryStatsManager.class).getBatteryUsageStats();
+-        if (batteryUsageStats == null) {
+-            Log.e(TAG, "Failed to get battery usage stats");
+-            return false;
+-        }
+-        long remaining = batteryUsageStats.getChargeTimeRemainingMs();
+-        if (remaining == -1) {
+-            Log.i(TAG, "not enough data for prediction for now, waiting for more data");
+-            return false;
+-        }
+-
+-        // Add margin here
+-        remaining += mChargingTimeMargin;
+-        Log.i(TAG, "Current estimated time to full: " + msToString(remaining));
+-        if (deltaTime > remaining) {
+-            Log.i(TAG, "Stop charging and wait, saving remaining time");
+-            mEstimatedFullTime = remaining;
+-            return true;
+-        }
+-
+-        return false;
+-    }
+-
+-    private void updateChargingStopReason() {
+-        if (mIsControlCancelledOnce) {
+-            mChargingStopReason = ChargingStopReason.NONE;
+-            return;
+-        }
+-
+-        if (!mConfigEnabled) {
+-            mChargingStopReason = ChargingStopReason.NONE;
+-            return;
+-        }
+-
+-        if (!mIsPowerConnected) {
+-            mChargingStopReason = ChargingStopReason.NONE;
+-            return;
+-        }
+-
+-        updateChargingReasonBitmask(ChargingStopReason.REACH_LIMIT, shouldSetLimitFlag());
+-        updateChargingReasonBitmask(ChargingStopReason.WAITING, shouldSetWaitFlag());
+-    }
+-
+-    private void updateChargeToggle() {
+-        updateChargingStopReason();
+-
+-        Log.i(TAG, "Current mChargingStopReason: " + mChargingStopReason);
+-        boolean isChargingEnabled = false;
+-        try {
+-            isChargingEnabled = mChargingControl.getChargingEnabled();
+-        } catch (IllegalStateException | RemoteException | UnsupportedOperationException e) {
+-            Log.e(TAG, "Failed to get charging enabled status!");
+-        }
+-        if (isChargingEnabled != (mChargingStopReason == 0)) {
+-            try {
+-                mChargingControl.setChargingEnabled(!isChargingEnabled);
+-            } catch (IllegalStateException | RemoteException | UnsupportedOperationException e) {
+-                Log.e(TAG, "Failed to set charging status");
+-            }
+-        }
+-    }
+-
+-    private void updateChargeDeadline() {
+-        if (!mIsPowerConnected) {
+-            return;
+-        }
+-
+-        long deadline = 0;
+-        final long targetTime;
+-        final ChargeTime t = getChargeTime();
+-
+-        if (!mConfigEnabled || t == null || mIsControlCancelledOnce) {
+-            deadline = -1;
+-            targetTime = 0;
+-            Log.i(TAG, "Canceling charge deadline");
+-        } else {
+-            if (t.getTargetTime() == mSavedTargetTime) {
+-                return;
+-            }
+-            targetTime = t.getTargetTime();
+-            final long currentTime = System.currentTimeMillis();
+-            deadline = (targetTime - currentTime) / 1000;
+-            Log.i(TAG, "Setting charge deadline: Current time: " + msToString(currentTime));
+-            Log.i(TAG, "Setting charge deadline: Target time: " + msToString(targetTime));
+-            Log.i(TAG, "Setting charge deadline: Deadline (seconds): " + deadline);
+-        }
+-
+-        try {
+-            mChargingControl.setChargingDeadline(deadline);
+-            mSavedTargetTime = targetTime;
+-        } catch (IllegalStateException | RemoteException | UnsupportedOperationException e) {
+-            Log.e(TAG, "Failed to set charge deadline", e);
+-        }
+-    }
+-
+-    private String msToString(long ms) {
+-        Calendar calendar = Calendar.getInstance();
+-        calendar.setTimeInMillis(ms);
+-        return mDateFormatter.format(calendar.getTime());
+-    }
+-
+-    /**
+-     * Convert the seconds of the day to UTC milliseconds from epoch.
+-     *
+-     * @param time seconds of the day
+-     * @return UTC milliseconds from epoch
+-     */
+-    private long getTimeMillisFromSecondOfDay(int time) {
+-        ZoneId utcZone = ZoneOffset.UTC;
+-        LocalDate currentDate = LocalDate.now();
+-        LocalTime timeOfDay = LocalTime.ofSecondOfDay(time);
+-
+-        ZonedDateTime zonedDateTime = ZonedDateTime.of(currentDate, timeOfDay,
+-                        ZoneId.systemDefault())
+-                .withZoneSameInstant(utcZone);
+-        return zonedDateTime.toInstant().toEpochMilli();
+-    }
+-
+-    private LocalTime getLocalTimeFromEpochMilli(long time) {
+-        return Instant.ofEpochMilli(time).atZone(ZoneId.systemDefault()).toLocalTime();
+-    }
+-
+-    private void handleSettingChange() {
+-        mConfigEnabled = Settings.System.getInt(mContentResolver,
+-                Settings.System.CHARGING_CONTROL_ENABLED, 0)
+-                != 0;
+-        mConfigLimit = Settings.System.getInt(mContentResolver,
+-                Settings.System.CHARGING_CONTROL_LIMIT,
+-                mDefaultLimit);
+-        mConfigMode = Settings.System.getInt(mContentResolver,
+-                Settings.System.CHARGING_CONTROL_MODE,
+-                mDefaultMode);
+-        mConfigStartTime = Settings.System.getInt(mContentResolver,
+-                Settings.System.CHARGING_CONTROL_START_TIME,
+-                mDefaultStartTime);
+-        mConfigTargetTime = Settings.System.getInt(mContentResolver,
+-                Settings.System.CHARGING_CONTROL_TARGET_TIME,
+-                mDefaultTargetTime);
+-
+-        // Reset internal states
+-        resetInternalState();
+-
+-        // Update based on those values
+-        updateChargeControl();
+-    }
+-
+-
+-    @Override
+-    protected void onSettingsChanged(Uri uri) {
+-        handleSettingChange();
+-    }
+-
+-    @Override
+-    public void dump(PrintWriter pw) {
+-        pw.println();
+-        pw.println("ChargingControlController Configuration:");
+-        pw.println("  mConfigEnabled: " + mConfigEnabled);
+-        pw.println("  mConfigMode: " + mConfigMode);
+-        pw.println("  mConfigLimit: " + mConfigLimit);
+-        pw.println("  mConfigStartTime: " + mConfigStartTime);
+-        pw.println("  mConfigTargetTime: " + mConfigTargetTime);
+-        pw.println("  mChargingTimeMargin: " + mChargingTimeMargin);
+-        pw.println();
+-        pw.println("ChargingControlController State:");
+-        pw.println("  mBatteryPct: " + mBatteryPct);
+-        pw.println("  mIsPowerConnected: " + mIsPowerConnected);
+-        pw.println("  mChargingStopReason: " + mChargingStopReason);
+-        pw.println("  mIsNotificationPosted: " + mChargingNotification.isPosted());
+-        pw.println("  mIsDoneNotification: " + mChargingNotification.isDoneNotification());
+-        pw.println("  mIsControlCancelledOnce: " + mIsControlCancelledOnce);
+-        pw.println("  mSavedAlarmTime: " + msToString(mSavedAlarmTime));
+-        if (mIsChargingDeadlineSupported) {
+-            pw.println("  mSavedTargetTime (Deadline): " + msToString(mSavedTargetTime));
+-        }
+-    }
+-
+-    /* Battery Broadcast Receiver */
+-    private class LineageHealthBatteryBroadcastReceiver extends BroadcastReceiver {
+-        @Override
+-        public void onReceive(Context context, Intent intent) {
+-            if (!mIsPowerConnected) {
+-                return;
+-            }
+-
+-            int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+-            int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+-            if (level == -1 || scale == -1) {
+-                return;
+-            }
+-
+-            mBatteryPct = level * 100 / (float) scale;
+-            updateChargeControl();
+-        }
+-    }
+-
+-    /* Notification class */
+-    class ChargingControlNotification {
+-        private final NotificationManager mNotificationManager;
+-        private final Context mContext;
+-
+-        private static final int CHARGING_CONTROL_NOTIFICATION_ID = 1000;
+-        private static final String ACTION_CHARGING_CONTROL_CANCEL_ONCE =
+-                "lineageos.platform.intent.action.CHARGING_CONTROL_CANCEL_ONCE";
+-        private static final String CHARGING_CONTROL_CHANNEL_ID = "LineageHealthChargingControl";
+-
+-        private boolean mIsDoneNotification = false;
+-        private boolean mIsNotificationPosted = false;
+-
+-        ChargingControlNotification(Context context) {
+-            mContext = context;
+-
+-            // Get notification manager
+-            mNotificationManager = mContext.getSystemService(NotificationManager.class);
+-
+-            // Register notification monitor
+-            IntentFilter notificationFilter = new IntentFilter(ACTION_CHARGING_CONTROL_CANCEL_ONCE);
+-            mContext.registerReceiver(new LineageHealthNotificationBroadcastReceiver(),
+-                    notificationFilter);
+-        }
+-
+-        public void post(Long targetTime, boolean done) {
+-            if (mIsNotificationPosted && mIsDoneNotification == done) {
+-                return;
+-            }
+-
+-            if (mIsNotificationPosted) {
+-                cancel();
+-            }
+-
+-            if (done) {
+-                postChargingDoneNotification(targetTime);
+-            } else {
+-                postChargingControlNotification(targetTime);
+-            }
+-
+-            mIsNotificationPosted = true;
+-            mIsDoneNotification = done;
+-        }
+-
+-        public void cancel() {
+-            cancelChargingControlNotification();
+-            mIsNotificationPosted = false;
+-        }
+-
+-        public boolean isPosted() {
+-            return mIsNotificationPosted;
+-        }
+-
+-        public boolean isDoneNotification() {
+-            return mIsDoneNotification;
+-        }
+-
+-        private void handleNotificationIntent(Intent intent) {
+-            if (intent.getAction().equals(ACTION_CHARGING_CONTROL_CANCEL_ONCE)) {
+-                mIsControlCancelledOnce = true;
+-
+-                if (!mIsChargingBypassSupported) {
+-                    IntentFilter disconnectFilter = new IntentFilter(
+-                            Intent.ACTION_POWER_DISCONNECTED);
+-                    // Register a one-time receiver that resets internal state on power
+-                    // disconnection
+-                    mContext.registerReceiver(new BroadcastReceiver() {
+-                        @Override
+-                        public void onReceive(Context context, Intent intent) {
+-                            Log.i(TAG, "Power disconnected, reset internal states");
+-                            resetInternalState();
+-                            mContext.unregisterReceiver(this);
+-                        }
+-                    }, disconnectFilter);
+-                }
+-                updateChargeControl();
+-                cancelChargingControlNotification();
+-            }
+-        }
+-
+-        private void postChargingControlNotification(Long targetTime) {
+-            String title = mContext.getString(R.string.charging_control_notification_title);
+-            String message;
+-            if (targetTime != null) {
+-                message = String.format(
+-                        mContext.getString(R.string.charging_control_notification_content_target),
+-                        getLocalTimeFromEpochMilli(targetTime).format(mFormatter));
+-            } else {
+-                message = String.format(
+-                        mContext.getString(R.string.charging_control_notification_content_limit),
+-                        mConfigLimit);
+-            }
+-
+-            Intent mainIntent = new Intent(INTENT_PARTS);
+-            mainIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+-            PendingIntent mainPendingIntent = PendingIntent.getActivity(mContext, 0, mainIntent,
+-                    PendingIntent.FLAG_IMMUTABLE);
+-
+-            Intent cancelOnceIntent = new Intent(ACTION_CHARGING_CONTROL_CANCEL_ONCE);
+-            PendingIntent cancelPendingIntent = PendingIntent.getBroadcast(mContext, 0,
+-                    cancelOnceIntent, PendingIntent.FLAG_IMMUTABLE);
+-
+-            Notification.Builder notification =
+-                    new Notification.Builder(mContext, CHARGING_CONTROL_CHANNEL_ID)
+-                            .setContentTitle(title)
+-                            .setContentText(message)
+-                            .setContentIntent(mainPendingIntent)
+-                            .setSmallIcon(R.drawable.ic_charging_control)
+-                            .setOngoing(true)
+-                            .addAction(R.drawable.ic_charging_control,
+-                                    mContext.getString(
+-                                            R.string.charging_control_notification_cancel_once),
+-                                    cancelPendingIntent);
+-
+-            createNotificationChannelIfNeeded();
+-            mNotificationManager.notify(CHARGING_CONTROL_NOTIFICATION_ID, notification.build());
+-        }
+-
+-        private void postChargingDoneNotification(Long targetTime) {
+-            cancelChargingControlNotification();
+-
+-            String title = mContext.getString(R.string.charging_control_notification_title);
+-            String message;
+-            if (targetTime != null) {
+-                message = mContext.getString(
+-                        R.string.charging_control_notification_content_target_reached);
+-            } else {
+-                message = String.format(
+-                        mContext.getString(
+-                                R.string.charging_control_notification_content_limit_reached),
+-                        mConfigLimit);
+-            }
+-
+-            Intent mainIntent = new Intent(INTENT_PARTS);
+-            mainIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+-            PendingIntent mainPendingIntent = PendingIntent.getActivity(mContext, 0, mainIntent,
+-                    PendingIntent.FLAG_IMMUTABLE);
+-
+-            Notification.Builder notification = new Notification.Builder(mContext,
+-                    CHARGING_CONTROL_CHANNEL_ID)
+-                    .setContentTitle(title)
+-                    .setContentText(message)
+-                    .setContentIntent(mainPendingIntent)
+-                    .setSmallIcon(R.drawable.ic_charging_control)
+-                    .setOngoing(false);
+-
+-            if (targetTime == null) {
+-                Intent cancelOnceIntent = new Intent(ACTION_CHARGING_CONTROL_CANCEL_ONCE);
+-                PendingIntent cancelPendingIntent = PendingIntent.getBroadcast(mContext, 0,
+-                        cancelOnceIntent, PendingIntent.FLAG_IMMUTABLE);
+-                notification.addAction(R.drawable.ic_charging_control,
+-                        mContext.getString(R.string.charging_control_notification_cancel_once),
+-                        cancelPendingIntent);
+-            }
+-
+-            createNotificationChannelIfNeeded();
+-            mNotificationManager.notify(CHARGING_CONTROL_NOTIFICATION_ID, notification.build());
+-        }
+-
+-        private void createNotificationChannelIfNeeded() {
+-            String id = CHARGING_CONTROL_CHANNEL_ID;
+-            NotificationChannel channel = mNotificationManager.getNotificationChannel(id);
+-            if (channel != null) {
+-                return;
+-            }
+-
+-            String name = mContext.getString(R.string.charging_control_notification_channel);
+-            int importance = NotificationManager.IMPORTANCE_LOW;
+-            NotificationChannel batteryHealthChannel = new NotificationChannel(id, name,
+-                    importance);
+-            batteryHealthChannel.setBlockable(true);
+-            mNotificationManager.createNotificationChannel(batteryHealthChannel);
+-        }
+-
+-        private void cancelChargingControlNotification() {
+-            mNotificationManager.cancel(CHARGING_CONTROL_NOTIFICATION_ID);
+-        }
+-
+-        /* Notification Broadcast Receiver */
+-        private class LineageHealthNotificationBroadcastReceiver extends BroadcastReceiver {
+-            @Override
+-            public void onReceive(Context context, Intent intent) {
+-                handleNotificationIntent(intent);
+-            }
+-        }
+-    }
+-
+-    /* A representation of start and target time */
+-    static final class ChargeTime {
+-        private final long mStartTime;
+-        private final long mTargetTime;
+-
+-        ChargeTime(long startTime, long targetTime) {
+-            mStartTime = startTime;
+-            mTargetTime = targetTime;
+-        }
+-
+-        public long getStartTime() {
+-            return mStartTime;
+-        }
+-
+-        public long getTargetTime() {
+-            return mTargetTime;
+-        }
+-    }
+-}
+diff --git a/services/core/java/com/android/server/lineage/health/HealthInterfaceService.java b/services/core/java/com/android/server/lineage/health/HealthInterfaceService.java
+deleted file mode 100644
+index 86745d1d5928..000000000000
+--- a/services/core/java/com/android/server/lineage/health/HealthInterfaceService.java
++++ /dev/null
+@@ -1,164 +0,0 @@
+-/*
+- * Copyright (C) 2023 The LineageOS Project
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *      http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
+-package com.android.server.lineage.health;
+-
+-import android.Manifest;
+-import android.content.Context;
+-import android.os.Handler;
+-import android.os.IBinder;
+-import android.os.Process;
+-import android.util.Log;
+-
+-import com.android.server.ServiceThread;
+-
+-import com.android.server.SystemService;
+-
+-import com.android.internal.lineage.app.LineageContextConstants;
+-import com.android.internal.lineage.health.IHealthInterface;
+-import vendor.lineage.health.ChargingControlSupportedMode;
+-
+-import java.io.FileDescriptor;
+-import java.io.PrintWriter;
+-import java.util.ArrayList;
+-import java.util.List;
+-
+-public class HealthInterfaceService extends SystemService {
+-
+-    private static final String TAG = "LineageHealth";
+-    private final Context mContext;
+-    private final Handler mHandler;
+-    private final ServiceThread mHandlerThread;
+-
+-    private final List<LineageHealthFeature> mFeatures = new ArrayList<LineageHealthFeature>();
+-
+-    // Health features
+-    private ChargingControlController mCCC;
+-
+-    public HealthInterfaceService(Context context) {
+-        super(context);
+-        mContext = context;
+-
+-        mHandlerThread = new ServiceThread(TAG, Process.THREAD_PRIORITY_DEFAULT, false);
+-        mHandlerThread.start();
+-        mHandler = new Handler(mHandlerThread.getLooper());
+-    }
+-
+-    @Override
+-    public void onStart() {
+-        mCCC = new ChargingControlController(mContext, mHandler);
+-        if (mCCC.isSupported()) {
+-            mFeatures.add(mCCC);
+-        }
+-
+-        if (!mFeatures.isEmpty()) {
+-            publishBinderService(LineageContextConstants.LINEAGE_HEALTH_INTERFACE, mService);
+-        }
+-    }
+-
+-    @Override
+-    public void onBootPhase(int phase) {
+-        if (phase != PHASE_BOOT_COMPLETED) {
+-            return;
+-        }
+-
+-        // start and update all features
+-        for (LineageHealthFeature feature : mFeatures) {
+-            feature.start();
+-        }
+-    }
+-
+-    /* Service */
+-    private final IBinder mService = new IHealthInterface.Stub() {
+-        @Override
+-        public boolean isChargingControlSupported() {
+-            return mCCC.isSupported();
+-        }
+-
+-        @Override
+-        public boolean getChargingControlEnabled() {
+-            return mCCC.isEnabled();
+-        }
+-
+-        @Override
+-        public boolean setChargingControlEnabled(boolean enabled) {
+-            return mCCC.setEnabled(enabled);
+-        }
+-
+-        @Override
+-        public int getChargingControlMode() {
+-            return mCCC.getMode();
+-        }
+-
+-        @Override
+-        public boolean setChargingControlMode(int mode) {
+-            return mCCC.setMode(mode);
+-        }
+-
+-        @Override
+-        public int getChargingControlStartTime() {
+-            return mCCC.getStartTime();
+-        }
+-
+-        @Override
+-        public boolean setChargingControlStartTime(int startTime) {
+-            return mCCC.setStartTime(startTime);
+-        }
+-
+-        @Override
+-        public int getChargingControlTargetTime() {
+-            return mCCC.getTargetTime();
+-        }
+-
+-        @Override
+-        public boolean setChargingControlTargetTime(int targetTime) {
+-            return mCCC.setTargetTime(targetTime);
+-        }
+-
+-        @Override
+-        public int getChargingControlLimit() {
+-            return mCCC.getLimit();
+-        }
+-
+-        @Override
+-        public boolean setChargingControlLimit(int limit) {
+-            return mCCC.setLimit(limit);
+-        }
+-
+-        @Override
+-        public boolean resetChargingControl() {
+-            return mCCC.reset();
+-        }
+-
+-        @Override
+-        public boolean allowFineGrainedSettings() {
+-            // We allow fine-grained settings if allow toggle and bypass
+-            return mCCC.isChargingModeSupported(ChargingControlSupportedMode.TOGGLE);
+-        }
+-
+-        @Override
+-        public void dump(FileDescriptor fd, PrintWriter pw, String[] args) {
+-            mContext.enforceCallingOrSelfPermission(Manifest.permission.DUMP, TAG);
+-
+-            pw.println();
+-            pw.println("LineageHealth Service State:");
+-
+-            for (LineageHealthFeature feature : mFeatures) {
+-                feature.dump(pw);
+-            }
+-        }
+-    };
+-}
+diff --git a/services/core/java/com/android/server/lineage/health/LineageHealthFeature.java b/services/core/java/com/android/server/lineage/health/LineageHealthFeature.java
+deleted file mode 100644
+index efc5df13132a..000000000000
+--- a/services/core/java/com/android/server/lineage/health/LineageHealthFeature.java
++++ /dev/null
+@@ -1,33 +0,0 @@
+-
+-/*
+- * Copyright (C) 2023 The LineageOS Project
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *      http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
+-package com.android.server.lineage.health;
+-
+-import android.content.Context;
+-import android.os.Handler;
+-
+-import com.android.server.lineage.LineageBaseFeature;
+-
+-public abstract class LineageHealthFeature extends LineageBaseFeature {
+-    protected static final String TAG = "LineageHealth";
+-
+-    public LineageHealthFeature(Context context, Handler handler) {
+-        super(context, handler);
+-    }
+-
+-    public abstract boolean isSupported();
+-}
+diff --git a/services/java/com/android/server/SystemServer.java b/services/java/com/android/server/SystemServer.java
+index 5e7a59127081..51bc749b0551 100644
+--- a/services/java/com/android/server/SystemServer.java
++++ b/services/java/com/android/server/SystemServer.java
+@@ -227,7 +227,6 @@ import com.android.server.webkit.WebViewUpdateService;
+ import com.android.server.wm.ActivityTaskManagerService;
+ import com.android.server.wm.WindowManagerGlobalLock;
+ import com.android.server.wm.WindowManagerService;
+-import com.android.server.lineage.health.HealthInterfaceService;
+ 
+ import dalvik.system.VMRuntime;
+ 
+@@ -2590,10 +2589,6 @@ public final class SystemServer implements Dumpable {
+             t.traceEnd();
+ 
+             // LineageHardware
+-            t.traceBegin("StartHealthService");
+-            mSystemServiceManager.startService(HealthInterfaceService.class);
+-            t.traceEnd();
+-
+             t.traceBegin("StartLineageHardwareService");
+             mSystemServiceManager.startService(LineageHardwareService.class);
+             t.traceEnd();
+-- 
+2.34.1
+

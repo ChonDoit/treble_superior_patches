@@ -1,0 +1,55 @@
+From 0c46b075d904719a6027f8eb77ed396ad9236edc Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Thu, 29 Jun 2023 17:30:05 +0000
+Subject: [PATCH] SystemUI: Allow disabling clipboard overlay [1/2]
+
+---
+ core/java/android/provider/Settings.java                   | 7 +++++++
+ .../systemui/clipboardoverlay/ClipboardListener.java       | 6 ++++++
+ 2 files changed, 13 insertions(+)
+
+diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
+index e08ea0d17d7c..5f397d6154aa 100644
+--- a/core/java/android/provider/Settings.java
++++ b/core/java/android/provider/Settings.java
+@@ -12128,6 +12128,13 @@ public final class Settings {
+          */
+         public static final String PULSE_ON_NEW_TRACKS = "pulse_on_new_tracks";
+ 
++	/**
++         * Whether to show an overlay in the bottom corner of the screen on copying stuff
++         * into the clipboard.
++         * @hide
++         */
++        public static final String SHOW_CLIPBOARD_OVERLAY = "show_clipboard_overlay";
++
+         /**
+          * Whether to show media art on lockscreen
+          * Boolean setting. 0 = off, 1 = on.
+diff --git a/packages/SystemUI/src/com/android/systemui/clipboardoverlay/ClipboardListener.java b/packages/SystemUI/src/com/android/systemui/clipboardoverlay/ClipboardListener.java
+index 63b4288ce055..59a604a3a63c 100644
+--- a/packages/SystemUI/src/com/android/systemui/clipboardoverlay/ClipboardListener.java
++++ b/packages/SystemUI/src/com/android/systemui/clipboardoverlay/ClipboardListener.java
+@@ -29,6 +29,7 @@ import android.content.ClipboardManager;
+ import android.content.Context;
+ import android.os.SystemProperties;
+ import android.provider.Settings;
++import android.os.UserHandle;
+ import android.util.Log;
+ 
+ import com.android.internal.annotations.VisibleForTesting;
+@@ -84,6 +85,11 @@ public class ClipboardListener implements
+             return;
+         }
+ 
++	if (Settings.Secure.getIntForUser(mContext.getContentResolver(),
++                Settings.Secure.SHOW_CLIPBOARD_OVERLAY, 1, UserHandle.USER_CURRENT) == 0) {
++            return;
++        }
++
+         String clipSource = mClipboardManager.getPrimaryClipSource();
+         ClipData clipData = mClipboardManager.getPrimaryClip();
+ 
+-- 
+2.34.1
+

@@ -1,0 +1,60 @@
+From 69e8f274ae58b69d2bc021196380309aa385a4ab Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Fri, 1 Mar 2024 11:30:41 -0300
+Subject: [PATCH 1/2] SuperiorLab: Allow disable Clipboard Overlay [2/2]
+
+---
+ res/values/custom_strings.xml | 22 ++++++++++++++++++++++
+ res/xml/superior_lab_notifications.xml | 6 ++++++
+ 2 file changed, 28 insertions(+)
+ create mode 100644 res/values/custom_strings.xml
+
+diff --git a/res/values/custom_strings.xml b/res/values/custom_strings.xml
+new file mode 100644
+index 0000000..5c03660
+--- /dev/null
++++ b/res/values/custom_strings.xml
+@@ -0,0 +1,22 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2022 SuperiorOS
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
++
++    <!-- Show clipboard overlay -->
++    <string name="show_clipboard_overlay_title">Show clipboard overlay</string>
++    <string name="show_clipboard_overlay_summary">Show an overlay in the left bottom corner of the screen when something is copied to the clipboard</string>
++
++</resources>
+diff --git a/res/xml/superior_lab_notifications.xml b/res/xml/superior_lab_notifications.xml
+index 1dbbd51..dfecbe6 100644
+--- a/res/xml/superior_lab_notifications.xml
++++ b/res/xml/superior_lab_notifications.xml
+@@ -22,6 +22,12 @@
+     <PreferenceCategory
+         android:title="@string/notifications_category_title">
+ 
++    <com.superior.support.preferences.SecureSettingSwitchPreference
++        android:key="show_clipboard_overlay"
++        android:title="@string/show_clipboard_overlay_title"
++        android:summary="@string/show_clipboard_overlay_summary"
++        android:defaultValue="true"/>
++
+     <com.superior.support.preferences.SystemSettingSwitchPreference
+          android:key="notification_sound_vib_screen_on"
+          android:title="@string/notification_sound_vib_screen_on_title"
+-- 
+2.34.1
+
+
