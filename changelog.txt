@@ -1,3 +1,11 @@
+A13-v20240318
+| More TD Sync
+| Add QQS Rows option
+| Slightly fix A11 QS UI
+| QS Themes also apply rounded corners now
+| Fix Safety Net/Play Integrity and made overridable with props
+| Fix missing Transsition Settings
+
 A13-v20240217
 | Fix Play Integrity
 | Add A11 QS Style
