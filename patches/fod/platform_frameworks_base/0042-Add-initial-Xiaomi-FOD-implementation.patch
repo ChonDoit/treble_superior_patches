@@ -15,7 +15,7 @@ Huge thanks to phhusson for the help and guidance.
  4 files changed, 91 insertions(+)
 
 diff --git a/packages/SystemUI/Android.bp b/packages/SystemUI/Android.bp
-index 7002ca15eafc..e9b15afd8ba3 100644
+index 7002ca15eafc..82465c4b81de 100644
 --- a/packages/SystemUI/Android.bp
 +++ b/packages/SystemUI/Android.bp
 @@ -181,6 +181,8 @@ android_library {
@@ -23,7 +23,7 @@ index 7002ca15eafc..e9b15afd8ba3 100644
          "vendor.lineage.powershare-V1.0-java",
          "vendor.goodix.hardware.biometrics.fingerprint-V2.1-java",
 +        "vendor.xiaomi.hw.touchfeature-V1.0-java",
-+        "vendor.xiaomi.hardware.fingerprintextension-V1.0-java"
++        "vendor.xiaomi.hardware.fingerprintextension-V1.0-java",
      ],
      manifest: "AndroidManifest.xml",
  
@@ -102,10 +102,10 @@ index b86067a943fa..b7702d7a1996 100644
              dimUpdate(0.0f)
          }
 diff --git a/services/core/Android.bp b/services/core/Android.bp
-index 1646805c3acf..85422a37eddd 100644
+index 824c2f386e73..9154e8d59d63 100644
 --- a/services/core/Android.bp
 +++ b/services/core/Android.bp
-@@ -186,6 +186,7 @@ java_library_static {
+@@ -181,6 +181,7 @@ java_library_static {
          "vendor.samsung.hardware.biometrics.fingerprint-V3.0-java",
          "vendor.oplus.hardware.biometrics.fingerprint-V2.1-java",
          "vendor.oppo.hardware.biometrics.fingerprint-V2.1-java",

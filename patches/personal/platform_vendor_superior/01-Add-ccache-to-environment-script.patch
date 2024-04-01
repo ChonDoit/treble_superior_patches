@@ -4,16 +4,18 @@ Date: Tue, 12 Jul 2022 02:11:53 +0000
 Subject: [PATCH] Add CCache Check to Environment Setup
 
 ---
- build/envsetup.sh | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
- create mode 100644 build/envsetup.sh
+ vendorsetup.sh | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/build/envsetup.sh b/build/envsetup.sh
-new file mode 100644
-index 00000000..2bf0cc3c
---- /dev/null
-+++ b/build/envsetup.sh
-@@ -0,0 +1,16 @@
+diff --git a/vendorsetup.sh b/vendorsetup.sh
+index 2bf5e241..ebde686a 100755
+--- a/vendorsetup.sh
++++ b/vendorsetup.sh
+@@ -13,3 +13,20 @@
+ #
+ # For now, just skip the ABI checks to fix build errors.
+ export SKIP_ABI_CHECKS=true
++
 +# Check and set ccache path on envsetup
 +if [ -z ${CCACHE_EXEC} ]; then
 +	ccache_path=$(which ccache)

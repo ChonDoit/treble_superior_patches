@@ -1,0 +1,24 @@
+From 45480ab609ba20cdc45e3b291bd160a06dee680d Mon Sep 17 00:00:00 2001
+From: Pierre-Hugues Husson <phh@phh.me>
+Date: Mon, 29 Jan 2024 17:07:07 -0500
+Subject: [PATCH 52/53] Add Samsung sysinput
+
+---
+ services/core/Android.bp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/services/core/Android.bp b/services/core/Android.bp
+index ad2ffd190952..12beb3674597 100644
+--- a/services/core/Android.bp
++++ b/services/core/Android.bp
+@@ -182,6 +182,7 @@ java_library_static {
+         "kotlinx_coroutines",
+         "vendor.mediatek.hardware.mtkpower-V1.1-java",
+         "vendor.samsung.hardware.sysinput-V1.2-java",
++        "vendor.samsung.hardware.sysinput-V1-java",
+     ],
+     javac_shard_size: 50,
+ }
+-- 
+2.34.1
+

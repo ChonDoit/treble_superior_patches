@@ -1,23 +1,33 @@
-From 35334fd833de32c0fa4557b98361df0d30081b54 Mon Sep 17 00:00:00 2001
+From 1f862d9dbfb48967a396694c7ac3fd536b1279f5 Mon Sep 17 00:00:00 2001
 From: ChonDoit <thphantomblog@gmail.com>
 Date: Thu, 2 Nov 2023 12:43:22 +0000
 Subject: [PATCH] AoDCharge
 
 ---
- .../display/AmbientDisplayConfiguration.java  | 24 ++++++++++++++--
- core/java/android/provider/Settings.java      | 14 ++++++++++
+ .../display/AmbientDisplayConfiguration.java  | 27 +++++++++++++++--
+ core/java/android/provider/Settings.java      | 14 +++++++++
  .../settings/backup/SecureSettings.java       |  1 +
  .../validators/SecureSettingsValidators.java  |  1 +
- .../android/systemui/qs/tiles/AODTile.java    | 28 +++++++++++++++++--
- .../statusbar/phone/DozeParameters.java       | 22 ++-------------
+ .../android/systemui/qs/tiles/AODTile.java    | 29 +++++++++++++++++--
+ .../statusbar/phone/DozeParameters.java       | 22 ++------------
  .../server/power/PowerManagerService.java     | 18 +++++++++++-
- 7 files changed, 81 insertions(+), 27 deletions(-)
+ 7 files changed, 85 insertions(+), 27 deletions(-)
 
 diff --git a/core/java/android/hardware/display/AmbientDisplayConfiguration.java b/core/java/android/hardware/display/AmbientDisplayConfiguration.java
-index 16df1bc262e2..912de519d185 100644
+index 21a6bb50ce0a..635fb660bf95 100644
 --- a/core/java/android/hardware/display/AmbientDisplayConfiguration.java
 +++ b/core/java/android/hardware/display/AmbientDisplayConfiguration.java
-@@ -51,7 +51,8 @@ public class AmbientDisplayConfiguration {
+@@ -18,6 +18,9 @@ package android.hardware.display;
+ 
+ import android.annotation.TestApi;
+ import android.content.Context;
++import android.content.Intent;
++import android.content.IntentFilter;
++import android.os.BatteryManager;
+ import android.os.Build;
+ import android.os.SystemProperties;
+ import android.provider.Settings;
+@@ -54,7 +57,8 @@ public class AmbientDisplayConfiguration {
              Settings.Secure.DOZE_DOUBLE_TAP_GESTURE,
              Settings.Secure.DOZE_WAKE_LOCK_SCREEN_GESTURE,
              Settings.Secure.DOZE_WAKE_DISPLAY_GESTURE,
@@ -27,7 +37,7 @@ index 16df1bc262e2..912de519d185 100644
      };
  
      /** Non-user configurable doze settings */
-@@ -242,8 +243,25 @@ public class AmbientDisplayConfiguration {
+@@ -257,8 +261,25 @@ public class AmbientDisplayConfiguration {
       */
      @TestApi
      public boolean alwaysOnEnabled(int user) {
@@ -56,10 +66,10 @@ index 16df1bc262e2..912de519d185 100644
  
      /**
 diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
-index 7edcb1e6aefb..5974250e6ec9 100644
+index 19c0bd7ffde6..65504d8e9d8e 100644
 --- a/core/java/android/provider/Settings.java
 +++ b/core/java/android/provider/Settings.java
-@@ -11888,6 +11888,20 @@ public final class Settings {
+@@ -11907,6 +11907,20 @@ public final class Settings {
           */
          public static final String SECURE_LOCKSCREEN_QS_DISABLED = "secure_lockscreen_qs_disabled";
  
@@ -103,18 +113,21 @@ index 60bcfe327589..0db58e3edffb 100644
      }
  }
 diff --git a/packages/SystemUI/src/com/android/systemui/qs/tiles/AODTile.java b/packages/SystemUI/src/com/android/systemui/qs/tiles/AODTile.java
-index 00bdd3311852..59d4294c9e4c 100644
+index 00bdd3311852..9efc0c4e9794 100644
 --- a/packages/SystemUI/src/com/android/systemui/qs/tiles/AODTile.java
 +++ b/packages/SystemUI/src/com/android/systemui/qs/tiles/AODTile.java
-@@ -21,6 +21,7 @@ import android.content.Intent;
+@@ -19,8 +19,10 @@ package com.android.systemui.qs.tiles;
+ import android.content.ComponentName;
+ import android.content.Intent;
  import android.database.ContentObserver;
++import android.net.Uri;
  import android.os.Handler;
  import android.os.Looper;
 +import android.os.UserHandle;
  import android.provider.Settings;
  import android.service.quicksettings.Tile;
  import android.view.View;
-@@ -47,6 +48,7 @@ public final class AODTile extends QSTileImpl<BooleanState> {
+@@ -47,6 +49,7 @@ public final class AODTile extends QSTileImpl<BooleanState> {
      public static final String TILE_SPEC = "aod";
  
      private boolean mAodDisabled;
@@ -122,7 +135,7 @@ index 00bdd3311852..59d4294c9e4c 100644
      private final Icon mIcon = ResourceIcon.get(R.drawable.ic_qs_aod);
  
      private static final Intent LS_DISPLAY_SETTINGS = new Intent().setComponent(
-@@ -87,9 +89,9 @@ public final class AODTile extends QSTileImpl<BooleanState> {
+@@ -87,9 +90,9 @@ public final class AODTile extends QSTileImpl<BooleanState> {
      @Override
      public void handleClick(@Nullable View view) {
          mAodDisabled = !mAodDisabled;
@@ -134,7 +147,7 @@ index 00bdd3311852..59d4294c9e4c 100644
          refreshState();
      }
  
-@@ -108,6 +110,8 @@ public final class AODTile extends QSTileImpl<BooleanState> {
+@@ -108,6 +111,8 @@ public final class AODTile extends QSTileImpl<BooleanState> {
          if (state.slash == null) {
              state.slash = new SlashState();
          }
@@ -143,7 +156,7 @@ index 00bdd3311852..59d4294c9e4c 100644
          state.icon = mIcon;
          state.value = mAodDisabled;
          state.slash.isSlashed = state.value;
-@@ -124,8 +128,26 @@ public final class AODTile extends QSTileImpl<BooleanState> {
+@@ -124,8 +129,26 @@ public final class AODTile extends QSTileImpl<BooleanState> {
          return MetricsEvent.SUPERIOR;
      }
  
@@ -247,7 +260,7 @@ index ae715b3f20c8..2b65549bd4df 100644
      public void onConfigChanged(Configuration newConfig) {
          updateControlScreenOff();
 diff --git a/services/core/java/com/android/server/power/PowerManagerService.java b/services/core/java/com/android/server/power/PowerManagerService.java
-index 60509906d53a..663f2546b69d 100644
+index 733a4c58ae83..b0e6a0d0481b 100644
 --- a/services/core/java/com/android/server/power/PowerManagerService.java
 +++ b/services/core/java/com/android/server/power/PowerManagerService.java
 @@ -668,6 +668,9 @@ public final class PowerManagerService extends SystemService
@@ -260,7 +273,7 @@ index 60509906d53a..663f2546b69d 100644
      // Whether to keep dreaming when the device is undocked.
      private boolean mKeepDreamingWhenUndocked;
  
-@@ -1246,6 +1249,9 @@ public final class PowerManagerService extends SystemService
+@@ -1248,6 +1251,9 @@ public final class PowerManagerService extends SystemService
      private void systemReady() {
          synchronized (mLock) {
              mSystemReady = true;
@@ -270,7 +283,7 @@ index 60509906d53a..663f2546b69d 100644
              mDreamManager = getLocalService(DreamManagerInternal.class);
              mDisplayManagerInternal = getLocalService(DisplayManagerInternal.class);
              mPolicy = getLocalService(WindowManagerPolicy.class);
-@@ -1352,6 +1358,9 @@ public final class PowerManagerService extends SystemService
+@@ -1354,6 +1360,9 @@ public final class PowerManagerService extends SystemService
          resolver.registerContentObserver(Settings.Global.getUriFor(
                  Settings.Global.DEVICE_DEMO_MODE),
                  false, mSettingsObserver, UserHandle.USER_SYSTEM);
@@ -280,7 +293,7 @@ index 60509906d53a..663f2546b69d 100644
          IVrManager vrManager = IVrManager.Stub.asInterface(getBinderService(Context.VR_SERVICE));
          if (vrManager != null) {
              try {
-@@ -1457,9 +1466,11 @@ public final class PowerManagerService extends SystemService
+@@ -1459,9 +1468,11 @@ public final class PowerManagerService extends SystemService
                  UserHandle.USER_CURRENT);
          mStayOnWhilePluggedInSetting = Settings.Global.getInt(resolver,
                  Settings.Global.STAY_ON_WHILE_PLUGGED_IN, BatteryManager.BATTERY_PLUGGED_AC);
@@ -293,7 +306,7 @@ index 60509906d53a..663f2546b69d 100644
  
          if (mSupportsDoubleTapWakeConfig) {
              boolean doubleTapWakeEnabled = Settings.Secure.getIntForUser(resolver,
-@@ -2490,6 +2501,11 @@ public final class PowerManagerService extends SystemService
+@@ -2492,6 +2503,11 @@ public final class PowerManagerService extends SystemService
                  // Update wireless dock detection state.
                  final boolean dockedOnWirelessCharger = mWirelessChargerDetector.update(
                          mIsPowered, mPlugType);

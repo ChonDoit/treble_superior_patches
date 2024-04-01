@@ -1,7 +1,7 @@
-From a3e26c35f72fcf53f7ac99182570c6300ee40664 Mon Sep 17 00:00:00 2001
+From 28ab1d35b3b41221faf84cac8f4a5b118363ddda Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Sat, 17 Jun 2023 08:31:55 -0400
-Subject: [PATCH 40/42] Add Mediatek power hints on touch
+Subject: [PATCH] Add Mediatek power hints on touch
 
 Mediatek has multiple HALs (which existed concurrently), so it is a bit
 of a mess.
@@ -21,11 +21,11 @@ Experimentally using this app rotate boost indeed makes the device much
 smoother.
 ---
  services/core/Android.bp                      |  1 +
- .../com/android/server/wm/DisplayPolicy.java  | 50 +++++++++++++++++++
- 2 files changed, 51 insertions(+)
+ .../com/android/server/wm/DisplayPolicy.java  | 51 +++++++++++++++++++
+ 2 files changed, 52 insertions(+)
 
 diff --git a/services/core/Android.bp b/services/core/Android.bp
-index b7a9ce75277b..1646805c3acf 100644
+index 3a0bf01ce0c4..ad2ffd190952 100644
 --- a/services/core/Android.bp
 +++ b/services/core/Android.bp
 @@ -180,6 +180,7 @@ java_library_static {
@@ -34,8 +34,8 @@ index b7a9ce75277b..1646805c3acf 100644
          "kotlinx_coroutines",
 +        "vendor.mediatek.hardware.mtkpower-V1.1-java",
          "vendor.samsung.hardware.sysinput-V1.2-java",
-         "vendor.goodix.hardware.biometrics.fingerprint-V2.1-java",
-         "vendor.samsung.hardware.biometrics.fingerprint-V3.0-java",
+     ],
+     javac_shard_size: 50,
 diff --git a/services/core/java/com/android/server/wm/DisplayPolicy.java b/services/core/java/com/android/server/wm/DisplayPolicy.java
 index 1c971b4beef9..6f331a99ea44 100644
 --- a/services/core/java/com/android/server/wm/DisplayPolicy.java

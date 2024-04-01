@@ -270,13 +270,13 @@ index 1e2e6c8bb253..b86067a943fa 100644
      }
  }
 diff --git a/services/core/Android.bp b/services/core/Android.bp
-index 3a0bf01ce0c4..b7a9ce75277b 100644
+index 634566070492..824c2f386e73 100644
 --- a/services/core/Android.bp
 +++ b/services/core/Android.bp
-@@ -181,6 +181,10 @@ java_library_static {
-         "kotlinx_coroutines_android",
-         "kotlinx_coroutines",
+@@ -177,6 +177,10 @@ java_library_static {
+         "vendor.mediatek.hardware.mtkpower-V1.1-java",
          "vendor.samsung.hardware.sysinput-V1.2-java",
+         "vendor.samsung.hardware.sysinput-V1-java",
 +        "vendor.goodix.hardware.biometrics.fingerprint-V2.1-java",
 +        "vendor.samsung.hardware.biometrics.fingerprint-V3.0-java",
 +        "vendor.oplus.hardware.biometrics.fingerprint-V2.1-java",

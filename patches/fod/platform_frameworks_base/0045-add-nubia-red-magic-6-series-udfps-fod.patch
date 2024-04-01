@@ -10,21 +10,19 @@ Subject: [PATCH 45/47] add: nubia red magic 6 series udfps/fod
  3 files changed, 74 insertions(+), 1 deletion(-)
 
 diff --git a/packages/SystemUI/Android.bp b/packages/SystemUI/Android.bp
-index e9b15afd8ba3..0955ab2a006e 100644
+index 82465c4b81de..0955ab2a006e 100644
 --- a/packages/SystemUI/Android.bp
 +++ b/packages/SystemUI/Android.bp
-@@ -182,7 +182,8 @@ android_library {
-         "vendor.lineage.powershare-V1.0-java",
+@@ -183,6 +183,7 @@ android_library {
          "vendor.goodix.hardware.biometrics.fingerprint-V2.1-java",
          "vendor.xiaomi.hw.touchfeature-V1.0-java",
--        "vendor.xiaomi.hardware.fingerprintextension-V1.0-java"
-+        "vendor.xiaomi.hardware.fingerprintextension-V1.0-java",
+         "vendor.xiaomi.hardware.fingerprintextension-V1.0-java",
 +        "vendor.nubia.ifaa-V1.0-java",
      ],
      manifest: "AndroidManifest.xml",
  
 diff --git a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java
-index 1d10888e764e..80b9d4cd2e49 100644
+index 1d10888e764e..77ca5a989a82 100644
 --- a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java
 +++ b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java
 @@ -47,6 +47,7 @@ import android.net.Uri;
@@ -102,7 +100,7 @@ index 1d10888e764e..80b9d4cd2e49 100644
          }
  
 +	if(SystemProperties.get("ro.vendor.build.fingerprint").contains("nubia/NX669")) {
-+          processCmd(13, 0, 0, new byte[0], 0);
++            processCmd(13, 0, 0, new byte[0], 0);
 +        }
 +
          for (Callback cb : mCallbacks) {
@@ -110,20 +108,19 @@ index 1d10888e764e..80b9d4cd2e49 100644
          }
 +
 +	if(SystemProperties.get("ro.vendor.build.fingerprint").contains("nubia/NX669")) {
-+          processCmd(14, 0, 0, new byte[0], 0);
++            processCmd(14, 0, 0, new byte[0], 0);
 +        }
 +
          if (!mOnFingerDown && mUdfpsAnimation != null) {
              mUdfpsAnimation.show();
          }
-@@ -1217,6 +1272,10 @@ public class UdfpsController implements DozeReceiver, Dumpable {
+@@ -1217,6 +1272,9 @@ public class UdfpsController implements DozeReceiver, Dumpable {
                      mFingerprintManager.onPointerUp(requestId, mSensorProps.sensorId);
                  }
              }
-+
-+	if(SystemProperties.get("ro.vendor.build.fingerprint").contains("nubia/NX669")) {
-+	    processCmd(15, 0, 0, new byte[0], 0);
-+        }
++	    if(SystemProperties.get("ro.vendor.build.fingerprint").contains("nubia/NX669")) {
++	        processCmd(15, 0, 0, new byte[0], 0);
++	    }
              for (Callback cb : mCallbacks) {
                  cb.onFingerUp();
              }

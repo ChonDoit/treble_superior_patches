@@ -1,0 +1,54 @@
+From 994dcc96c9fda0db5cbf07e6f8e2e644dc41aab3 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sat, 23 Mar 2024 18:00:24 -0300
+Subject: [PATCH 2/2] Allow Setting QQS Rows
+
+---
+ res/values/superior_strings.xml                  |  2 ++
+ res/xml/superior_lab_quicksettings.xml           | 16 ++++++++++++++++
+ .../superior/lab/fragments/QuickSettings.java    | 10 ++++++++++
+ 3 files changed, 28 insertions(+)
+
+diff --git a/res/values/superior_strings.xml b/res/values/superior_strings.xml
+index 248aeb0..3770274 100644
+--- a/res/values/superior_strings.xml
++++ b/res/values/superior_strings.xml
+@@ -345,6 +345,8 @@
+     <string name="qs_tile_label_size_title">Label text size</string>
+     <string name="qs_columns_portrait_title">Columns (portrait)</string>
+     <string name="qs_columns_landscape_title">Columns (landscape)</string>
++    <string name="qqs_rows_portrait_title">Quick QS Rows (portrait)</string>
++    <string name="qqs_rows_landscape_title">Quick QS Rows (landscape)</string>
+ 
+     <!-- Fingerprint authentication vibration -->
+     <string name="fprint_success_vib_title">Fingerprint authentication vibration</string>
+diff --git a/res/xml/superior_lab_quicksettings.xml b/res/xml/superior_lab_quicksettings.xml
+index 0e6ce35..5dc0a08 100644
+--- a/res/xml/superior_lab_quicksettings.xml
++++ b/res/xml/superior_lab_quicksettings.xml
+@@ -131,6 +131,22 @@
+          settings:interval="1"
+          android:defaultValue="4" />
+ 
++    <com.superior.support.preferences.SystemSettingSeekBarPreference
++         android:key="qqs_layout_rows"
++         android:title="@string/qqs_rows_portrait_title"
++         android:max="2"
++         settings:min="1"
++         settings:interval="1"
++         android:defaultValue="2" />
++
++    <com.superior.support.preferences.SystemSettingSeekBarPreference
++         android:key="qqs_layout_rows_landscape"
++         android:title="@string/qqs_rows_landscape_title"
++         android:max="2"
++         settings:min="1"
++         settings:interval="1"
++	 android:defaultValue="2" />
++
+     </PreferenceCategory>
+ 
+ </PreferenceScreen>
+-- 
+2.34.1
+

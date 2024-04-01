@@ -1,0 +1,1251 @@
+From 4e72d323cca419c688e37105b740e6995a6cf6e5 Mon Sep 17 00:00:00 2001
+From: IacobIonut01 <paulionut2003@gmail.com>
+Date: Sat, 22 Apr 2023 10:07:28 +0800
+Subject: [PATCH 1/5] SystemUI: A11 QS UI Style [1/3]
+
+includes:
+ SystemUI: Redesign Quick settings
+
+Author: IacobIonut01 <paulionut2003@gmail.com>
+Date:   Fri Apr 1 17:38:27 2022 +0000
+
+    SystemUI: Redesign Quick settings
+
+    - Brings up the A11 style of tiles
+      + Added morph status of tiles (Circle - Active | Rounded Rect - Inactive/Disabled)
+      + Kept compatibility with the secondaryLabel from A12
+    - Initial support for columns/rows control in QQS, QS and Customizer
+    - Removed color differencce between QSPanel and Notification Drawer
+    - Aligned Notification Footer buttons with the notifications (History | Clear All)
+    - Added transparency for blur support
+    [Temporary removed] - Keep showing notifications when the QSPanel is fully expanded
+
+    Bugs / W.I.P.....
+    [Temporary removed] - After exiting the QS Customizer, the Notification Drawer's scrim color goes to TRANSPARENT until the user scroll slightly
+
+    [Linux4: Remove changes made to QuickStatusBarHeader.java]
+    [Linux4: Adapt for T]
+
+    Signed-off-by: IacobIonut01 <paulionut2003@gmail.com>
+
+Author: Tim Zimmermann <tim@linux4.de>
+Date:   Thu Jun 30 17:43:05 2022 +0200
+
+    SystemUI: Use colorSurfaceHeader for QS background again
+
+    * We want it to be pure black in dark theme, like on R
+
+    Change-Id: I43cf9a1999601d1ce967fa79862f7153b5a24ff8
+
+Author: SamarV-121 <samarvispute121@pm.me>
+Date:   Thu Sep 29 03:34:10 2022 +0000
+
+    base: Bring carrier info back on qs status bar header
+
+    Change-Id: I80c18bb655bd71e01859cc72063c1aafd8fb2908
+
+Change-Id: I9630d414cd6db3b896dcc6f0591b1cd728012f36
+
+Author: minaripenguin <minaripenguin@users.noreply.github.com>
+Date:   Wed May 3 09:18:10 2023 +0800
+
+    SystemUI: Introduce QS UI Style settings
+      * initial QS UI styles implementation using dotOS' a11 qs style
+
+    SystemUI: Fix A11 QS UI styles compatibility with qs layout settings
+      * adjust tiles configuration to fit current qs tiles settings
+      * Resolve crash caused by layerdrawable -> gradientdrawable classcastexception separate qs tile background for a11 and material you style
+
+    SystemUI: Refactor landscape media tile setup
+      * optimize space for media player
+
+Co-authored-by: SamarV-121 <samarvispute121@pm.me>
+Co-authored-by: Tim Zimmermann <tim@linux4.de>
+Co-authored-by: minaripenguin <minaripenguin@users.noreply.github.com>
+Change-Id: I02ad5e6873527b12bf436a9b1097d5d6ce9a23bd
+Signed-off-by: minaripenguin <minaripenguin@users.noreply.github.com>
+---
+ core/java/android/provider/Settings.java      |  11 +
+ .../drawable/qs_tile_background_no_mask.xml   |  21 ++
+ .../drawable/qs_tile_background_shape_a11.xml |  21 ++
+ packages/SystemUI/res/layout/qs_panel.xml     |   1 +
+ .../SystemUI/res/layout/qs_tile_label_a11.xml |  58 +++++
+ .../res/layout/qs_tile_side_icon_a11.xml      |  43 ++++
+ .../quick_status_bar_expanded_header.xml      |   1 +
+ .../layout/status_bar_notification_footer.xml |   4 +-
+ .../SystemUI/res/values/qsUIStyle_config.xml  |  25 ++
+ .../SystemUI/res/values/qsUIStyle_dimens.xml  |  21 ++
+ .../SystemUI/res/values/superior_dimens.xml   |   4 +-
+ .../com/android/systemui/qs/QSAnimator.java   |  16 +-
+ .../android/systemui/qs/QSContainerImpl.java  |  12 +
+ .../com/android/systemui/qs/QSFragment.java   |  31 ++-
+ .../src/com/android/systemui/qs/QSPanel.java  |   4 +-
+ .../systemui/qs/QSPanelController.java        |   4 +-
+ .../systemui/qs/QuickQSPanelController.java   |   1 +
+ .../com/android/systemui/qs/TileUtils.java    |   8 +-
+ .../qs/customize/CustomizeTileView.kt         |  11 +-
+ .../systemui/qs/tileimpl/QSTileViewImpl.kt    | 232 ++++++++++++++----
+ .../NotificationPanelViewController.java      |   8 +
+ .../theme/ThemeOverlayController.java         |  12 +
+ .../android/systemui/qs/TileLayoutTest.java   |   2 +-
+ 23 files changed, 491 insertions(+), 60 deletions(-)
+ create mode 100644 packages/SystemUI/res/drawable/qs_tile_background_no_mask.xml
+ create mode 100644 packages/SystemUI/res/drawable/qs_tile_background_shape_a11.xml
+ create mode 100644 packages/SystemUI/res/layout/qs_tile_label_a11.xml
+ create mode 100644 packages/SystemUI/res/layout/qs_tile_side_icon_a11.xml
+ create mode 100644 packages/SystemUI/res/values/qsUIStyle_config.xml
+ create mode 100644 packages/SystemUI/res/values/qsUIStyle_dimens.xml
+
+diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
+index 65504d8e9d8e..57eb7da22143 100644
+--- a/core/java/android/provider/Settings.java
++++ b/core/java/android/provider/Settings.java
+@@ -5895,6 +5895,17 @@ public final class Settings {
+          */
+         public static final String QS_PANEL_STYLE = "qs_panel_style";
+ 
++	/**
++         * @hide
++         */
++        public static final String QS_UI_STYLE = "qs_ui_style";
++
++	/**
++         *
++         * @hide
++         */
++        public static final String QS_RR_MORPHING = "qs_rr_morphing";
++
+         /**
+          * Whether allowing pocket service to register sensors and dispatch informations.
+          *   0 = disabled
+diff --git a/packages/SystemUI/res/drawable/qs_tile_background_no_mask.xml b/packages/SystemUI/res/drawable/qs_tile_background_no_mask.xml
+new file mode 100644
+index 000000000000..fbfa02339047
+--- /dev/null
++++ b/packages/SystemUI/res/drawable/qs_tile_background_no_mask.xml
+@@ -0,0 +1,21 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright (C) 2021 The Android Open Source Project
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License.
++  -->
++<ripple xmlns:android="http://schemas.android.com/apk/res/android"
++    android:color="@color/qs_ripple_color">
++    <item android:id="@id/background"
++        android:drawable="@drawable/qs_tile_background_shape_a11"/>
++</ripple>
+diff --git a/packages/SystemUI/res/drawable/qs_tile_background_shape_a11.xml b/packages/SystemUI/res/drawable/qs_tile_background_shape_a11.xml
+new file mode 100644
+index 000000000000..66c472757e1d
+--- /dev/null
++++ b/packages/SystemUI/res/drawable/qs_tile_background_shape_a11.xml
+@@ -0,0 +1,21 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright (C) 2021 The Android Open Source Project
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License.
++  -->
++
++<shape xmlns:android="http://schemas.android.com/apk/res/android">
++    <corners android:radius="100dp" />
++    <solid android:color="#FFFFFF" />
++</shape>
+diff --git a/packages/SystemUI/res/layout/qs_panel.xml b/packages/SystemUI/res/layout/qs_panel.xml
+index 1eb05bfd602d..894ea465c671 100644
+--- a/packages/SystemUI/res/layout/qs_panel.xml
++++ b/packages/SystemUI/res/layout/qs_panel.xml
+@@ -38,6 +38,7 @@
+             android:background="@android:color/transparent"
+             android:focusable="true"
+             android:accessibilityTraversalBefore="@android:id/edit"
++            android:paddingTop="@dimen/custom_qs_panel_padding_top"
+             android:clipToPadding="false"
+             android:clipChildren="false">
+ 
+diff --git a/packages/SystemUI/res/layout/qs_tile_label_a11.xml b/packages/SystemUI/res/layout/qs_tile_label_a11.xml
+new file mode 100644
+index 000000000000..376cef15aa32
+--- /dev/null
++++ b/packages/SystemUI/res/layout/qs_tile_label_a11.xml
+@@ -0,0 +1,58 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++    Copyright (C) 2021 The Android Open Source Project
++
++    Licensed under the Apache License, Version 2.0 (the "License");
++    you may not use this file except in compliance with the License.
++    You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++    Unless required by applicable law or agreed to in writing, software
++    distributed under the License is distributed on an "AS IS" BASIS,
++    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++    See the License for the specific language governing permissions and
++    limitations under the License.
++-->
++<com.android.systemui.qs.tileimpl.IgnorableChildLinearLayout
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    android:layout_width="match_parent"
++    android:layout_height="wrap_content"
++    android:clipChildren="false"
++    android:clipToPadding="false"
++    android:orientation="vertical"
++    android:focusable="false"
++    android:importantForAccessibility="no"
++    android:layout_gravity="center_horizontal">
++
++    <com.android.systemui.util.DelayableMarqueeTextView
++        android:id="@+id/tile_label"
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:layout_gravity="center_horizontal"
++        android:gravity="center_horizontal"
++        android:textDirection="locale"
++        android:ellipsize="marquee"
++        android:marqueeRepeatLimit="1"
++        android:singleLine="true"
++        android:focusable="false"
++        android:importantForAccessibility="no"
++        android:textAppearance="@style/TextAppearance.QS.TileLabel"/>
++
++    <com.android.systemui.util.DelayableMarqueeTextView
++        android:id="@+id/app_label"
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:layout_gravity="center_horizontal"
++        android:gravity="center_horizontal"
++        android:textDirection="locale"
++        android:ellipsize="marquee"
++        android:marqueeRepeatLimit="1"
++        android:singleLine="true"
++        android:visibility="invisible"
++        android:focusable="false"
++        android:importantForAccessibility="no"
++        android:textAppearance="@style/TextAppearance.QS.TileLabel.Secondary"
++        android:textColor="?android:attr/textColorSecondary"/>
++
++</com.android.systemui.qs.tileimpl.IgnorableChildLinearLayout>
+diff --git a/packages/SystemUI/res/layout/qs_tile_side_icon_a11.xml b/packages/SystemUI/res/layout/qs_tile_side_icon_a11.xml
+new file mode 100644
+index 000000000000..d49df2671b20
+--- /dev/null
++++ b/packages/SystemUI/res/layout/qs_tile_side_icon_a11.xml
+@@ -0,0 +1,43 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++    Copyright (C) 2021 The Android Open Source Project
++
++    Licensed under the Apache License, Version 2.0 (the "License");
++    you may not use this file except in compliance with the License.
++    You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++    Unless required by applicable law or agreed to in writing, software
++    distributed under the License is distributed on an "AS IS" BASIS,
++    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++    See the License for the specific language governing permissions and
++    limitations under the License.
++-->
++<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    android:layout_width="0dp"
++    android:layout_height="0dp"
++    android:visibility="gone"
++    android:layout_marginStart="@dimen/qs_label_container_margin"
++    android:layout_gravity="center_vertical | end"
++>
++    <ImageView
++        android:id="@+id/customDrawable"
++        android:layout_width="wrap_content"
++        android:layout_height="@dimen/qs_side_view_size"
++        android:layout_marginEnd="@dimen/qs_drawable_end_margin"
++        android:adjustViewBounds="true"
++        android:scaleType="fitCenter"
++        android:visibility="gone"
++    />
++
++    <ImageView
++        android:id="@+id/chevron"
++        android:layout_width="@dimen/qs_icon_size"
++        android:layout_height="@dimen/qs_icon_size"
++        android:src="@*android:drawable/ic_chevron_end"
++        android:autoMirrored="true"
++        android:visibility="gone"
++        android:importantForAccessibility="no"
++    />
++</FrameLayout>
+diff --git a/packages/SystemUI/res/layout/quick_status_bar_expanded_header.xml b/packages/SystemUI/res/layout/quick_status_bar_expanded_header.xml
+index 6ec2255fcf3b..1482782ee6ca 100644
+--- a/packages/SystemUI/res/layout/quick_status_bar_expanded_header.xml
++++ b/packages/SystemUI/res/layout/quick_status_bar_expanded_header.xml
+@@ -58,6 +58,7 @@
+         android:clipChildren="false"
+         android:clipToPadding="false"
+         android:focusable="true"
++        android:paddingTop="@dimen/custom_qs_panel_padding_top"
+         android:paddingBottom="@dimen/qqs_layout_padding_bottom"
+         android:importantForAccessibility="no">
+     </com.android.systemui.qs.QuickQSPanel>
+diff --git a/packages/SystemUI/res/layout/status_bar_notification_footer.xml b/packages/SystemUI/res/layout/status_bar_notification_footer.xml
+index db94c92738f2..c1df2e8291d4 100644
+--- a/packages/SystemUI/res/layout/status_bar_notification_footer.xml
++++ b/packages/SystemUI/res/layout/status_bar_notification_footer.xml
+@@ -19,8 +19,8 @@
+         xmlns:android="http://schemas.android.com/apk/res/android"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+-        android:paddingStart="16dp"
+-        android:paddingEnd="16dp"
++        android:paddingStart="@dimen/custom_notification_row_padding"
++        android:paddingEnd="@dimen/custom_notification_row_padding"
+         android:visibility="gone">
+     <com.android.systemui.statusbar.AlphaOptimizedFrameLayout
+         android:id="@+id/content"
+diff --git a/packages/SystemUI/res/values/qsUIStyle_config.xml b/packages/SystemUI/res/values/qsUIStyle_config.xml
+new file mode 100644
+index 000000000000..ddc834dbf463
+--- /dev/null
++++ b/packages/SystemUI/res/values/qsUIStyle_config.xml
+@@ -0,0 +1,25 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++     Copyright (C) 2023 RisingOS Android Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++<resources>
++    <!-- The number of columns in the QuickQSPanel -->
++    <integer name="quick_qs_panel_num_columns_landscape">6</integer>
++    <integer name="quick_qs_panel_num_columns_media">4</integer>
++
++    <!--The number of columns in the QSPanel -->
++    <integer name="qs_panel_num_columns_landscape">6</integer>
++    <integer name="qs_panel_num_columns_media">4</integer>
++</resources>
+diff --git a/packages/SystemUI/res/values/qsUIStyle_dimens.xml b/packages/SystemUI/res/values/qsUIStyle_dimens.xml
+new file mode 100644
+index 000000000000..d0fc709a5993
+--- /dev/null
++++ b/packages/SystemUI/res/values/qsUIStyle_dimens.xml
+@@ -0,0 +1,21 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++     Copyright (C) 2023 risingOS Android Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++<resources>
++    <!-- A11 QS style -->
++    <dimen name="custom_qs_panel_padding_top">0dp</dimen>
++    <dimen name="custom_notification_row_padding">16dp</dimen>
++</resources>
+diff --git a/packages/SystemUI/res/values/superior_dimens.xml b/packages/SystemUI/res/values/superior_dimens.xml
+index 902eb058ad87..c1801f685ab6 100644
+--- a/packages/SystemUI/res/values/superior_dimens.xml
++++ b/packages/SystemUI/res/values/superior_dimens.xml
+@@ -36,8 +36,8 @@
+ 
+     <!-- QS Brightness slider -->
+     <dimen name="qs_top_brightness_margin_top">0dp</dimen>
+-    <dimen name="qs_top_brightness_margin_bottom">10dp</dimen>
+-    <dimen name="qs_bottom_brightness_margin_top">10dp</dimen>
++    <dimen name="qs_top_brightness_margin_bottom">20dp</dimen>
++    <dimen name="qs_bottom_brightness_margin_top">20dp</dimen>
+ 
+     <!-- Additional gesture navbar lengths -->
+     <dimen name="navigation_home_handle_width_medium">110dp</dimen>
+diff --git a/packages/SystemUI/src/com/android/systemui/qs/QSAnimator.java b/packages/SystemUI/src/com/android/systemui/qs/QSAnimator.java
+index 5ecf93ece04f..1695e2f4ea9f 100644
+--- a/packages/SystemUI/src/com/android/systemui/qs/QSAnimator.java
++++ b/packages/SystemUI/src/com/android/systemui/qs/QSAnimator.java
+@@ -143,6 +143,7 @@ public class QSAnimator implements QSHost.Callback, PagedTileLayout.PageListener
+     private final TunerService mTunerService;
+     private boolean mShowCollapsedOnKeyguard;
+     private int mQQSTop;
++    private boolean isA11Style;
+ 
+     private int[] mTmpLoc1 = new int[2];
+     private int[] mTmpLoc2 = new int[2];
+@@ -180,6 +181,7 @@ public class QSAnimator implements QSHost.Callback, PagedTileLayout.PageListener
+             Log.w(TAG, "QS Not using page layout");
+         }
+         mQsPanelController.setPageListener(this);
++        isA11Style = mTunerService.getValue(QSPanel.QS_UI_STYLE, 0) == 1;
+     }
+ 
+     public void onRtlChanged() {
+@@ -358,8 +360,8 @@ public class QSAnimator implements QSHost.Callback, PagedTileLayout.PageListener
+ 
+                     // Icons
+                     translateContent(
+-                            quickTileView.getIcon(),
+-                            tileView.getIcon(),
++                            isA11Style ? quickTileView.getIconWithBackground() : quickTileView.getIcon(),
++                            isA11Style ? tileView.getIconWithBackground() : tileView.getIcon(),
+                             view,
+                             xOffset,
+                             yOffset,
+@@ -401,13 +403,13 @@ public class QSAnimator implements QSHost.Callback, PagedTileLayout.PageListener
+                     // Therefore, we use a quadratic interpolator animator to animate the alpha
+                     // for tiles in QQS to match.
+                     quadraticInterpolatorBuilder
+-                            .addFloat(quickTileView.getSecondaryLabel(), "alpha", 0, 1);
++                            .addFloat(isA11Style ? quickTileView.getLabelContainer() : quickTileView.getSecondaryLabel(), "alpha", 0, 1);
+                     nonFirstPageAlphaBuilder
+-                            .addFloat(quickTileView.getSecondaryLabel(), "alpha", 0, 0);
++                             .addFloat(isA11Style ? quickTileView.getLabelContainer() : quickTileView.getSecondaryLabel(), "alpha", 0, 0);
+ 
+                     mAnimatedQsViews.add(tileView);
+                     mAllViews.add(quickTileView);
+-                    mAllViews.add(quickTileView.getSecondaryLabel());
++                    mAllViews.add(isA11Style ? quickTileView.getLabelContainer() : quickTileView.getSecondaryLabel());
+                 } else if (!isIconInAnimatedRow(count)) {
+                     // Pretend there's a corresponding QQS tile (for the position) that we are
+                     // expanding from.
+@@ -426,8 +428,8 @@ public class QSAnimator implements QSHost.Callback, PagedTileLayout.PageListener
+                     mOtherFirstPageTilesHeightAnimator.addView(tileView);
+                     tileView.setClipChildren(true);
+                     tileView.setClipToPadding(true);
+-                    firstPageBuilder.addFloat(tileView.getSecondaryLabel(), "alpha", 0, 1);
+-                    mAllViews.add(tileView.getSecondaryLabel());
++                    firstPageBuilder.addFloat(isA11Style ? tileView.getLabelContainer() : tileView.getSecondaryLabel(), "alpha", 0, 1);
++                    mAllViews.add(isA11Style ? tileView.getLabelContainer() : tileView.getSecondaryLabel());
+                 }
+ 
+                 mAllViews.add(tileView);
+diff --git a/packages/SystemUI/src/com/android/systemui/qs/QSContainerImpl.java b/packages/SystemUI/src/com/android/systemui/qs/QSContainerImpl.java
+index b7f9f6bc0e4a..2387fc49b3ff 100644
+--- a/packages/SystemUI/src/com/android/systemui/qs/QSContainerImpl.java
++++ b/packages/SystemUI/src/com/android/systemui/qs/QSContainerImpl.java
+@@ -19,6 +19,7 @@ package com.android.systemui.qs;
+ import static android.app.StatusBarManager.DISABLE2_QUICK_SETTINGS;
+ 
+ import android.content.Context;
++import android.content.res.Configuration;
+ import android.graphics.Canvas;
+ import android.graphics.Path;
+ import android.graphics.PointF;
+@@ -29,6 +30,7 @@ import android.widget.FrameLayout;
+ import com.android.systemui.Dumpable;
+ import com.android.systemui.R;
+ import com.android.systemui.qs.customize.QSCustomizer;
++import com.android.systemui.qs.TileUtils;
+ import com.android.systemui.util.LargeScreenUtils;
+ 
+ import java.io.PrintWriter;
+@@ -83,11 +85,19 @@ public class QSContainerImpl extends FrameLayout implements Dumpable {
+     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+         // QSPanel will show as many rows as it can (up to TileLayout.MAX_ROWS) such that the
+         // bottom and footer are inside the screen.
++        Configuration config = getResources().getConfiguration();
++        boolean navBelow = config.smallestScreenWidthDp >= 600
++                || config.orientation != Configuration.ORIENTATION_LANDSCAPE;
+         MarginLayoutParams layoutParams = (MarginLayoutParams) mQSPanelContainer.getLayoutParams();
+ 
++        // The footer is pinned to the bottom of QSPanel (same bottoms), therefore we don't need to
++        // subtract its height. We do not care if the collapsed notifications fit in the screen.
+         int availableHeight = View.MeasureSpec.getSize(heightMeasureSpec);
+         int maxQs = availableHeight - layoutParams.topMargin - layoutParams.bottomMargin
+                 - getPaddingBottom();
++        if (navBelow && TileUtils.getQsUiStyle(mContext) == 1) {
++            maxQs -= getResources().getDimensionPixelSize(R.dimen.navigation_bar_height);
++        }
+         int padding = mPaddingLeft + mPaddingRight + layoutParams.leftMargin
+                 + layoutParams.rightMargin;
+         final int qsPanelWidthSpec = getChildMeasureSpec(widthMeasureSpec, padding,
+@@ -95,6 +105,8 @@ public class QSContainerImpl extends FrameLayout implements Dumpable {
+         mQSPanelContainer.measure(qsPanelWidthSpec,
+                 MeasureSpec.makeMeasureSpec(maxQs, MeasureSpec.AT_MOST));
+         int width = mQSPanelContainer.getMeasuredWidth() + padding;
++        int height = layoutParams.topMargin + layoutParams.bottomMargin
++                + mQSPanelContainer.getMeasuredHeight() + getPaddingBottom();
+         super.onMeasure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
+                 MeasureSpec.makeMeasureSpec(availableHeight, MeasureSpec.EXACTLY));
+         // QSCustomizer will always be the height of the screen, but do this after
+diff --git a/packages/SystemUI/src/com/android/systemui/qs/QSFragment.java b/packages/SystemUI/src/com/android/systemui/qs/QSFragment.java
+index 859f5a5ae53d..10f7b27c2d49 100644
+--- a/packages/SystemUI/src/com/android/systemui/qs/QSFragment.java
++++ b/packages/SystemUI/src/com/android/systemui/qs/QSFragment.java
+@@ -28,6 +28,7 @@ import android.content.res.Configuration;
+ import android.graphics.Rect;
+ import android.os.Bundle;
+ import android.os.Trace;
++import android.provider.Settings;
+ import android.util.IndentingPrintWriter;
+ import android.util.Log;
+ import android.view.ContextThemeWrapper;
+@@ -71,6 +72,7 @@ import com.android.systemui.statusbar.phone.KeyguardBypassController;
+ import com.android.systemui.statusbar.policy.BrightnessMirrorController;
+ import com.android.systemui.statusbar.policy.RemoteInputQuickSettingsDisabler;
+ import com.android.systemui.statusbar.policy.SecureLockscreenQSDisabler;
++import com.android.systemui.tuner.TunerService;
+ import com.android.systemui.util.LifecycleFragment;
+ import com.android.systemui.util.Utils;
+ 
+@@ -82,13 +84,16 @@ import javax.inject.Inject;
+ import javax.inject.Named;
+ 
+ public class QSFragment extends LifecycleFragment implements QS, CommandQueue.Callbacks,
+-        StatusBarStateController.StateListener, Dumpable {
++        StatusBarStateController.StateListener, Dumpable, TunerService.Tunable  {
+     private static final String TAG = "QS";
+     private static final boolean DEBUG = false;
+     private static final String EXTRA_EXPANDED = "expanded";
+     private static final String EXTRA_LISTENING = "listening";
+     private static final String EXTRA_VISIBLE = "visible";
+ 
++    private static final String QS_UI_STYLE =
++            "system:" + Settings.System.QS_UI_STYLE;
++
+     private final Rect mQsBounds = new Rect();
+     private final SysuiStatusBarStateController mStatusBarStateController;
+     private final KeyguardBypassController mBypassController;
+@@ -110,6 +115,8 @@ public class QSFragment extends LifecycleFragment implements QS, CommandQueue.Ca
+     private float mSquishinessFraction = 1;
+     private boolean mQsDisabled;
+     private int[] mLocationTemp = new int[2];
++    private int mQSPanelScrollY = 0;
++    private boolean isA11Style;
+ 
+     private final RemoteInputQuickSettingsDisabler mRemoteInputQuickSettingsDisabler;
+     private final MediaHost mQsMediaHost;
+@@ -168,6 +175,8 @@ public class QSFragment extends LifecycleFragment implements QS, CommandQueue.Ca
+ 
+     private boolean mIsSmallScreen;
+ 
++    private final TunerService mTunerService;
++
+     @Inject
+     public QSFragment(RemoteInputQuickSettingsDisabler remoteInputQsDisabler,
+             SysuiStatusBarStateController statusBarStateController, CommandQueue commandQueue,
+@@ -181,7 +190,8 @@ public class QSFragment extends LifecycleFragment implements QS, CommandQueue.Ca
+             FooterActionsViewModel.Factory footerActionsViewModelFactory,
+ 	    SecureLockscreenQSDisabler secureLockscreenQSDisabler,
+             LargeScreenShadeInterpolator largeScreenShadeInterpolator,
+-            FeatureFlags featureFlags) {
++            FeatureFlags featureFlags,
++            TunerService tunerService) {
+         mRemoteInputQuickSettingsDisabler = remoteInputQsDisabler;
+         mQsMediaHost = qsMediaHost;
+         mQqsMediaHost = qqsMediaHost;
+@@ -198,6 +208,7 @@ public class QSFragment extends LifecycleFragment implements QS, CommandQueue.Ca
+         mFooterActionsViewModelFactory = footerActionsViewModelFactory;
+         mListeningAndVisibilityLifecycleOwner = new ListeningAndVisibilityLifecycleOwner();
+         mSecureLockscreenQSDisabler = secureLockscreenQSDisabler;
++	mTunerService = tunerService;
+     }
+ 
+     @Override
+@@ -240,6 +251,9 @@ public class QSFragment extends LifecycleFragment implements QS, CommandQueue.Ca
+         mQSPanelScrollView.setOnScrollChangeListener(
+                 (v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+                     // Lazily update animators whenever the scrolling changes
++		    if (isA11Style) {
++                        mQSPanelScrollY = scrollY;
++                    }
+                     mQSAnimator.requestAnimatorUpdate();
+                     if (mScrollListener != null) {
+                         mScrollListener.onQsPanelScrollChanged(scrollY);
+@@ -287,6 +301,8 @@ public class QSFragment extends LifecycleFragment implements QS, CommandQueue.Ca
+                     mQSPanelController.getMediaHost().getHostView().setAlpha(1.0f);
+                     mQSAnimator.requestAnimatorUpdate();
+                 });
++
++	mTunerService.addTunable(this, QS_UI_STYLE);
+     }
+ 
+     private void bindFooterActionsView(View root) {
+@@ -418,6 +434,17 @@ public class QSFragment extends LifecycleFragment implements QS, CommandQueue.Ca
+         mQuickQSPanelController.setMediaVisibilityChangedListener(listener);
+     }
+ 
++    @Override
++    public void onTuningChanged(String key, String newValue) {
++        switch (key) {
++            case QS_UI_STYLE:
++                isA11Style = TunerService.parseInteger(newValue, 0) == 1;
++                break;
++            default:
++                break;
++         }
++    }
++
+     private void setEditLocation(View view) {
+         View edit = view.findViewById(android.R.id.edit);
+         int[] loc = edit.getLocationOnScreen();
+diff --git a/packages/SystemUI/src/com/android/systemui/qs/QSPanel.java b/packages/SystemUI/src/com/android/systemui/qs/QSPanel.java
+index 6ea35cff980f..49706e9e815a 100644
+--- a/packages/SystemUI/src/com/android/systemui/qs/QSPanel.java
++++ b/packages/SystemUI/src/com/android/systemui/qs/QSPanel.java
+@@ -67,6 +67,8 @@ public class QSPanel extends LinearLayout implements Tunable {
+             "system:" + Settings.System.QS_LAYOUT_COLUMNS;
+     public static final String QS_LAYOUT_COLUMNS_LANDSCAPE =
+             "system:" + Settings.System.QS_LAYOUT_COLUMNS_LANDSCAPE;
++    public static final String QS_UI_STYLE =
++            "system:" + Settings.System.QS_UI_STYLE;
+ 
+     private static final String TAG = "QSPanel";
+ 
+@@ -109,7 +111,7 @@ public class QSPanel extends LinearLayout implements Tunable {
+     private PageIndicator mFooterPageIndicator;
+     private int mContentMarginStart;
+     private int mContentMarginEnd;
+-    private boolean mUsingHorizontalLayout;
++    protected boolean mUsingHorizontalLayout;
+ 
+     @Nullable
+     private LinearLayout mHorizontalLinearLayout;
+diff --git a/packages/SystemUI/src/com/android/systemui/qs/QSPanelController.java b/packages/SystemUI/src/com/android/systemui/qs/QSPanelController.java
+index e33e46979cda..2b53998eea1f 100644
+--- a/packages/SystemUI/src/com/android/systemui/qs/QSPanelController.java
++++ b/packages/SystemUI/src/com/android/systemui/qs/QSPanelController.java
+@@ -148,7 +148,9 @@ public class QSPanelController extends QSPanelControllerBase<QSPanel> {
+ 
+     @Override
+     protected void onConfigurationChanged() {
+-        mView.updateResources();
++        if (mView != null) {
++            mView.updateResources();
++        }
+         if (mView.isListening()) {
+             refreshAllTiles();
+         }
+diff --git a/packages/SystemUI/src/com/android/systemui/qs/QuickQSPanelController.java b/packages/SystemUI/src/com/android/systemui/qs/QuickQSPanelController.java
+index 6189f70ca000..0c6ce47a1c2e 100644
+--- a/packages/SystemUI/src/com/android/systemui/qs/QuickQSPanelController.java
++++ b/packages/SystemUI/src/com/android/systemui/qs/QuickQSPanelController.java
+@@ -188,6 +188,7 @@ public class QuickQSPanelController extends QSPanelControllerBase<QuickQSPanel>
+         int maxTiles = getResources().getInteger(R.integer.quick_qs_panel_max_tiles);
+         int columns = getResources().getInteger(R.integer.quick_settings_num_columns);
+         columns = TileUtils.getQSColumnsCount(getContext(), columns);
++	if (mView == null) return;
+         mView.setMaxTiles(Math.max(columns, maxTiles));
+         setTiles();
+     }
+diff --git a/packages/SystemUI/src/com/android/systemui/qs/TileUtils.java b/packages/SystemUI/src/com/android/systemui/qs/TileUtils.java
+index e16a7c84f7ef..c8dc5392ea35 100644
+--- a/packages/SystemUI/src/com/android/systemui/qs/TileUtils.java
++++ b/packages/SystemUI/src/com/android/systemui/qs/TileUtils.java
+@@ -41,6 +41,12 @@ public class TileUtils {
+         return Math.max(QS_COLUMNS_MIN, value);
+     }
+ 
++    public static int getQsUiStyle(Context context) {
++       return Settings.System.getIntForUser(context.getContentResolver(),
++         Settings.System.QS_UI_STYLE,
++         0, UserHandle.USER_CURRENT);
++    }
++
+     public static boolean getQSTileLabelHide(Context context) {
+         return Settings.System.getIntForUser(context.getContentResolver(),
+                 Settings.System.QS_TILE_LABEL_HIDE,
+@@ -50,7 +56,7 @@ public class TileUtils {
+     public static float getQSTileLabelSize(Context context) {
+         return (float) Settings.System.getIntForUser(context.getContentResolver(),
+                 Settings.System.QS_TILE_LABEL_SIZE,
+-                14, UserHandle.USER_CURRENT);
++                13, UserHandle.USER_CURRENT);
+     }
+ 
+     public static boolean getQSTileVerticalLayout(Context context, int defaultValue) {
+diff --git a/packages/SystemUI/src/com/android/systemui/qs/customize/CustomizeTileView.kt b/packages/SystemUI/src/com/android/systemui/qs/customize/CustomizeTileView.kt
+index a316e6aa5f1b..a5e05dabdaf2 100644
+--- a/packages/SystemUI/src/com/android/systemui/qs/customize/CustomizeTileView.kt
++++ b/packages/SystemUI/src/com/android/systemui/qs/customize/CustomizeTileView.kt
+@@ -18,6 +18,10 @@ package com.android.systemui.qs.customize
+ 
+ import android.content.Context
+ import android.text.TextUtils
++
++import android.os.UserHandle
++import android.provider.Settings
++
+ import com.android.systemui.plugins.qs.QSIconView
+ import com.android.systemui.plugins.qs.QSTile
+ import com.android.systemui.qs.tileimpl.QSTileViewImpl
+@@ -42,6 +46,9 @@ class CustomizeTileView(
+             if (!showSideView) sideView.visibility = GONE
+         }
+ 
++    private fun isA11Style(): Boolean = Settings.System.getIntForUser(context.contentResolver,
++    Settings.System.QS_UI_STYLE, 0,  UserHandle.USER_CURRENT) == 1
++
+     override fun handleStateChanged(state: QSTile.State) {
+         super.handleStateChanged(state)
+         showRippleEffect = false
+@@ -53,7 +60,7 @@ class CustomizeTileView(
+         return if (showAppLabel && !TextUtils.isEmpty(text)) {
+             VISIBLE
+         } else {
+-            GONE
++            if (isA11Style()) INVISIBLE else GONE
+         }
+     }
+ 
+@@ -68,4 +75,4 @@ class CustomizeTileView(
+     fun changeState(state: QSTile.State) {
+         handleStateChanged(state)
+     }
+-}
+\ No newline at end of file
++}
+diff --git a/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSTileViewImpl.kt b/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSTileViewImpl.kt
+index f06e2c4db3b5..f1ea57223659 100644
+--- a/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSTileViewImpl.kt
++++ b/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSTileViewImpl.kt
+@@ -16,6 +16,7 @@
+ 
+ package com.android.systemui.qs.tileimpl
+ 
++import android.animation.AnimatorSet
+ import android.animation.ArgbEvaluator
+ import android.animation.PropertyValuesHolder
+ import android.animation.ValueAnimator
+@@ -27,6 +28,7 @@ import android.content.res.Resources.ID_NULL
+ import android.graphics.Color
+ import android.graphics.drawable.Drawable
+ import android.graphics.drawable.RippleDrawable
++import android.graphics.drawable.GradientDrawable
+ import android.os.Trace
+ import android.os.UserHandle
+ import android.provider.Settings
+@@ -48,6 +50,7 @@ import android.widget.TextView
+ import androidx.annotation.VisibleForTesting
+ import com.android.settingslib.Utils
+ import com.android.systemui.R
++import com.android.systemui.animation.Interpolators
+ import com.android.systemui.animation.LaunchableView
+ import com.android.systemui.animation.LaunchableViewDelegate
+ import com.android.systemui.plugins.qs.QSIconView
+@@ -59,6 +62,9 @@ import com.android.systemui.qs.logging.QSLogger
+ import com.android.systemui.qs.tileimpl.QSIconViewImpl.QS_ANIM_LENGTH
+ import java.util.Objects
+ 
++import android.provider.Settings.System
++import com.android.internal.util.superior.SuperiorUtils;
++
+ private const val TAG = "QSTileViewImpl"
+ open class QSTileViewImpl @JvmOverloads constructor(
+     context: Context,
+@@ -104,22 +110,28 @@ open class QSTileViewImpl @JvmOverloads constructor(
+             Settings.System.QS_PANEL_STYLE, 0, UserHandle.USER_CURRENT
+         )
+ 
++    private val isA11Style: Boolean = System.getIntForUser(
++            context.contentResolver,
++            System.QS_UI_STYLE, 0, UserHandle.USER_CURRENT
++        ) == 1
++
+     private val colorActive = Utils.getColorAttrDefaultColor(context,
+             android.R.attr.colorAccent)
+-    private val colorInactive = Utils.getColorAttrDefaultColor(context, R.attr.offStateColor)
++    private val colorOffstate = Utils.getColorAttrDefaultColor(context, R.attr.offStateColor)
++    private val colorInactive = if (isA11Style) Utils.applyAlpha(INACTIVE_ALPHA, colorOffstate) else Utils.getColorAttrDefaultColor(context, R.attr.offStateColor)
+     private val colorUnavailable = Utils.applyAlpha(UNAVAILABLE_ALPHA, colorInactive)
+ 
+-    private val colorLabelActive =
+-            Utils.getColorAttrDefaultColor(context, com.android.internal.R.attr.textColorPrimaryInverse)
++    private val colorLabelActive = Utils.getColorAttrDefaultColor(context,
++            if (isA11Style) com.android.internal.R.attr.textColorPrimary else com.android.internal.R.attr.textColorPrimaryInverse)
+     private val colorLabelInactive =
+-            Utils.getColorAttrDefaultColor(context, android.R.attr.textColorPrimary)
++            Utils.getColorAttrDefaultColor(context, if (isA11Style) android.R.attr.textColorSecondary else android.R.attr.textColorPrimary)
+     private val colorLabelUnavailable =
+         Utils.getColorAttrDefaultColor(context, com.android.internal.R.attr.textColorTertiary)
+ 
+     private val colorSecondaryLabelActive =
+-            Utils.getColorAttrDefaultColor(context, android.R.attr.textColorSecondaryInverse)
++            Utils.getColorAttrDefaultColor(context, if (isA11Style) android.R.attr.textColorSecondary else android.R.attr.textColorSecondaryInverse)
+     private val colorSecondaryLabelInactive =
+-            Utils.getColorAttrDefaultColor(context, android.R.attr.textColorSecondary)
++             Utils.getColorAttrDefaultColor(context, if (isA11Style) com.android.internal.R.attr.textColorTertiary else android.R.attr.textColorSecondary)
+     private val colorSecondaryLabelUnavailable =
+         Utils.getColorAttrDefaultColor(context, com.android.internal.R.attr.textColorTertiary)
+ 
+@@ -127,9 +139,11 @@ open class QSTileViewImpl @JvmOverloads constructor(
+     private val colorActiveAlpha = Utils.applyAlpha(TILE_ALPHA, Utils.getColorAttrDefaultColor(context, android.R.attr.colorAccent))
+     private val colorInactiveAlpha = Utils.applyAlpha(INACTIVE_ALPHA, Utils.getColorAttrDefaultColor(context, R.attr.offStateColor))
+ 
++    private lateinit var iconContainer: LinearLayout
+     private lateinit var label: TextView
+     protected lateinit var secondaryLabel: TextView
+     private lateinit var labelContainer: IgnorableChildLinearLayout
++    private lateinit var a11labelContainer: IgnorableChildLinearLayout
+     protected lateinit var sideView: ViewGroup
+     private lateinit var customDrawableView: ImageView
+     private lateinit var chevronView: ImageView
+@@ -139,8 +153,17 @@ open class QSTileViewImpl @JvmOverloads constructor(
+     private lateinit var ripple: RippleDrawable
+     private lateinit var colorBackgroundDrawable: Drawable
+     private var paintColor: Int = 0
++    private var radiusActive: Float = 0f
++    private var radiusInactive: Float = 0f
++    private val shapeAnimator: ValueAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
++        duration = QS_ANIM_LENGTH
++        interpolator = Interpolators.FAST_OUT_SLOW_IN
++        addUpdateListener { animation ->
++            setCornerRadius(animation.animatedValue as Float)
++        }
++    }
+     private val singleAnimator: ValueAnimator = ValueAnimator().apply {
+-        setDuration(QS_ANIM_LENGTH)
++        duration = QS_ANIM_LENGTH
+         addUpdateListener { animation ->
+             setAllColors(
+                 // These casts will throw an exception if some property is missing. We should
+@@ -153,6 +176,10 @@ open class QSTileViewImpl @JvmOverloads constructor(
+         }
+     }
+ 
++    private val tileAnimator = AnimatorSet().apply {
++        playTogether(singleAnimator, shapeAnimator)
++    }
++
+     private var accessibilityClass: String? = null
+     private var stateDescriptionDeltas: CharSequence? = null
+     private var lastStateDescription: CharSequence? = null
+@@ -168,7 +195,7 @@ open class QSTileViewImpl @JvmOverloads constructor(
+     private var vertical = false
+     private val forceHideCheveron = true
+     private var labelHide = false
+-    private var labelSize = 14f
++    private var labelSize = 13f
+ 
+     init {
+         setId(generateViewId())
+@@ -182,10 +209,43 @@ open class QSTileViewImpl @JvmOverloads constructor(
+         clipToPadding = false
+         isFocusable = true
+         background = createTileBackground()
++        background = if (isA11Style) null else createTileBackground()
++
++        if (isA11Style) {
++            val iconContainerSize = context.resources.getDimensionPixelSize(R.dimen.qs_quick_tile_size)
++            val rrMorphing = Settings.System.getIntForUser(
++            context.contentResolver,
++            Settings.System.QS_RR_MORPHING, 0,
++            UserHandle.USER_CURRENT) == 1
++            radiusActive = iconContainerSize / 2f
++            radiusInactive = iconContainerSize / 2f
++            if (rrMorphing) {
++            radiusActive = iconContainerSize / 4f
++            radiusInactive = iconContainerSize / 4f
++            }
++            iconContainer = LinearLayout(context)
++            iconContainer.layoutParams = LayoutParams(iconContainerSize, iconContainerSize)
++            iconContainer.clipChildren = false
++            iconContainer.clipToPadding = false
++            iconContainer.orientation = LinearLayout.VERTICAL
++            iconContainer.gravity = Gravity.CENTER
++            iconContainer.background = createTileBackground()
++        }
++
+         setColor(getBackgroundColorForState(QSTile.State.DEFAULT_STATE))
+ 
+-        val iconSize = resources.getDimensionPixelSize(R.dimen.qs_icon_size)
+-        addView(_icon, LayoutParams(iconSize, iconSize))
++        val iconSize = context.resources.getDimensionPixelSize(R.dimen.qs_icon_size)
++
++        if (isA11Style) {
++            setCornerRadius(getCornerRadiusForState(QSTile.State.DEFAULT_STATE))
++            iconContainer.addView(_icon, LayoutParams(iconSize, iconSize))
++            addView(iconContainer, 0)
++        } else {
++            val padding = resources.getDimensionPixelSize(R.dimen.qs_tile_padding)
++            val startPadding = if (vertical) padding else resources.getDimensionPixelSize(R.dimen.qs_tile_start_padding)
++            setPaddingRelative(startPadding, padding, padding, padding)
++            addView(_icon, LayoutParams(iconSize, iconSize))
++        }
+ 
+         createAndAddLabels()
+         createAndAddSideView()
+@@ -216,18 +276,26 @@ open class QSTileViewImpl @JvmOverloads constructor(
+         label.setTextSize(TypedValue.COMPLEX_UNIT_SP, labelSize)
+         secondaryLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, labelSize)
+ 
++    if (isA11Style) {
++	    updateA11StyleResources()
++        } else {
++	    updateDefaultResources()
++        }
++    }
++
++    fun updateDefaultResources() {
+         val iconSize = context.resources.getDimensionPixelSize(R.dimen.qs_icon_size)
+         _icon.layoutParams.apply {
+             height = iconSize
+             width = iconSize
+         }
+ 
+-        if (vertical) {
++        if (isA11Style) {
+             orientation = LinearLayout.VERTICAL
+-            gravity = Gravity.CENTER_HORIZONTAL or Gravity.CENTER_VERTICAL
++            gravity = Gravity.CENTER
+         } else {
+-            orientation = LinearLayout.HORIZONTAL
+-            gravity = Gravity.CENTER_VERTICAL or Gravity.START
++            orientation = if (vertical) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
++            gravity = if (vertical) Gravity.CENTER_HORIZONTAL or Gravity.CENTER_VERTICAL else Gravity.CENTER_VERTICAL or Gravity.START
+         }
+ 
+         if (labelHide)
+@@ -257,19 +325,56 @@ open class QSTileViewImpl @JvmOverloads constructor(
+         }
+     }
+ 
++    fun updateA11StyleResources() {
++        labelContainer.invalidate()
++        labelContainer.apply {
++            ignoreLastView = collapsed
++            forceUnspecifiedMeasure = collapsed
++        }
++        secondaryLabel.alpha = if (collapsed) 0f else 1f
++
++        orientation = LinearLayout.VERTICAL
++        gravity = Gravity.CENTER
++
++	val iconContainerSize = context.resources.getDimensionPixelSize(R.dimen.qs_quick_tile_size)
++        iconContainer.layoutParams.apply {
++            height = iconContainerSize
++            width = iconContainerSize
++        }
++        val padding = resources.getDimensionPixelSize(R.dimen.qs_tile_padding)
++        val iconSize = context.resources.getDimensionPixelSize(R.dimen.qs_icon_size)
++        _icon.layoutParams.apply {
++            height = iconSize
++            width = iconSize
++        }
++        iconContainer.setPaddingRelative(padding, padding, padding, padding)
++        (labelContainer.layoutParams as MarginLayoutParams).apply {
++            topMargin = padding / 2
++        }
++    }
++
+     private fun createAndAddLabels() {
+         labelContainer = LayoutInflater.from(context)
+-                .inflate(if (vertical) R.layout.qs_tile_label_vertical else R.layout.qs_tile_label,this, false) as IgnorableChildLinearLayout
++                .inflate(if (isA11Style) R.layout.qs_tile_label_a11 else (if (vertical)  R.layout.qs_tile_label_vertical else R.layout.qs_tile_label), this, false) as IgnorableChildLinearLayout
+         label = labelContainer.requireViewById(R.id.tile_label)
+         secondaryLabel = labelContainer.requireViewById(R.id.app_label)
+-        if (collapsed) {
+-            labelContainer.ignoreLastView = true
+-            // Ideally, it'd be great if the parent could set this up when measuring just this child
+-            // instead of the View class having to support this. However, due to the mysteries of
+-            // LinearLayout's double measure pass, we cannot overwrite `measureChild` or any of its
+-            // sibling methods to have special behavior for labelContainer.
+-            labelContainer.forceUnspecifiedMeasure = true
+-            secondaryLabel.alpha = 0f
++        if (isA11Style) {
++            if (collapsed) {
++                labelContainer.ignoreLastView = true
++                // Ideally, it'd be great if the parent could set this up when measuring just this child
++                // instead of the View class having to support this. However, due to the mysteries of
++                // LinearLayout's double measure pass, we cannot overwrite `measureChild` or any of its
++                // sibling methods to have special behavior for labelContainer.
++                labelContainer.forceUnspecifiedMeasure = true
++                secondaryLabel.alpha = 0f
++            }
++        } else {
++            labelContainer.invalidate()
++            labelContainer.apply {
++                ignoreLastView = collapsed
++                forceUnspecifiedMeasure = collapsed
++            }
++            secondaryLabel.alpha = if (collapsed) 0f else 1f
+         }
+         setLabelColor(getLabelColorForState(QSTile.State.DEFAULT_STATE))
+         setSecondaryLabelColor(getSecondaryLabelColorForState(QSTile.State.DEFAULT_STATE))
+@@ -279,7 +384,7 @@ open class QSTileViewImpl @JvmOverloads constructor(
+ 
+     private fun createAndAddSideView() {
+         sideView = LayoutInflater.from(context)
+-                .inflate(R.layout.qs_tile_side_icon, this, false) as ViewGroup
++                .inflate(if (isA11Style) R.layout.qs_tile_side_icon else R.layout.qs_tile_side_icon_a11, this, false) as ViewGroup
+         customDrawableView = sideView.requireViewById(R.id.customDrawable)
+         chevronView = sideView.requireViewById(R.id.chevron)
+         setChevronColor(getChevronColorForState(QSTile.State.DEFAULT_STATE))
+@@ -287,7 +392,7 @@ open class QSTileViewImpl @JvmOverloads constructor(
+     }
+ 
+     fun createTileBackground(): Drawable {
+-        ripple = mContext.getDrawable(R.drawable.qs_tile_background) as RippleDrawable
++        ripple = mContext.getDrawable(if (isA11Style) R.drawable.qs_tile_background_no_mask else R.drawable.qs_tile_background).mutate() as RippleDrawable
+         colorBackgroundDrawable = ripple.findDrawableByLayerId(R.id.background)
+         return ripple
+     }
+@@ -321,7 +426,7 @@ open class QSTileViewImpl @JvmOverloads constructor(
+     }
+ 
+     override fun getIconWithBackground(): View {
+-        return icon
++        return if (isA11Style) iconContainer else icon
+     }
+ 
+     override fun init(tile: QSTile) {
+@@ -359,14 +464,26 @@ open class QSTileViewImpl @JvmOverloads constructor(
+ 
+     override fun setClickable(clickable: Boolean) {
+         super.setClickable(clickable)
+-        background = if (clickable && showRippleEffect) {
+-            ripple.also {
+-                // In case that the colorBackgroundDrawable was used as the background, make sure
+-                // it has the correct callback instead of null
+-                colorBackgroundDrawable.callback = it
++        if (isA11Style) {
++            iconContainer.background = if (clickable && showRippleEffect) {
++                ripple.also {
++                    // In case that the colorBackgroundDrawable was used as the background, make sure
++                    // it has the correct callback instead of null
++                    colorBackgroundDrawable.callback = it
++                }
++            } else {
++                colorBackgroundDrawable
+             }
+         } else {
+-            colorBackgroundDrawable
++            background = if (clickable && showRippleEffect) {
++                ripple.also {
++                    // In case that the colorBackgroundDrawable was used as the background, make sure
++                    // it has the correct callback instead of null
++                    colorBackgroundDrawable.callback = it
++                }
++            } else {
++                colorBackgroundDrawable
++            }
+         }
+     }
+ 
+@@ -513,24 +630,36 @@ open class QSTileViewImpl @JvmOverloads constructor(
+         if (!Objects.equals(label.text, state.label)) {
+             label.text = state.label
+         }
+-        if (!Objects.equals(secondaryLabel.text, state.secondaryLabel)) {
+-            secondaryLabel.text = state.secondaryLabel
+-            secondaryLabel.visibility = if (TextUtils.isEmpty(secondaryLabel.text)) {
+-                GONE
+-            } else {
+-                VISIBLE
++         if (secondaryLabel != null) {
++            if (!Objects.equals(secondaryLabel.text, state.secondaryLabel)) {
++                secondaryLabel.text = state.secondaryLabel
++                secondaryLabel.visibility = if (TextUtils.isEmpty(state.secondaryLabel)) {
++                    if (isA11Style) View.INVISIBLE else View.GONE
++                } else {
++                    View.VISIBLE
++                }
+             }
+         }
+ 
+         // Colors
+         if (state.state != lastState || state.disabledByPolicy || lastDisabledByPolicy) {
+-            singleAnimator.cancel()
++            if (isA11Style) {
++                tileAnimator.cancel()
++            } else {
++                singleAnimator.cancel()
++            }
+             mQsLogger?.logTileBackgroundColorUpdateIfInternetTile(
+                     state.spec,
+                     state.state,
+                     state.disabledByPolicy,
+                     getBackgroundColorForState(state.state, state.disabledByPolicy))
+             if (allowAnimations) {
++                if (isA11Style) {
++                    shapeAnimator.setFloatValues(
++                        (colorBackgroundDrawable as GradientDrawable).cornerRadius,
++                        getCornerRadiusForState(state.state)
++                )
++                }
+                 singleAnimator.setValues(
+                         colorValuesHolder(
+                                 BACKGROUND_NAME,
+@@ -553,7 +682,11 @@ open class QSTileViewImpl @JvmOverloads constructor(
+                                 getChevronColorForState(state.state, state.disabledByPolicy)
+                         )
+                     )
+-                singleAnimator.start()
++                if (isA11Style) {
++		   tileAnimator.start()
++		} else {
++                   singleAnimator.start()
++                }
+             } else {
+                 setAllColors(
+                     getBackgroundColorForState(state.state, state.disabledByPolicy),
+@@ -561,6 +694,9 @@ open class QSTileViewImpl @JvmOverloads constructor(
+                     getSecondaryLabelColorForState(state.state, state.disabledByPolicy),
+                     getChevronColorForState(state.state, state.disabledByPolicy)
+                 )
++                if (isA11Style) {
++                    setCornerRadius(getCornerRadiusForState(state.state))
++                }
+             }
+         }
+ 
+@@ -623,6 +759,20 @@ open class QSTileViewImpl @JvmOverloads constructor(
+         return resources.getStringArray(arrayResId)[Tile.STATE_UNAVAILABLE]
+     }
+ 
++    private fun setCornerRadius(cornerRadius: Float) {
++        val mBg = ripple.findDrawableByLayerId(R.id.background) as GradientDrawable
++        mBg.cornerRadius = cornerRadius
++    }
++
++    private fun getCornerRadiusForState(state: Int): Float {
++        return when (state) {
++            Tile.STATE_ACTIVE -> radiusActive
++            Tile.STATE_INACTIVE -> radiusInactive
++            Tile.STATE_UNAVAILABLE -> radiusInactive
++            else -> radiusInactive
++        }
++    }
++
+     /*
+      * The view should not be animated if it's not on screen and no part of it is visible.
+      */
+@@ -644,7 +794,7 @@ open class QSTileViewImpl @JvmOverloads constructor(
+                 if(qsPanelStyle == 5 || qsPanelStyle == 6)
+                     colorActiveAlpha
+                 else colorActive
+-            state == Tile.STATE_INACTIVE -> if(qsPanelStyle >= 3) colorInactiveAlpha else colorInactive
++            state == Tile.STATE_INACTIVE -> if(qsPanelStyle == 2 || qsPanelStyle >= 4) colorInactiveAlpha else colorInactive
+             else -> {
+                 Log.e(TAG, "Invalid state $state")
+                 0
+diff --git a/packages/SystemUI/src/com/android/systemui/shade/NotificationPanelViewController.java b/packages/SystemUI/src/com/android/systemui/shade/NotificationPanelViewController.java
+index ad2e658c5b07..1fc79a41da15 100644
+--- a/packages/SystemUI/src/com/android/systemui/shade/NotificationPanelViewController.java
++++ b/packages/SystemUI/src/com/android/systemui/shade/NotificationPanelViewController.java
+@@ -331,6 +331,8 @@ public final class NotificationPanelViewController implements Dumpable {
+             "system:" + Settings.System.DOUBLE_TAP_SLEEP_GESTURE;
+     private static final String DOUBLE_TAP_SLEEP_LOCKSCREEN =
+             "system:" + Settings.System.DOUBLE_TAP_SLEEP_LOCKSCREEN;
++    private static final String QS_UI_STYLE =
++            "system:" + Settings.System.QS_UI_STYLE;
+ 
+     private final InteractionJankMonitor mInteractionJankMonitor;
+     private final LayoutInflater mLayoutInflater;
+@@ -631,6 +633,8 @@ public final class NotificationPanelViewController implements Dumpable {
+ 
+     private boolean mBlockedGesturalNavigation = false;
+ 
++    private boolean mIsA11Style;
++
+     /**
+      * For PanelView fling perflock call
+      */
+@@ -4531,6 +4535,7 @@ public final class NotificationPanelViewController implements Dumpable {
+             mConfigurationController.addCallback(mConfigurationListener);
+             mTunerService.addTunable(this, DOUBLE_TAP_SLEEP_GESTURE);
+             mTunerService.addTunable(this, DOUBLE_TAP_SLEEP_LOCKSCREEN);
++	    mTunerService.addTunable(this, QS_UI_STYLE);
+             // Theme might have changed between inflating this view and attaching it to the
+             // window, so
+             // force a call to onThemeChanged
+@@ -4562,6 +4567,9 @@ public final class NotificationPanelViewController implements Dumpable {
+                     mIsLockscreenDoubleTapEnabled =
+                     TunerService.parseIntegerSwitch(newValue, false);
+                     break;
++		case QS_UI_STYLE:
++                    mIsA11Style = TunerService.parseInteger(newValue, 0) == 1;
++                    break;
+                 default:
+                     break;
+             }
+diff --git a/packages/SystemUI/src/com/android/systemui/theme/ThemeOverlayController.java b/packages/SystemUI/src/com/android/systemui/theme/ThemeOverlayController.java
+index ca8b897d3912..6b51e81bbbed 100644
+--- a/packages/SystemUI/src/com/android/systemui/theme/ThemeOverlayController.java
++++ b/packages/SystemUI/src/com/android/systemui/theme/ThemeOverlayController.java
+@@ -541,6 +541,18 @@ public class ThemeOverlayController implements CoreStartable, Dumpable, TunerSer
+                 },
+                 UserHandle.USER_ALL);
+ 
++        mSystemSettings.registerContentObserverForUser(
++                Settings.System.getUriFor(Settings.System.QS_UI_STYLE),
++                false,
++                new ContentObserver(mBgHandler) {
++                    @Override
++                    public void onChange(boolean selfChange, Collection<Uri> collection, int flags,
++                            int userId) {
++                        reevaluateSystemTheme(true /* forceReload */);
++                    }
++                },
++                UserHandle.USER_ALL);
++
+         mUserTracker.addCallback(mUserTrackerCallback, mMainExecutor);
+ 
+         mDeviceProvisionedController.addCallback(mDeviceProvisionedListener);
+diff --git a/packages/SystemUI/tests/src/com/android/systemui/qs/TileLayoutTest.java b/packages/SystemUI/tests/src/com/android/systemui/qs/TileLayoutTest.java
+index 35c8cc70953d..ebf8b50adaf8 100644
+--- a/packages/SystemUI/tests/src/com/android/systemui/qs/TileLayoutTest.java
++++ b/packages/SystemUI/tests/src/com/android/systemui/qs/TileLayoutTest.java
+@@ -157,7 +157,7 @@ public class TileLayoutTest extends SysuiTestCase {
+                 .layout(left2.capture(), top2.capture(), right2.capture(), bottom2.capture());
+ 
+         // We assume two tiles will always fit side-by-side.
+-        assertTrue(mContext.getResources().getInteger(R.integer.quick_settings_num_columns) > 1);
++        assertTrue(mContext.getResources().getInteger(R.integer.quick_qs_panel_max_tiles) > 1);
+ 
+         // left <= right, top <= bottom
+         assertTrue(left1.getValue() <= right1.getValue());
+diff --git a/packages/SystemUI/res/values/superior_dimens.xml b/packages/SystemUI/res/values/superior_dimens.xml
+index c1801f685ab6..5162f3b1d601 100644
+--- a/packages/SystemUI/res/values/superior_dimens.xml
++++ b/packages/SystemUI/res/values/superior_dimens.xml
+@@ -85,4 +85,8 @@
+ 
+     <!-- QS Header height full -->
+     <dimen name="qs_header_height_full">200dp</dimen>
++
++    <!-- A11 QS -->
++    <dimen name="custom_qs_panel_padding_top">12dp</dimen>
++
+ </resources>
+-- 
+2.34.1
+
+

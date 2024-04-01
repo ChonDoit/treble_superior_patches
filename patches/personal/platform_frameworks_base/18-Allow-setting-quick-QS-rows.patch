@@ -1,0 +1,370 @@
+From 2112883ad37fcbc39935eff962f196ca940c57a5 Mon Sep 17 00:00:00 2001
+From: Pranav Vashi <neobuddy89@gmail.com>
+Date: Sun, 10 Dec 2023 08:35:49 +0530
+Subject: [PATCH 2/5] Allow setting quick QS rows [1/2]
+
+* Default to 2 for landscape since we use split shade by default
+
+Change-Id: I302b7c6b9c44825ba7e3fd7c4264488d07ee7437
+Signed-off-by: Pranav Vashi <neobuddy89@gmail.com>
+Signed-off-by: S I P U N <sipunkumar85@gmail.com>
+---
+ core/java/android/provider/Settings.java         | 10 ++++++++++
+ packages/SystemUI/res/values-land/config.xml     |  2 +-
+ packages/SystemUI/res/values/dimens.xml          |  2 +-
+ .../com/android/systemui/qs/PagedTileLayout.java | 14 +++++++++++---
+ .../src/com/android/systemui/qs/QSPanel.java     | 13 ++++++++++---
+ .../android/systemui/qs/QSPanelController.java   |  2 ++
+ .../systemui/qs/QSPanelControllerBase.java       |  8 ++++++++
+ .../com/android/systemui/qs/QuickQSPanel.java    |  9 ++++++---
+ .../systemui/qs/QuickQSPanelController.java      |  2 ++
+ .../android/systemui/qs/SideLabelTileLayout.kt   |  6 ++++--
+ .../src/com/android/systemui/qs/TileLayout.java  | 10 ++++++++--
+ .../src/com/android/systemui/qs/TileUtils.java   | 16 ++++++++++++++++
+ 12 files changed, 79 insertions(+), 15 deletions(-)
+
+diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
+index 57eb7da22143..05241027e9e6 100644
+--- a/core/java/android/provider/Settings.java
++++ b/core/java/android/provider/Settings.java
+@@ -5906,6 +5906,16 @@ public final class Settings {
+          */
+         public static final String QS_RR_MORPHING = "qs_rr_morphing";
+ 
++	/**
++         * @hide
++         */
++        public static final String QQS_LAYOUT_ROWS_LANDSCAPE = "qqs_layout_rows_landscape";
++
++        /**
++         * @hide
++         */
++        public static final String QQS_LAYOUT_ROWS = "qqs_layout_rows";
++
+         /**
+          * Whether allowing pocket service to register sensors and dispatch informations.
+          *   0 = disabled
+diff --git a/packages/SystemUI/res/values-land/config.xml b/packages/SystemUI/res/values-land/config.xml
+index d800d49634d2..8a397c0ed67b 100644
+--- a/packages/SystemUI/res/values-land/config.xml
++++ b/packages/SystemUI/res/values-land/config.xml
+@@ -21,7 +21,7 @@
+      for different hardware and product builds. -->
+ <resources>
+     <!-- The maximum number of rows in the QuickSettings -->
+-    <integer name="quick_settings_max_rows">2</integer>
++    <integer name="quick_settings_max_rows">1</integer>
+ 
+     <integer name="quick_settings_num_columns">4</integer>
+ 
+diff --git a/packages/SystemUI/res/values/dimens.xml b/packages/SystemUI/res/values/dimens.xml
+index f311c506f790..b52aa4c6f116 100644
+--- a/packages/SystemUI/res/values/dimens.xml
++++ b/packages/SystemUI/res/values/dimens.xml
+@@ -576,7 +576,7 @@
+     <dimen name="qs_brightness_margin_top">8dp</dimen>
+     <dimen name="qs_brightness_margin_bottom">16dp</dimen>
+     <dimen name="qqs_layout_margin_top">16dp</dimen>
+-    <dimen name="qqs_layout_padding_bottom">24dp</dimen>
++    <dimen name="qqs_layout_padding_bottom">12dp</dimen>
+ 
+     <!-- Most of the time it should be the same as notification_side_paddings as it's vertically
+          aligned with notifications. The exception is split shade when this value becomes
+diff --git a/packages/SystemUI/src/com/android/systemui/qs/PagedTileLayout.java b/packages/SystemUI/src/com/android/systemui/qs/PagedTileLayout.java
+index eb0bf18a3d9d..b80906579fe4 100644
+--- a/packages/SystemUI/src/com/android/systemui/qs/PagedTileLayout.java
++++ b/packages/SystemUI/src/com/android/systemui/qs/PagedTileLayout.java
+@@ -30,6 +30,7 @@ import com.android.systemui.R;
+ import com.android.systemui.plugins.qs.QSTile;
+ import com.android.systemui.qs.QSPanel.QSTileLayout;
+ import com.android.systemui.qs.QSPanelControllerBase.TileRecord;
++import com.android.systemui.qs.TileUtils;
+ import com.android.systemui.qs.logging.QSLogger;
+ 
+ import java.util.ArrayList;
+@@ -430,7 +431,7 @@ public class PagedTileLayout extends ViewPager implements QSTileLayout {
+ 
+     @Override
+     public boolean setMinRows(int minRows) {
+-        mMinRows = minRows;
++        mMinRows = Math.min(minRows, TileUtils.getQSRowsCount(getContext()));
+         boolean changed = false;
+         for (int i = 0; i < mPages.size(); i++) {
+             if (mPages.get(i).setMinRows(minRows)) {
+@@ -443,10 +444,10 @@ public class PagedTileLayout extends ViewPager implements QSTileLayout {
+ 
+     @Override
+     public boolean setMaxColumns(int maxColumns) {
+-        mMaxColumns = maxColumns;
++        mMaxColumns = TileUtils.getQSColumnsCount(getContext(), maxColumns);
+         boolean changed = false;
+         for (int i = 0; i < mPages.size(); i++) {
+-            if (mPages.get(i).setMaxColumns(maxColumns)) {
++            if (mPages.get(i).setMaxColumns(mMaxColumns)) {
+                 changed = true;
+                 forceTilesRedistribution("maxColumns in pages changed");
+             }
+@@ -560,6 +561,13 @@ public class PagedTileLayout extends ViewPager implements QSTileLayout {
+         return currentPage.getResourceColumns();
+     }
+ 
++    @Override
++    public int getResourceRows() {
++        if (mPages.size() == 0) return 1;
++        TileLayout currentPage = mPages.get(getCurrentPageNumber());
++        return currentPage.getResourceRows();
++    }
++
+     @Override
+     public void updateSettings() {
+         for (int i = 0; i < mPages.size(); i++) {
+diff --git a/packages/SystemUI/src/com/android/systemui/qs/QSPanel.java b/packages/SystemUI/src/com/android/systemui/qs/QSPanel.java
+index 49706e9e815a..4054d73f7d12 100644
+--- a/packages/SystemUI/src/com/android/systemui/qs/QSPanel.java
++++ b/packages/SystemUI/src/com/android/systemui/qs/QSPanel.java
+@@ -69,6 +69,10 @@ public class QSPanel extends LinearLayout implements Tunable {
+             "system:" + Settings.System.QS_LAYOUT_COLUMNS_LANDSCAPE;
+     public static final String QS_UI_STYLE =
+             "system:" + Settings.System.QS_UI_STYLE;
++    public static final String QQS_LAYOUT_ROWS =
++            "system:" + Settings.System.QQS_LAYOUT_ROWS;
++    public static final String QQS_LAYOUT_ROWS_LANDSCAPE =
++            "system:" + Settings.System.QQS_LAYOUT_ROWS_LANDSCAPE;
+ 
+     private static final String TAG = "QSPanel";
+ 
+@@ -378,6 +382,8 @@ public class QSPanel extends LinearLayout implements Tunable {
+                 break;
+             case QS_LAYOUT_COLUMNS:
+             case QS_LAYOUT_COLUMNS_LANDSCAPE:
++	    case QQS_LAYOUT_ROWS:
++            case QQS_LAYOUT_ROWS_LANDSCAPE:
+                 needsDynamicRowsAndColumns();
+                 break;
+             default:
+@@ -488,9 +494,8 @@ public class QSPanel extends LinearLayout implements Tunable {
+ 
+     public void needsDynamicRowsAndColumns() {
+         if (mTileLayout != null) {
+-            int columns = mTileLayout.getResourceColumns();
+-            mTileLayout.setMinRows(mUsingHorizontalLayout ? 2 : 1);
+-            mTileLayout.setMaxColumns(columns > 3 && mUsingHorizontalLayout ? columns / 2 : columns);
++            mTileLayout.setMinRows(mTileLayout.getResourceRows());
++            mTileLayout.setMaxColumns(mTileLayout.getResourceColumns());
+         }
+     }
+ 
+@@ -829,6 +834,8 @@ public class QSPanel extends LinearLayout implements Tunable {
+ 
+         int getResourceColumns();
+ 
++	int getResourceRows();
++
+         void updateSettings();
+     }
+ 
+diff --git a/packages/SystemUI/src/com/android/systemui/qs/QSPanelController.java b/packages/SystemUI/src/com/android/systemui/qs/QSPanelController.java
+index 2b53998eea1f..f0da61b0f9d3 100644
+--- a/packages/SystemUI/src/com/android/systemui/qs/QSPanelController.java
++++ b/packages/SystemUI/src/com/android/systemui/qs/QSPanelController.java
+@@ -116,6 +116,8 @@ public class QSPanelController extends QSPanelControllerBase<QSPanel> {
+         mTunerService.addTunable(mView, QSPanel.QS_BRIGHTNESS_SLIDER_POSITION);
+         mTunerService.addTunable(mView, QSPanel.QS_LAYOUT_COLUMNS);
+         mTunerService.addTunable(mView, QSPanel.QS_LAYOUT_COLUMNS_LANDSCAPE);
++	mTunerService.addTunable(mView, QSPanel.QQS_LAYOUT_ROWS);
++        mTunerService.addTunable(mView, QSPanel.QQS_LAYOUT_ROWS_LANDSCAPE);
+ 
+         mView.setBrightnessRunnable(() -> {
+             mView.updateResources();
+diff --git a/packages/SystemUI/src/com/android/systemui/qs/QSPanelControllerBase.java b/packages/SystemUI/src/com/android/systemui/qs/QSPanelControllerBase.java
+index d885285ca7e2..43f35993f1dc 100644
+--- a/packages/SystemUI/src/com/android/systemui/qs/QSPanelControllerBase.java
++++ b/packages/SystemUI/src/com/android/systemui/qs/QSPanelControllerBase.java
+@@ -76,6 +76,10 @@ public abstract class QSPanelControllerBase<T extends QSPanel> extends ViewContr
+             "system:" + Settings.System.QS_TILE_LABEL_HIDE;
+     private static final String QS_TILE_LABEL_SIZE =
+             "system:" + Settings.System.QS_TILE_LABEL_SIZE;
++    private static final String QQS_LAYOUT_ROWS =
++            "system:" + Settings.System.QQS_LAYOUT_ROWS;
++    private static final String QQS_LAYOUT_ROWS_LANDSCAPE =
++            "system:" + Settings.System.QQS_LAYOUT_ROWS_LANDSCAPE;
+ 
+     private static final String TAG = "QSPanelControllerBase";
+     protected final QSHost mHost;
+@@ -215,6 +219,8 @@ public abstract class QSPanelControllerBase<T extends QSPanel> extends ViewContr
+         mTunerService.addTunable(this, QS_LAYOUT_COLUMNS_LANDSCAPE);
+         mTunerService.addTunable(this, QS_TILE_LABEL_HIDE);
+         mTunerService.addTunable(this, QS_TILE_LABEL_SIZE);
++	mTunerService.addTunable(this, QQS_LAYOUT_ROWS);
++        mTunerService.addTunable(this, QQS_LAYOUT_ROWS_LANDSCAPE);
+     }
+ 
+     @Override
+@@ -520,6 +526,8 @@ public abstract class QSPanelControllerBase<T extends QSPanel> extends ViewContr
+             case QS_LAYOUT_COLUMNS_LANDSCAPE:
+             case QS_TILE_LABEL_HIDE:
+             case QS_TILE_LABEL_SIZE:
++	    case QQS_LAYOUT_ROWS:
++            case QQS_LAYOUT_ROWS_LANDSCAPE:
+                 if (mView.getTileLayout() != null) {
+                     mView.getTileLayout().updateSettings();
+                     setTiles();
+diff --git a/packages/SystemUI/src/com/android/systemui/qs/QuickQSPanel.java b/packages/SystemUI/src/com/android/systemui/qs/QuickQSPanel.java
+index 16e70704e58d..9862d1b5b288 100644
+--- a/packages/SystemUI/src/com/android/systemui/qs/QuickQSPanel.java
++++ b/packages/SystemUI/src/com/android/systemui/qs/QuickQSPanel.java
+@@ -155,10 +155,10 @@ public class QuickQSPanel extends QSPanel implements TunerService.Tunable {
+         super.drawTile(r, state);
+     }
+ 
+-    public void setMaxTiles(int maxTiles) {
++    public void setMaxTiles(int tiles) {
++        int maxTiles = tiles * TileUtils.getQSRowsCount(mContext);
+         mColumns = TileUtils.getQSColumnsCount(mContext,
+             getResources().getInteger(NUM_COLUMNS_ID));
+-        if (mColumns == 2) maxTiles = getResources().getInteger(R.integer.quick_qs_panel_max_tiles);
+         if (mColumns == 3) maxTiles = TUNER_MAX_TILES_FALLBACK;
+         if (maxTiles > mColumns && (maxTiles % mColumns != 0)) {
+             maxTiles--;
+@@ -178,6 +178,8 @@ public class QuickQSPanel extends QSPanel implements TunerService.Tunable {
+                 break;
+             case QS_LAYOUT_COLUMNS:
+             case QS_LAYOUT_COLUMNS_LANDSCAPE:
++	    case QQS_LAYOUT_ROWS:
++            case QQS_LAYOUT_ROWS_LANDSCAPE:
+                 setMaxTiles(mColumns);
+                 super.onTuningChanged(key, newValue);
+                 break;
+@@ -273,7 +275,8 @@ public class QuickQSPanel extends QSPanel implements TunerService.Tunable {
+         public boolean updateResources() {
+             mCellHeightResId = R.dimen.qs_quick_tile_size;
+             boolean b = super.updateResources();
+-            mMaxAllowedRows = getResources().getInteger(R.integer.quick_qs_panel_max_rows);
++            mMaxAllowedRows = Math.max(TileUtils.getQSRowsCount(mContext),
++                    getResources().getInteger(R.integer.quick_qs_panel_max_rows));
+             return b;
+         }
+ 
+diff --git a/packages/SystemUI/src/com/android/systemui/qs/QuickQSPanelController.java b/packages/SystemUI/src/com/android/systemui/qs/QuickQSPanelController.java
+index 0c6ce47a1c2e..10c55696bb5a 100644
+--- a/packages/SystemUI/src/com/android/systemui/qs/QuickQSPanelController.java
++++ b/packages/SystemUI/src/com/android/systemui/qs/QuickQSPanelController.java
+@@ -120,6 +120,8 @@ public class QuickQSPanelController extends QSPanelControllerBase<QuickQSPanel>
+         mTunerService.addTunable(mView, QSPanel.QS_SHOW_BRIGHTNESS_SLIDER);
+         mTunerService.addTunable(mView, QSPanel.QS_LAYOUT_COLUMNS);
+         mTunerService.addTunable(mView, QSPanel.QS_LAYOUT_COLUMNS_LANDSCAPE);
++	mTunerService.addTunable(mView, QSPanel.QQS_LAYOUT_ROWS);
++        mTunerService.addTunable(mView, QSPanel.QQS_LAYOUT_ROWS_LANDSCAPE);
+ 
+         mView.setBrightnessRunnable(() -> {
+             mView.updateResources();
+diff --git a/packages/SystemUI/src/com/android/systemui/qs/SideLabelTileLayout.kt b/packages/SystemUI/src/com/android/systemui/qs/SideLabelTileLayout.kt
+index 1ba11efc49a2..a009be06384f 100644
+--- a/packages/SystemUI/src/com/android/systemui/qs/SideLabelTileLayout.kt
++++ b/packages/SystemUI/src/com/android/systemui/qs/SideLabelTileLayout.kt
+@@ -19,6 +19,7 @@ package com.android.systemui.qs
+ import android.content.Context
+ import android.util.AttributeSet
+ import com.android.systemui.R
++import com.android.systemui.qs.TileUtils;
+ 
+ open class SideLabelTileLayout(
+     context: Context,
+@@ -27,7 +28,8 @@ open class SideLabelTileLayout(
+ 
+     override fun updateResources(): Boolean {
+         return super.updateResources().also {
+-            mMaxAllowedRows = context.resources.getInteger(R.integer.quick_settings_max_rows)
++            mMaxAllowedRows = Math.max(TileUtils.getQSRowsCount(context), 
++                    context.resources.getInteger(R.integer.quick_settings_max_rows))
+         }
+     }
+ 
+@@ -64,4 +66,4 @@ open class SideLabelTileLayout(
+         }
+         return previousRows != mRows
+     }
+-}
+\ No newline at end of file
++}
+diff --git a/packages/SystemUI/src/com/android/systemui/qs/TileLayout.java b/packages/SystemUI/src/com/android/systemui/qs/TileLayout.java
+index 61485a9181fe..692b7e8c3a8e 100644
+--- a/packages/SystemUI/src/com/android/systemui/qs/TileLayout.java
++++ b/packages/SystemUI/src/com/android/systemui/qs/TileLayout.java
+@@ -89,7 +89,8 @@ public class TileLayout extends ViewGroup implements QSTileLayout {
+     }
+ 
+     @Override
+-    public boolean setMinRows(int minRows) {
++    public boolean setMinRows(int rows) {
++        int minRows = Math.min(getResourceRows(), rows);
+         if (mMinRows != minRows) {
+             mMinRows = minRows;
+             updateResources();
+@@ -135,7 +136,7 @@ public class TileLayout extends ViewGroup implements QSTileLayout {
+         mCellMarginHorizontal = res.getDimensionPixelSize(R.dimen.qs_tile_margin_horizontal);
+         mSidePadding = useSidePadding() ? mCellMarginHorizontal / 2 : 0;
+         mCellMarginVertical= res.getDimensionPixelSize(R.dimen.qs_tile_margin_vertical);
+-        mMaxAllowedRows = Math.max(1, res.getInteger(R.integer.quick_settings_max_rows));
++	mMaxAllowedRows = Math.max(getResourceRows(), res.getInteger(R.integer.quick_settings_max_rows));
+         if (mLessRows) mMaxAllowedRows = Math.max(mMinRows, mMaxAllowedRows - 1);
+         return updateColumns();
+     }
+@@ -327,8 +328,13 @@ public class TileLayout extends ViewGroup implements QSTileLayout {
+         return TileUtils.getQSColumnsCount(mContext, columns);
+     }
+ 
++    public int getResourceRows() {
++        return TileUtils.getQSRowsCount(mContext);
++    }
++
+     @Override
+     public void updateSettings() {
+         updateResources();
++	requestLayout();
+     }
+ }
+diff --git a/packages/SystemUI/src/com/android/systemui/qs/TileUtils.java b/packages/SystemUI/src/com/android/systemui/qs/TileUtils.java
+index c8dc5392ea35..696178be4f44 100644
+--- a/packages/SystemUI/src/com/android/systemui/qs/TileUtils.java
++++ b/packages/SystemUI/src/com/android/systemui/qs/TileUtils.java
+@@ -47,6 +47,22 @@ public class TileUtils {
+          0, UserHandle.USER_CURRENT);
+     }
+ 
++    public static int getQSRowsCount(Context context) {
++        final int QS_ROWS_MIN = 1;
++        final Resources res = context.getResources();
++        int value = QS_ROWS_MIN;
++        if (res.getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
++            value = Settings.System.getIntForUser(
++                    context.getContentResolver(), Settings.System.QQS_LAYOUT_ROWS,
++                    2, UserHandle.USER_CURRENT);
++        } else {
++            value = Settings.System.getIntForUser(
++                    context.getContentResolver(), Settings.System.QQS_LAYOUT_ROWS_LANDSCAPE,
++                    2, UserHandle.USER_CURRENT);
++        }
++        return Math.max(QS_ROWS_MIN, value);
++    }
++
+     public static boolean getQSTileLabelHide(Context context) {
+         return Settings.System.getIntForUser(context.getContentResolver(),
+                 Settings.System.QS_TILE_LABEL_HIDE,
+diff --git a/packages/SystemUI/src/com/android/systemui/qs/QuickQSPanel.java b/packages/SystemUI/src/com/android/systemui/qs/QuickQSPanel.java
+index 9862d1b5b288..7f4ab5acc0ee 100644
+--- a/packages/SystemUI/src/com/android/systemui/qs/QuickQSPanel.java
++++ b/packages/SystemUI/src/com/android/systemui/qs/QuickQSPanel.java
+@@ -159,7 +159,6 @@ public class QuickQSPanel extends QSPanel implements TunerService.Tunable {
+         int maxTiles = tiles * TileUtils.getQSRowsCount(mContext);
+         mColumns = TileUtils.getQSColumnsCount(mContext,
+             getResources().getInteger(NUM_COLUMNS_ID));
+-        if (mColumns == 3) maxTiles = TUNER_MAX_TILES_FALLBACK;
+         if (maxTiles > mColumns && (maxTiles % mColumns != 0)) {
+             maxTiles--;
+             setMaxTiles(maxTiles);
+-- 
+2.34.1
+
+
+

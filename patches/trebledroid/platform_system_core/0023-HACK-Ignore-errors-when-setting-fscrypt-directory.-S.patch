@@ -1,0 +1,27 @@
+From 98ac5e8b165a461dad06edd3940d4963cd5292af Mon Sep 17 00:00:00 2001
+From: Pierre-Hugues Husson <phh@phh.me>
+Date: Thu, 23 Nov 2023 11:05:20 -0500
+Subject: [PATCH 23/24] HACK: Ignore errors when setting fscrypt directory.
+ Some devices fail to set it on first boot, but is happy later (?!?)
+
+---
+ init/builtins.cpp | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/init/builtins.cpp b/init/builtins.cpp
+index 01db4f5da..42b57319e 100644
+--- a/init/builtins.cpp
++++ b/init/builtins.cpp
+@@ -428,8 +428,7 @@ static Result<void> make_dir_with_options(const MkdirOptions& options) {
+     }
+     if (fscrypt_is_native()) {
+         if (!FscryptSetDirectoryPolicy(ref_basename, options.fscrypt_action, options.target)) {
+-            return reboot_into_recovery(
+-                    {"--prompt_and_wipe_data", "--reason=set_policy_failed:"s + options.target});
++            return {};
+         }
+     }
+     return {};
+-- 
+2.34.1
+

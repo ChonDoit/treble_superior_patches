@@ -1,3 +1,7 @@
+A13-v20240401
+| Merge missing FOD Fixes
+| SMSC fix for Samsung
+
 A13-v20240318
 | More TD Sync
 | Add QQS Rows option
