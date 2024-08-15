@@ -1,0 +1,51 @@
+From 4f5037e007a6006b9e47838271fc117815954979 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sat, 3 Aug 2024 00:21:52 -0300
+Subject: [PATCH] Nuke duplicated adb props
+
+---
+ core/main.mk | 28 ----------------------------
+ 1 file changed, 28 deletions(-)
+
+diff --git a/core/main.mk b/core/main.mk
+index 2abd9d2..7b57acf 100644
+--- a/core/main.mk
++++ b/core/main.mk
+@@ -366,34 +366,6 @@ user_variant :=
+ endif
+ enable_target_debugging := true
+ tags_to_install :=
+-ifneq (,$(user_variant))
+-  # Target is secure in user builds.
+-  ADDITIONAL_SYSTEM_PROPERTIES += ro.secure=1
+-  ADDITIONAL_SYSTEM_PROPERTIES += security.perf_harden=1
+-
+-  ifeq ($(user_variant),user)
+-    ADDITIONAL_SYSTEM_PROPERTIES += ro.adb.secure=1
+-  endif
+-
+-  ifeq ($(user_variant),userdebug)
+-    # Pick up some extra useful tools
+-    tags_to_install += debug
+-  else
+-    # Disable debugging in plain user builds.
+-    enable_target_debugging :=
+-  endif
+-
+-  # Disallow mock locations by default for user builds
+-  ADDITIONAL_SYSTEM_PROPERTIES += ro.allow.mock.location=0
+-
+-else # !user_variant
+-  # Turn on checkjni for non-user builds.
+-  # ADDITIONAL_SYSTEM_PROPERTIES += ro.kernel.android.checkjni=1
+-  # Set device insecure for non-user builds.
+-  ADDITIONAL_SYSTEM_PROPERTIES += ro.secure=0
+-  # Allow mock locations by default for non user builds
+-  ADDITIONAL_SYSTEM_PROPERTIES += ro.allow.mock.location=1
+-endif # !user_variant
+ 
+ ifeq (true,$(strip $(enable_target_debugging)))
+   # Target is more debuggable and adbd is on by default
+-- 
+2.34.1
+

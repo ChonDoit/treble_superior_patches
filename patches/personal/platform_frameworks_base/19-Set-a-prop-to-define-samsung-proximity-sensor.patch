@@ -1,0 +1,40 @@
+From 90f5e8a2baabdaa7a917a01a98c4815cdd483671 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Thu, 30 May 2024 19:28:02 -0300
+Subject: [PATCH] Set a prop to define samsung proximity sensor
+
+---
+ .../com/android/server/display/DisplayPowerController.java     | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/services/core/java/com/android/server/display/DisplayPowerController.java b/services/core/java/com/android/server/display/DisplayPowerController.java
+index 8b7f8593..142882e4 100644
+--- a/services/core/java/com/android/server/display/DisplayPowerController.java
++++ b/services/core/java/com/android/server/display/DisplayPowerController.java
+@@ -2470,6 +2470,7 @@ final class DisplayPowerController implements AutomaticBrightnessController.Call
+             for(Sensor sensor: sensors) {
+                 if("com.samsung.sensor.physical_proximity".equals(sensor.getStringType()))
+                     mProximitySensor = sensor;
++		    SystemProperties.set("persist.sys.phh.proximity", "samsung-physical");
+             }
+         }
+         if(mProximitySensor == null) {
+@@ -2477,6 +2478,7 @@ final class DisplayPowerController implements AutomaticBrightnessController.Call
+             for(Sensor sensor: sensors) {
+                 if("com.samsung.sensor.hover_proximity".equals(sensor.getStringType()))
+                     mProximitySensor = sensor;
++		    SystemProperties.set("persist.sys.phh.proximity", "samsung-hover");
+             }
+         }
+         if(mProximitySensor == null) {
+@@ -2484,6 +2486,7 @@ final class DisplayPowerController implements AutomaticBrightnessController.Call
+             for(Sensor sensor: sensors) {
+                 if("com.samsung.sensor.touch_proximity".equals(sensor.getStringType()))
+                     mProximitySensor = sensor;
++		    SystemProperties.set("persist.sys.phh.proximity", "samsung-touch");
+             }
+         }
+         if (mProximitySensor != null) {
+-- 
+2.34.1
+

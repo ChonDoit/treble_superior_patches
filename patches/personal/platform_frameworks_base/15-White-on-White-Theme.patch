@@ -135,7 +135,6 @@ Subject: [PATCH 04/18] Fixup! SystemUI: Follow light/dark theme in quick
 
 ---
  .../src/com/android/systemui/privacy/OngoingPrivacyChip.kt    | 4 ++--
- .../src/com/android/systemui/qs/tileimpl/QSTileViewImpl.kt    | 2 +-
  2 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/packages/SystemUI/src/com/android/systemui/privacy/OngoingPrivacyChip.kt b/packages/SystemUI/src/com/android/systemui/privacy/OngoingPrivacyChip.kt
@@ -153,19 +152,6 @@ index 54e095460a81..7150bc073589 100644
  
          val padding = context.resources
                  .getDimensionPixelSize(R.dimen.ongoing_appops_chip_side_padding)
-diff --git a/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSTileViewImpl.kt b/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSTileViewImpl.kt
-index 26a408ea9195..691b84c1c767 100644
---- a/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSTileViewImpl.kt
-+++ b/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSTileViewImpl.kt
-@@ -105,7 +105,7 @@ open class QSTileViewImpl @JvmOverloads constructor(
-         )
- 
-     private val colorActive = Utils.getColorAttrDefaultColor(context,
--            com.android.internal.R.attr.colorAccentPrimary)
-+            android.R.attr.colorAccent)
-     private val colorInactive = Utils.getColorAttrDefaultColor(context, R.attr.offStateColor)
-     private val colorUnavailable = Utils.applyAlpha(UNAVAILABLE_ALPHA, colorInactive)
- 
 -- 
 2.34.1
 
@@ -498,55 +484,6 @@ index 207e9b85e847..15bbd2684d7f 100644
          <item name="android:itemTextAppearance">@style/Control.MenuItem</item>
      </style>
  
-diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/ScrimController.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/ScrimController.java
-index c30831db3ca1..07bc30104d06 100644
---- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/ScrimController.java
-+++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/ScrimController.java
-@@ -211,6 +211,7 @@ public class ScrimController implements ViewTreeObserver.OnPreDrawListener, Dump
-     private final StatusBarKeyguardViewManager mStatusBarKeyguardViewManager;
- 
-     private GradientColors mColors;
-+    private GradientColors mBehindColors;
-     private boolean mNeedsDrawableColorUpdate;
- 
-     private float mAdditionalScrimBehindAlphaKeyguard = 0f;
-@@ -343,6 +344,7 @@ public class ScrimController implements ViewTreeObserver.OnPreDrawListener, Dump
-             }
-         });
-         mColors = new GradientColors();
-+        mBehindColors = new GradientColors();
-         mPrimaryBouncerToGoneTransitionViewModel = primaryBouncerToGoneTransitionViewModel;
-         mKeyguardTransitionInteractor = keyguardTransitionInteractor;
-         mMainDispatcher = mainDispatcher;
-@@ -1102,7 +1104,7 @@ public class ScrimController implements ViewTreeObserver.OnPreDrawListener, Dump
-                     && !mBlankScreen;
- 
-             mScrimInFront.setColors(mColors, animateScrimInFront);
--            mScrimBehind.setColors(mColors, animateBehindScrim);
-+            mScrimBehind.setColors(mBehindColors, animateBehindScrim);
-             mNotificationsScrim.setColors(mColors, animateScrimNotifications);
- 
-             dispatchBackScrimState(mScrimBehind.getViewAlpha());
-@@ -1471,11 +1473,19 @@ public class ScrimController implements ViewTreeObserver.OnPreDrawListener, Dump
-         if (mScrimBehind == null) return;
-         int background = Utils.getColorAttr(mScrimBehind.getContext(),
-                 android.R.attr.colorBackgroundFloating).getDefaultColor();
-+        int surfaceBackground = Utils.getColorAttr(mScrimBehind.getContext(),
-+                com.android.internal.R.attr.colorSurfaceHeader).getDefaultColor();
-         int accent = Utils.getColorAccent(mScrimBehind.getContext()).getDefaultColor();
-         mColors.setMainColor(background);
-         mColors.setSecondaryColor(accent);
-         mColors.setSupportsDarkText(
-                 ColorUtils.calculateContrast(mColors.getMainColor(), Color.WHITE) > 4.5);
-+
-+        mBehindColors.setMainColor(surfaceBackground);
-+        mBehindColors.setSecondaryColor(accent);
-+        mBehindColors.setSupportsDarkText(
-+                ColorUtils.calculateContrast(mBehindColors.getMainColor(), Color.WHITE) > 4.5);
-+
-         mNeedsDrawableColorUpdate = true;
-     }
- 
 -- 
 2.34.1
 
@@ -671,33 +608,6 @@ index 4166fdb4345c..22757e22806d 100644
  	    }
          } else {
              Log.e("QSIconView", "Invalid state " + state);
--- 
-2.34.1
-
-
-From 4236ebda6f31fb78ad2bf1b2e5a9c843b7c33976 Mon Sep 17 00:00:00 2001
-From: str143 <alexfinhart@gmail.com>
-Date: Fri, 9 Sep 2022 14:37:06 +0800
-Subject: [PATCH 11/18] SystemUI: Fix QS tile view active tint
-
-Signed-off-by: str143 <alexfinhart@gmail.com>
----
- .../src/com/android/systemui/qs/tileimpl/QSTileViewImpl.kt      | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSTileViewImpl.kt b/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSTileViewImpl.kt
-index 691b84c1c767..f06e2c4db3b5 100644
---- a/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSTileViewImpl.kt
-+++ b/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSTileViewImpl.kt
-@@ -110,7 +110,7 @@ open class QSTileViewImpl @JvmOverloads constructor(
-     private val colorUnavailable = Utils.applyAlpha(UNAVAILABLE_ALPHA, colorInactive)
- 
-     private val colorLabelActive =
--            Utils.getColorAttrDefaultColor(context, com.android.internal.R.attr.textColorOnAccent)
-+            Utils.getColorAttrDefaultColor(context, com.android.internal.R.attr.textColorPrimaryInverse)
-     private val colorLabelInactive =
-             Utils.getColorAttrDefaultColor(context, android.R.attr.textColorPrimary)
-     private val colorLabelUnavailable =
 -- 
 2.34.1
 

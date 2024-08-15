@@ -1,0 +1,44 @@
+From 680dca1ba8a2c16f99174e99eb4be9af9a973ebf Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sun, 11 Jun 2023 22:10:29 -0300
+Subject: [PATCH 1/7] Android Pie Animations Switch
+
+---
+ res/values/superior_strings.xml | 5 +++++
+ res/xml/superior_lab_misc.xml   | 6 ++++++
+ 2 files changed, 11 insertions(+)
+
+diff --git a/res/values/superior_strings.xml b/res/values/superior_strings.xml
+index 248aeb0..9fc596e 100644
+--- a/res/values/superior_strings.xml
++++ b/res/values/superior_strings.xml
+@@ -434,4 +434,9 @@
+     <string name="lockscreen_weather_location_summary">Display current weather location</string>
+     <string name="lockscreen_weather_style_title">Pixel style</string>
+     <string name="lockscreen_weather_style_summary">Display weather as separate row</string>
++
++    <!-- Android P animation style -->
++    <string name="pie_animation_style_title">Android P animation style</string>
++    <string name="pie_animation_style_summary">Enable Android P \"Default\" animations</string>
++
+ </resources>
+diff --git a/res/xml/superior_lab_misc.xml b/res/xml/superior_lab_misc.xml
+index a3826e8..203d8d0 100644
+--- a/res/xml/superior_lab_misc.xml
++++ b/res/xml/superior_lab_misc.xml
+@@ -27,6 +27,12 @@
+             android:summary="@string/enable_fingerprint_ripple_effect_summary"
+             android:defaultValue="true" />
+ 
++        <com.superior.support.preferences.GlobalSettingSwitchPreference
++            android:key="pie_animation_style"
++            android:title="@string/pie_animation_style_title"
++            android:summary="@string/pie_animation_style_summary"
++            android:defaultValue="false" />
++
+         <com.superior.support.preferences.SecureSettingSwitchPreference
+             android:key="window_ignore_secure"
+             android:title="@string/laboratory_ignore_window_secure_title"
+-- 
+2.46.0
+

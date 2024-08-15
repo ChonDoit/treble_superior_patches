@@ -1,12 +1,26 @@
-From fb51e9975fb8f700268c40e2227fd1a7dfdfc7fb Mon Sep 17 00:00:00 2001
+From cad13addbc3cf70dcc77a3973c89d41b325158b0 Mon Sep 17 00:00:00 2001
 From: ChonDoit <thphantomblog@gmail.com>
 Date: Sun, 2 Jul 2023 19:21:05 +0000
-Subject: [PATCH] Allow toggling rotation button overlay [2/2]
+Subject: [PATCH 3/7] Allow toggling rotation button overlay [2/2]
 
 ---
+ res/values/superior_strings.xml        | 4 ++++
  res/xml/superior_lab_notifications.xml | 6 ++++++
- 1 files changed, 6 insertions(+)
+ 2 files changed, 10 insertions(+)
 
+diff --git a/res/values/superior_strings.xml b/res/values/superior_strings.xml
+index 84e85c3..4fc7eb3 100644
+--- a/res/values/superior_strings.xml
++++ b/res/values/superior_strings.xml
+@@ -443,4 +443,8 @@
+     <string name="show_clipboard_overlay_title">Show clipboard overlay</string>
+     <string name="show_clipboard_overlay_summary">Show an overlay in the left bottom corner of the screen when something is copied to the clipboard</string>
+ 
++    <!-- Floating rotation button -->
++    <string name="show_floating_rotation_button_title">Show rotation button overlay</string>
++    <string name="show_floating_rotation_button_summary">Show an overlay in the left bottom corner of the screen when rotation is detected</string>
++
+ </resources>
 diff --git a/res/xml/superior_lab_notifications.xml b/res/xml/superior_lab_notifications.xml
 index b9307d7..fc96fd6 100644
 --- a/res/xml/superior_lab_notifications.xml
@@ -25,5 +39,5 @@ index b9307d7..fc96fd6 100644
           android:key="notification_sound_vib_screen_on"
           android:title="@string/notification_sound_vib_screen_on_title"
 -- 
-2.34.1
+2.46.0
 

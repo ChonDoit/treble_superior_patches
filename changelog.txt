@@ -1,3 +1,15 @@
+A13-v20240804
+| Allow to disable dual tone QS background
+| Allow to enable Media Player Compact Mode
+| Bring back OpenEUICC, Mulch WebView, Lineage Clock and others
+| Little TD Sync
+
+A13-v20240617
+| Signed builds
+| Minor fixes
+
+Wipe Data/Factory Reset recommended
+
 A13-v20240401
 | Merge missing FOD Fixes
 | SMSC fix for Samsung

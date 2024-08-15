@@ -1,7 +1,7 @@
 From 524401f306439374708ec8aee02d99cdb33eb7ad Mon Sep 17 00:00:00 2001
 From: ChonDoit <thphantomblog@gmail.com>
 Date: Thu, 17 Aug 2023 03:36:56 +0000
-Subject: [PATCH] A-GPS
+Subject: [PATCH] Add A-GPS toggle
 
 ---
  res/values/superior_strings.xml               |  3 +

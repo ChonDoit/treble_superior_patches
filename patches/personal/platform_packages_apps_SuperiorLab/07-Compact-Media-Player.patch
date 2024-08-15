@@ -1,0 +1,91 @@
+From 627f08b8b840be1875da58313a678defb8649563 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sun, 4 Aug 2024 14:23:23 -0300
+Subject: [PATCH 7/7] Compact Media Player
+
+---
+ res/values/superior_strings.xml                   | 4 ++++
+ res/xml/superior_lab_quicksettings.xml            | 6 ++++++
+ src/com/superior/lab/fragments/QuickSettings.java | 8 ++++++++
+ 3 files changed, 18 insertions(+)
+
+diff --git a/res/values/superior_strings.xml b/res/values/superior_strings.xml
+index 01e0edd..28596de 100644
+--- a/res/values/superior_strings.xml
++++ b/res/values/superior_strings.xml
+@@ -471,4 +471,8 @@
+     <string name="qs_dual_tone_title">Dual tone background</string>
+     <string name="qs_dual_tone_summary">Enable dual tone background colors</string>
+ 
++    <!-- Compact QS Media Player-->
++    <string name="qs_compact_media_player_mode_title">Compact QS Media player</string>
++    <string name="qs_compact_media_player_mode_summary">Enable compact mode for Media Player Widget</string>
++
+ </resources>
+diff --git a/res/xml/superior_lab_quicksettings.xml b/res/xml/superior_lab_quicksettings.xml
+index 7585d65..034e460 100644
+--- a/res/xml/superior_lab_quicksettings.xml
++++ b/res/xml/superior_lab_quicksettings.xml
+@@ -38,6 +38,12 @@
+         android:key="quick_settings_general_category"
+         android:title="@string/general_category">
+ 
++	<com.superior.support.preferences.SystemSettingSwitchPreference
++	    android:key="qs_compact_media_player_mode"
++	    android:title="@string/qs_compact_media_player_mode_title"
++	    android:summary="@string/qs_compact_media_player_mode_summary"
++	    android:defaultValue="true"  />
++
+         <com.superior.support.preferences.SecureSettingSwitchPreference
+             android:key="quick_settings_vibrate"
+             android:title="@string/quick_settings_vibrate_title"
+diff --git a/src/com/superior/lab/fragments/QuickSettings.java b/src/com/superior/lab/fragments/QuickSettings.java
+index a94225a..fb98515 100644
+--- a/src/com/superior/lab/fragments/QuickSettings.java
++++ b/src/com/superior/lab/fragments/QuickSettings.java
+@@ -62,6 +62,7 @@ import androidx.preference.PreferenceCategory;
+ import androidx.preference.PreferenceScreen;
+ 
+ import com.android.internal.util.superior.ThemeUtils;
++import com.android.internal.util.superior.SystemRestartUtils;
+ import com.superior.support.preferences.SystemSettingListPreference;
+ 
+ public class QuickSettings extends SettingsPreferenceFragment implements
+@@ -70,6 +71,7 @@ public class QuickSettings extends SettingsPreferenceFragment implements
+     private static final String QUICK_PULLDOWN = "status_bar_quick_qs_pulldown";
+     private static final String KEY_QS_PANEL_STYLE  = "qs_panel_style";
+     private static final String KEY_QS_UI_STYLE  = "qs_tile_ui_style";
++    private static final String KEY_QS_COMPACT_PLAYER  = "qs_compact_media_player_mode";
+ 
+     private Context mContext;
+     private ListPreference mQuickPulldown;
+@@ -77,6 +79,7 @@ public class QuickSettings extends SettingsPreferenceFragment implements
+     private IOverlayManager mOverlayManager;
+     private IOverlayManager mOverlayService;
+     private SystemSettingListPreference mQsStyle;
++    private Preference mQsCompactPlayer;
+ 
+     private static ThemeUtils mThemeUtils;
+     private ListPreference mQsUI;
+@@ -114,6 +117,8 @@ public class QuickSettings extends SettingsPreferenceFragment implements
+         mQuickPulldown.setSummary(mQuickPulldown.getEntry());
+         mQuickPulldown.setOnPreferenceChangeListener(this);
+ 
++	mQsCompactPlayer = (Preference) findPreference(KEY_QS_COMPACT_PLAYER);
++        mQsCompactPlayer.setOnPreferenceChangeListener(this);
+     }
+ 
+     @Override
+@@ -140,6 +145,9 @@ public class QuickSettings extends SettingsPreferenceFragment implements
+                     Settings.System.QS_TILE_UI_STYLE, value, UserHandle.USER_CURRENT);
+             updateQsStyle(getActivity());
+             return true;
++	} else if (preference == mQsCompactPlayer) {
++            SystemRestartUtils.showSystemUIRestartDialog(getActivity());
++            return true;
+         }
+         return false;
+     }
+-- 
+2.46.0
+

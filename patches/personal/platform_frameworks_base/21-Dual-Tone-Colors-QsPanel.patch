@@ -1,0 +1,148 @@
+From c3604c46f261b05a68b85a0551c9849e8ceac3ae Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sat, 3 Aug 2024 03:50:10 -0300
+Subject: [PATCH] Dual Tone Colors QsPanel
+
+---
+ core/java/android/provider/Settings.java      |  6 ++++
+ .../systemui/qs/tileimpl/QSTileViewImpl.kt    |  2 +-
+ .../statusbar/phone/ScrimController.java      | 29 ++++++++++++++++++-
+ 3 files changed, 35 insertions(+), 2 deletions(-)
+
+diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
+index 72d04f7d..a1a7c540 100644
+--- a/core/java/android/provider/Settings.java
++++ b/core/java/android/provider/Settings.java
+@@ -5581,6 +5581,12 @@ public final class Settings {
+         @Readable
+         public static final String ENABLE_FLOATING_ROTATION_BUTTON = "enable_floating_rotation_button";
+ 
++	/**
++         * Enable and Disable Dual Tone Colors QsPanel
++         * @hide
++         */
++        public static final String QS_DUAL_TONE = "qs_dual_tone";
++
+         /**
+          * IMPORTANT: If you add a new public settings you also have to add it to
+          * PUBLIC_SETTINGS below. If the new setting is hidden you have to add
+diff --git a/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSTileViewImpl.kt b/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSTileViewImpl.kt
+index fa7621f4..c5ccb8d4 100644
+--- a/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSTileViewImpl.kt
++++ b/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSTileViewImpl.kt
+@@ -111,7 +111,7 @@ open class QSTileViewImpl @JvmOverloads constructor(
+         ) != 0
+ 
+     private val colorActive = Utils.getColorAttrDefaultColor(context,
+-            com.android.internal.R.attr.colorAccentPrimary)
++            com.android.internal.R.attr.colorAccent)
+     private val colorOffstate = Utils.getColorAttrDefaultColor(context, R.attr.offStateColor)
+     private val colorInactive = if (isA11Style) Utils.applyAlpha(TILE_ALPHA, colorOffstate)
+             else Utils.getColorAttrDefaultColor(context, R.attr.offStateColor)
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/ScrimController.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/ScrimController.java
+index c30831db..4a16c17f 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/ScrimController.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/ScrimController.java
+@@ -28,6 +28,8 @@ import android.app.AlarmManager;
+ import android.graphics.Color;
+ import android.os.Handler;
+ import android.os.Trace;
++import android.os.UserHandle;
++import android.provider.Settings;
+ import android.util.Log;
+ import android.util.MathUtils;
+ import android.util.Pair;
+@@ -48,6 +50,7 @@ import com.android.keyguard.KeyguardUpdateMonitor;
+ import com.android.keyguard.KeyguardUpdateMonitorCallback;
+ import com.android.settingslib.Utils;
+ import com.android.systemui.DejankUtils;
++import com.android.systemui.Dependency;
+ import com.android.systemui.Dumpable;
+ import com.android.systemui.R;
+ import com.android.systemui.animation.ShadeInterpolation;
+@@ -69,6 +72,7 @@ import com.android.systemui.shade.transition.LargeScreenShadeInterpolator;
+ import com.android.systemui.statusbar.notification.stack.ViewState;
+ import com.android.systemui.statusbar.policy.ConfigurationController;
+ import com.android.systemui.statusbar.policy.KeyguardStateController;
++import com.android.systemui.tuner.TunerService;
+ import com.android.systemui.util.AlarmTimeout;
+ import com.android.systemui.util.wakelock.DelayedWakeLock;
+ import com.android.systemui.util.wakelock.WakeLock;
+@@ -96,6 +100,9 @@ public class ScrimController implements ViewTreeObserver.OnPreDrawListener, Dump
+     // debug mode colors scrims with below debug colors, irrespectively of which state they're in
+     public static final boolean DEBUG_MODE = false;
+ 
++    private static final String QS_DUAL_TONE =
++            "system:" + Settings.System.QS_DUAL_TONE;
++
+     public static final int DEBUG_NOTIFICATIONS_TINT = Color.RED;
+     public static final int DEBUG_FRONT_TINT = Color.GREEN;
+     public static final int DEBUG_BEHIND_TINT = Color.BLUE;
+@@ -211,6 +218,7 @@ public class ScrimController implements ViewTreeObserver.OnPreDrawListener, Dump
+     private final StatusBarKeyguardViewManager mStatusBarKeyguardViewManager;
+ 
+     private GradientColors mColors;
++    private GradientColors mBehindColors;
+     private boolean mNeedsDrawableColorUpdate;
+ 
+     private float mAdditionalScrimBehindAlphaKeyguard = 0f;
+@@ -256,6 +264,7 @@ public class ScrimController implements ViewTreeObserver.OnPreDrawListener, Dump
+     private boolean mWallpaperSupportsAmbientMode;
+     private boolean mScreenOn;
+     private boolean mTransparentScrimBackground;
++    private boolean mUseDualToneColor;
+ 
+     // Scrim blanking callbacks
+     private Runnable mPendingFrameCallback;
+@@ -343,9 +352,18 @@ public class ScrimController implements ViewTreeObserver.OnPreDrawListener, Dump
+             }
+         });
+         mColors = new GradientColors();
++        mBehindColors = new GradientColors();
+         mPrimaryBouncerToGoneTransitionViewModel = primaryBouncerToGoneTransitionViewModel;
+         mKeyguardTransitionInteractor = keyguardTransitionInteractor;
+         mMainDispatcher = mainDispatcher;
++
++	TunerService tunerService = Dependency.get(TunerService.class);
++        tunerService.addTunable((key, newValue) -> {
++            if (key.equals(QS_DUAL_TONE)) {
++            	mUseDualToneColor = TunerService.parseIntegerSwitch(newValue, true);
++                ScrimController.this.onThemeChanged();
++            }
++        }, QS_DUAL_TONE);
+     }
+ 
+     /**
+@@ -1102,7 +1120,7 @@ public class ScrimController implements ViewTreeObserver.OnPreDrawListener, Dump
+                     && !mBlankScreen;
+ 
+             mScrimInFront.setColors(mColors, animateScrimInFront);
+-            mScrimBehind.setColors(mColors, animateBehindScrim);
++            mScrimBehind.setColors(mBehindColors, animateBehindScrim);
+             mNotificationsScrim.setColors(mColors, animateScrimNotifications);
+ 
+             dispatchBackScrimState(mScrimBehind.getViewAlpha());
+@@ -1471,11 +1489,20 @@ public class ScrimController implements ViewTreeObserver.OnPreDrawListener, Dump
+         if (mScrimBehind == null) return;
+         int background = Utils.getColorAttr(mScrimBehind.getContext(),
+                 android.R.attr.colorBackgroundFloating).getDefaultColor();
++	int surfaceBackground = Utils.getColorAttr(mScrimBehind.getContext(),
++                com.android.internal.R.attr.colorSurfaceHeader).getDefaultColor();
+         int accent = Utils.getColorAccent(mScrimBehind.getContext()).getDefaultColor();
+         mColors.setMainColor(background);
++	mBehindColors.setMainColor(mUseDualToneColor ? surfaceBackground : background);
+         mColors.setSecondaryColor(accent);
+         mColors.setSupportsDarkText(
+                 ColorUtils.calculateContrast(mColors.getMainColor(), Color.WHITE) > 4.5);
++
++	mBehindColors.setMainColor(mUseDualToneColor ? surfaceBackground : background);
++        mBehindColors.setSecondaryColor(accent);
++        mBehindColors.setSupportsDarkText(
++                ColorUtils.calculateContrast(mBehindColors.getMainColor(), Color.WHITE) > 4.5);
++
+         mNeedsDrawableColorUpdate = true;
+     }
+ 
+-- 
+2.46.0
+

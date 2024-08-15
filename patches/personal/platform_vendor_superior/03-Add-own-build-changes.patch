@@ -1,48 +1,79 @@
-From 03fbea7c759f09465a1983813153aa29efc39c94 Mon Sep 17 00:00:00 2001
+From 4db616fe1b2d5eee7900da42128e1cc73dc97000 Mon Sep 17 00:00:00 2001
 From: ChonDoit <thphantomblog@gmail.com>
 Date: Mon, 7 Aug 2023 23:08:27 +0000
 Subject: [PATCH] Add own build changes
 
 ---
- config/phh_gsi.mk | 52 +++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 52 insertions(+)
+ config/common.mk  |  3 +++
+ config/phh_gsi.mk | 58 +++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 61 insertions(+)
  create mode 100644 config/phh_gsi.mk
 
+diff --git a/config/common.mk b/config/common.mk
+index 67d448a..67b427f 100644
+--- a/config/common.mk
++++ b/config/common.mk
+@@ -14,6 +14,8 @@
+ 
+ PRODUCT_BRAND ?= SuperiorOS
+ 
++PRODUCT_DEFAULT_DEV_CERTIFICATE := vendor/keys/releasekey
++
+ # PHH GSI
+ $(call inherit-product, vendor/superior/config/phh_gsi.mk)
+ 
+@@ -52,6 +54,7 @@ PRODUCT_COPY_FILES += \
+ endif
+ 
+ # Gapps
++BUILD_WITH_GAPPS := false
+ ifeq ($(BUILD_WITH_GAPPS),true)
+     $(call inherit-product, vendor/gapps/common/common-vendor.mk)
+ endif
 diff --git a/config/phh_gsi.mk b/config/phh_gsi.mk
 new file mode 100644
-index 00000000..1cde0876
+index 0000000..0c8e0ae
 --- /dev/null
 +++ b/config/phh_gsi.mk
-@@ -0,0 +1,52 @@
+@@ -0,0 +1,58 @@
++# Call for Secure build
++$(call inherit-product, device/phh/treble/secure.mk)
++PHH-SECURE_BUILD ?= false
++
 +# The Gapps
-+WITH_THE_GAPPS := true
-+ifeq ($(WITH_THE_GAPPS), true)
++THE_BUILD := vanilla
++FULL_GAPPS := false
++ifeq ($(THE_BUILD), gapps)
 +    $(call inherit-product-if-exists, vendor/gapps/slim.mk)
-+        else
++        else ifeq ($(THE_BUILD), vanilla)
 +    $(call inherit-product-if-exists, vendor/gapps/vanilla.mk)
++endif
++
++# Set Build Variant prop for OTA
++ifeq ($(THE_BUILD), vanilla)
++    PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.phh.buildvariant=Vanilla
++    else ifeq ($(FULL_GAPPS),true)
++        ifeq ($(PHH-SECURE_BUILD),true)
++            PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.phh.buildvariant=Gapps-Secure
++                else
++            PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.phh.buildvariant=Gapps
++        endif
++            else
++        ifeq ($(PHH-SECURE_BUILD),true)
++            PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.phh.buildvariant=Slim-Secure
++                else
++            PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.phh.buildvariant=Slim
++        endif
 +endif
 +
 +# Don't Build Kernel
 +TARGET_NO_KERNEL_OVERRIDE := true
-+
-+# Call for Secure build
-+$(call inherit-product, device/phh/treble/secure.mk)
-+PHH-SECURE_BUILD ?= false
 +
 +# Use CCache
 +USE_CCACHE := true
 +
 +# Build APN
 +PRODUCT_PACKAGES += apns-conf.xml
-+
-+# Set Build Variant prop for OTA
-+ifeq ($(WITH_THE_GAPPS), false)
-+    PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.phh.buildvariant=Vanilla
-+    else ifeq ($(PHH-SECURE_BUILD),true)
-+        PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.phh.buildvariant=Slim-Secure
-+            else
-+        PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.phh.buildvariant=Slim
-+endif
 +
 +PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
 +    persist.sys.binary_xml=false \
@@ -51,21 +82,18 @@ index 00000000..1cde0876
 +
 +# PPU Spoof
 +PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
-+    persist.sys.spoof.first_api_level= \
-+    persist.sys.spoof.type= \
-+    persist.sys.spoof.tags= \
-+    persist.sys.spoof.brand=motorola \
-+    persist.sys.spoof.manufacturer=motorola \
-+    persist.sys.spoof.device=griffin \
-+    persist.sys.spoof.id=MCC24.246-37 \
-+    persist.sys.spoof.fingerprint=motorola/griffin_retcn/griffin:6.0.1/MCC24.246-37/42:user/release-keys \
-+    persist.sys.spoof.model=XT1650-05 \
-+    persist.sys.spoof.product=griffin_retcn \
-+    persist.sys.spoof.security_patch=2016-07-01
-+
-+# A64 Only
-+#ALLOW_MISSING_DEPENDENCIES := true
-+#BUILD_BROKEN_MISSING_REQUIRED_MODULES := true
++    persist.sys.spoof.product=sailfish \
++    persist.sys.spoof.device=sailfish \
++    persist.sys.spoof.manufacturer=Google \
++    persist.sys.spoof.brand=google \
++    persist.sys.spoof.model=Pixel \
++    persist.sys.spoof.fingerprint=google/sailfish/sailfish:8.1.0/OPM1.171019.011/4448085:user/release-keys \
++    persist.sys.spoof.security_patch=2017-12-05 \
++    persist.sys.spoof.first_api_level=25 \
++    persist.sys.spoof.id=OPM1.171019.011 \
++    persist.sys.spoof.incremental=4448085 \
++    persist.sys.spoof.type=user \
++    persist.sys.spoof.tags=release-keys
 -- 
 2.34.1
 

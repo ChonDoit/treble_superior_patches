@@ -1,17 +1,17 @@
-From a1298cc061a24fef805a485285ed4d5b63f0b8e8 Mon Sep 17 00:00:00 2001
+From 005207590d93041c7a425bc3c1fc9a672ebbeca2 Mon Sep 17 00:00:00 2001
 From: ChonDoit <thphantomblog@gmail.com>
 Date: Sat, 16 Mar 2024 19:27:06 -0300
-Subject: [PATCH 3/5] Update PPU
+Subject: [PATCH 1/2] Update PPU
 
 ---
  .../app/ApplicationPackageManager.java        |  64 +-
  core/java/android/app/Instrumentation.java    |   6 +-
- .../util/superior/PixelPropsUtils.java        | 657 ++++++++++--------
+ .../util/superior/PixelPropsUtils.java        | 662 ++++++++++--------
  core/res/res/values/superior_config.xml       |   4 +
  core/res/res/values/superior_symbols.xml      |   4 +
  .../keystore2/AndroidKeyStoreSpi.java         |  50 +-
  .../providers/settings/SettingsProvider.java  |   6 +
- 7 files changed, 469 insertions(+), 322 deletions(-)
+ 7 files changed, 473 insertions(+), 323 deletions(-)
 
 diff --git a/core/java/android/app/ApplicationPackageManager.java b/core/java/android/app/ApplicationPackageManager.java
 index f7e6a4517059..2da7b37e9264 100644
@@ -145,7 +145,7 @@ index f822b06f7254..8b7c41c9b608 100644
      }
  
 diff --git a/core/java/com/android/internal/util/superior/PixelPropsUtils.java b/core/java/com/android/internal/util/superior/PixelPropsUtils.java
-index fce01eaa89a9..afbc9d061027 100644
+index fce01eaa89a9..039a67e803e0 100644
 --- a/core/java/com/android/internal/util/superior/PixelPropsUtils.java
 +++ b/core/java/com/android/internal/util/superior/PixelPropsUtils.java
 @@ -1,6 +1,11 @@
@@ -160,12 +160,9 @@ index fce01eaa89a9..afbc9d061027 100644
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
-@@ -15,150 +20,60 @@
-  * limitations under the License.
-  */
+@@ -17,148 +22,58 @@
  
--package com.android.internal.util.superior;
-+package com.android.internal.util.custom;
+ package com.android.internal.util.superior;
  
 +import android.app.ActivityTaskManager;
 +import android.app.ActivityManager;
@@ -326,15 +323,15 @@ index fce01eaa89a9..afbc9d061027 100644
 -    private static volatile boolean sIsFinsky = false;
 +    private static final Map<String, Object> propsToChangeRecentPixel =
 +            createGoogleSpoofProps("Pixel 8 Pro",
-+                    "google/husky/husky:14/UQ1A.240205.004/11269751:user/release-keys");
++                    "google/husky/husky:14/AP1A.240505.005/11677807:user/release-keys");
 +
 +    private static final Map<String, Object> propsToChangePixel5a =
 +            createGoogleSpoofProps("Pixel 5a",
-+                    "google/barbet/barbet:14/UQ1A.240205.002/11224170:user/release-keys");
++                    "google/barbet/barbet:14/AP1A.240505.004/11583682:user/release-keys");
 +
 +   private static final Map<String, Object> propsToChangePixel6 =
 +            createGoogleSpoofProps("Pixel 6 Pro",
-+                    "google/raven/raven:14/UQ1A.240205.002/11224170:user/release-keys");
++                    "google/raven/raven:14/AP1A.240505.004/11583682:user/release-keys");
 +
 +    private static final Map<String, Object> propsToChangePixelXL =
 +            createGoogleSpoofProps("Pixel XL",
@@ -344,7 +341,7 @@ index fce01eaa89a9..afbc9d061027 100644
  
      static {
          propsToKeep = new HashMap<>();
-@@ -166,234 +81,366 @@ public class PixelPropsUtils {
+@@ -166,234 +81,371 @@ public class PixelPropsUtils {
          propsToChangeGeneric = new HashMap<>();
          propsToChangeGeneric.put("TYPE", "user");
          propsToChangeGeneric.put("TAGS", "release-keys");
@@ -391,7 +388,7 @@ index fce01eaa89a9..afbc9d061027 100644
 -        propsToChangeMI11T.put("MANUFACTURER", "Xiaomi");
 +    }
 +
-+    private static final ArrayList<String> packagesToChangeRecentPixel = 
++    private static final ArrayList<String> packagesToChangeRecentPixel =
 +        new ArrayList<String> (
 +            Arrays.asList(
 +                "com.google.android.apps.emojiwallpaper",
@@ -399,6 +396,7 @@ index fce01eaa89a9..afbc9d061027 100644
 +                "com.google.pixel.livewallpaper",
 +                "com.google.android.apps.wallpaper.pixel",
 +                "com.google.android.apps.wallpaper",
++                "com.google.android.apps.bard",
 +                "com.google.android.apps.customization.pixel",
 +                "com.google.android.apps.privacy.wildlife",
 +                "com.google.android.apps.subscriptions.red",
@@ -409,14 +407,14 @@ index fce01eaa89a9..afbc9d061027 100644
 +                "com.google.android.gms.persistent"
 +        ));
 +
-+   private static final ArrayList<String> packagesToChangePixel5a = 
++   private static final ArrayList<String> packagesToChangePixel5a =
 +        new ArrayList<String> (
 +            Arrays.asList(
 +		"com.google.android.tts",
 +		"com.breel.wallpapers20"
 +       ));
 +
-+    private static final ArrayList<String> extraPackagesToChange = 
++    private static final ArrayList<String> extraPackagesToChange =
 +        new ArrayList<String> (
 +            Arrays.asList(
 +                "com.android.chrome",
@@ -430,7 +428,7 @@ index fce01eaa89a9..afbc9d061027 100644
 +                "jp.id_credit_sp2.android"
 +        ));
 +
-+    private static final ArrayList<String> customGoogleCameraPackages = 
++    private static final ArrayList<String> customGoogleCameraPackages =
 +        new ArrayList<String> (
 +            Arrays.asList(
 +                "com.google.android.MTCL83",
@@ -438,7 +436,7 @@ index fce01eaa89a9..afbc9d061027 100644
 +                "com.google.android.apps.cameralite"
 +        ));
 +
-+    private static final ArrayList<String> packagesToKeep = 
++    private static final ArrayList<String> packagesToKeep =
 +        new ArrayList<String> (
 +            Arrays.asList(
 +               "com.google.android.as",
@@ -583,19 +581,21 @@ index fce01eaa89a9..afbc9d061027 100644
 -            if (Arrays.asList(packagesToChangeROG6).contains(packageName)) {
 -                propsToChange.putAll(propsToChangeROG6);
 -            }
-+    private static void spoofBuildGms() { 
-+            String[] sCertifiedProps = { 
-+            SystemProperties.get("persist.sys.pihooks.product_name", ""), 
-+            SystemProperties.get("persist.sys.pihooks.product_device", ""), 
-+            SystemProperties.get("persist.sys.pihooks.manufacturer", ""), 
-+            SystemProperties.get("persist.sys.pihooks.brand", ""), 
-+     	    SystemProperties.get("persist.sys.pihooks.product_model", ""), 
-+            SystemProperties.get("persist.sys.pihooks.build_fingerprint", ""), 
-+            SystemProperties.get("persist.sys.pihooks.security_patch", ""), 
-+            SystemProperties.get("persist.sys.pihooks.first_api_level", ""), 
-+            SystemProperties.get("persist.sys.pihooks.build_id", ""), 
-+            SystemProperties.get("persist.sys.pihooks.build_type", ""), 
-+            SystemProperties.get("persist.sys.pihooks.build_tags", "")
++    private static void spoofBuildGms() {
++            String[] sCertifiedProps = {
++            SystemProperties.get("persist.sys.spoof.product", ""),
++            SystemProperties.get("persist.sys.spoof.device", ""),
++            SystemProperties.get("persist.sys.spoof.manufacturer", ""),
++            SystemProperties.get("persist.sys.spoof.brand", ""),
++            SystemProperties.get("persist.sys.spoof.model", ""),
++            SystemProperties.get("persist.sys.spoof.fingerprint", ""),
++            SystemProperties.get("persist.sys.spoof.security_patch", ""),
++            SystemProperties.get("persist.sys.spoof.first_api_level", ""),
++            SystemProperties.get("persist.sys.spoof.id", ""),
++            SystemProperties.get("persist.sys.spoof.type", ""),
++            SystemProperties.get("persist.sys.spoof.tags", ""),
++            SystemProperties.get("persist.sys.spoof.incremental", ""),
++            SystemProperties.get("persist.sys.spoof.release", "")
 +        };
 +
 +        if (sCertifiedProps == null || sCertifiedProps.length == 0) return;
@@ -615,6 +615,8 @@ index fce01eaa89a9..afbc9d061027 100644
 +        setPropValue("ID", sCertifiedProps[8].isEmpty() ? getBuildID(sCertifiedProps[4]) : sCertifiedProps[8]);
 +        setPropValue("TYPE", sCertifiedProps[9].isEmpty() ? "user" : sCertifiedProps[9]);
 +        setPropValue("TAGS", sCertifiedProps[10].isEmpty() ? "release-keys" : sCertifiedProps[10]);
++        setPropValue("INCREMENTAL", sCertifiedProps[11]);
++        setPropValue("RELEASE", sCertifiedProps[12]);
 +    }
  
 -            if (Arrays.asList(packagesToChangeXP5).contains(packageName)) {
@@ -869,8 +871,9 @@ index fce01eaa89a9..afbc9d061027 100644
      }
  
      private static boolean isCallerSafetyNet() {
-         return sIsGms && Arrays.stream(Thread.currentThread().getStackTrace())
+-        return sIsGms && Arrays.stream(Thread.currentThread().getStackTrace())
 -                .anyMatch(elem -> elem.getClassName().contains("DroidGuard"));
++        return Arrays.stream(Thread.currentThread().getStackTrace())
 +                            .anyMatch(elem -> elem.getClassName().toLowerCase()
 +                                .contains("droidguard"));
      }
@@ -880,7 +883,7 @@ index fce01eaa89a9..afbc9d061027 100644
 -        if (isCallerSafetyNet() || sIsFinsky) {
 -            Log.i(TAG, "Blocked key attestation sIsGms=" + sIsGms + " sIsFinsky=" + sIsFinsky);
 +	if ((isCallerSafetyNet() || sIsFinsky) && !sIsSetupWizard && shouldTryToCertifyDevice()) {
-+            dlog("Blocked key attestation sIsGms=" + sIsGms + " sIsFinsky=" + sIsFinsky);
++            dlog("Blocked key attestation");
              throw new UnsupportedOperationException();
          }
      }
@@ -920,7 +923,7 @@ index ec4201408737..f7e16337430f 100644
 +
  </resources>
 diff --git a/keystore/java/android/security/keystore2/AndroidKeyStoreSpi.java b/keystore/java/android/security/keystore2/AndroidKeyStoreSpi.java
-index 330224e27804..283aef7e99b6 100644
+index 330224e27804..dc98e7f7b307 100644
 --- a/keystore/java/android/security/keystore2/AndroidKeyStoreSpi.java
 +++ b/keystore/java/android/security/keystore2/AndroidKeyStoreSpi.java
 @@ -74,6 +74,7 @@ import java.util.HashSet;
@@ -963,10 +966,11 @@ index 330224e27804..283aef7e99b6 100644
      @Override
      public Certificate[] engineGetCertificateChain(String alias) {
          PixelPropsUtils.onEngineGetCertificateChain();
-@@ -181,8 +200,26 @@ public class AndroidKeyStoreSpi extends KeyStoreSpi {
+@@ -179,10 +198,26 @@ public class AndroidKeyStoreSpi extends KeyStoreSpi {
+             return null;
+         }
  
-         final Certificate[] caList;
- 
+-        final Certificate[] caList;
 +	X509Certificate modLeaf = leaf;
 +        try {
 +            byte[] bytes = leaf.getEncoded();
@@ -983,14 +987,14 @@ index 330224e27804..283aef7e99b6 100644
 +        } catch (CertificateException e) {
 +            return null;
 +        }
-+
+ 
          final byte[] caBytes = response.metadata.certificateChain;
  
 +	final Certificate[] caList;
          if (caBytes != null) {
              final Collection<X509Certificate> caChain = toCertificates(caBytes);
  
-@@ -197,7 +234,18 @@ public class AndroidKeyStoreSpi extends KeyStoreSpi {
+@@ -197,7 +232,18 @@ public class AndroidKeyStoreSpi extends KeyStoreSpi {
              caList = new Certificate[1];
          }
  
@@ -1027,67 +1031,6 @@ index 775f58a17499..52e3ab3cfd3d 100644
          synchronized (mLock) {
              if (getSyncDisabledModeConfigLocked() != SYNC_DISABLED_MODE_NONE) {
                  return SET_ALL_RESULT_DISABLED;
-diff --git a/core/java/com/android/internal/util/superior/PixelPropsUtils.java b/core/java/com/android/internal/util/superior/PixelPropsUtils.java
-index afbc9d061027..e4312698223e 100644
---- a/core/java/com/android/internal/util/superior/PixelPropsUtils.java
-+++ b/core/java/com/android/internal/util/superior/PixelPropsUtils.java
-@@ -20,7 +20,7 @@
-  * limitations under the License.
-  */
- 
--package com.android.internal.util.custom;
-+package com.android.internal.util.superior;
- 
- import android.app.ActivityTaskManager;
- import android.app.ActivityManager;
-diff --git a/keystore/java/android/security/keystore2/AndroidKeyStoreSpi.java b/keystore/java/android/security/keystore2/AndroidKeyStoreSpi.java
-index 283aef7e99b6..dc98e7f7b307 100644
---- a/keystore/java/android/security/keystore2/AndroidKeyStoreSpi.java
-+++ b/keystore/java/android/security/keystore2/AndroidKeyStoreSpi.java
-@@ -198,8 +198,6 @@ public class AndroidKeyStoreSpi extends KeyStoreSpi {
-             return null;
-         }
- 
--        final Certificate[] caList;
--
- 	X509Certificate modLeaf = leaf;
-         try {
-             byte[] bytes = leaf.getEncoded();
-diff --git a/core/java/com/android/internal/util/superior/PixelPropsUtils.java b/core/java/com/android/internal/util/superior/PixelPropsUtils.java
-index e4312698223e..6c66cff3801a 100644
---- a/core/java/com/android/internal/util/superior/PixelPropsUtils.java
-+++ b/core/java/com/android/internal/util/superior/PixelPropsUtils.java
-@@ -244,17 +244,17 @@ public class PixelPropsUtils {
- 
-     private static void spoofBuildGms() { 
-             String[] sCertifiedProps = { 
--            SystemProperties.get("persist.sys.pihooks.product_name", ""), 
--            SystemProperties.get("persist.sys.pihooks.product_device", ""), 
--            SystemProperties.get("persist.sys.pihooks.manufacturer", ""), 
--            SystemProperties.get("persist.sys.pihooks.brand", ""), 
--     	    SystemProperties.get("persist.sys.pihooks.product_model", ""), 
--            SystemProperties.get("persist.sys.pihooks.build_fingerprint", ""), 
--            SystemProperties.get("persist.sys.pihooks.security_patch", ""), 
--            SystemProperties.get("persist.sys.pihooks.first_api_level", ""), 
--            SystemProperties.get("persist.sys.pihooks.build_id", ""), 
--            SystemProperties.get("persist.sys.pihooks.build_type", ""), 
--            SystemProperties.get("persist.sys.pihooks.build_tags", "")
-+            SystemProperties.get("persist.sys.spoof.product", ""), 
-+            SystemProperties.get("persist.sys.spoof.device", ""), 
-+            SystemProperties.get("persist.sys.spoof.manufacturer", ""), 
-+            SystemProperties.get("persist.sys.spoof.brand", ""), 
-+     	    SystemProperties.get("persist.sys.spoof.model", ""), 
-+            SystemProperties.get("persist.sys.spoof.fingerprint", ""), 
-+            SystemProperties.get("persist.sys.spoof.security_patch", ""), 
-+            SystemProperties.get("persist.sys.spoof.first_api_level", ""), 
-+            SystemProperties.get("persist.sys.spoof.id", ""), 
-+            SystemProperties.get("persist.sys.spoof.type", ""), 
-+            SystemProperties.get("persist.sys.spoof.tags", "")
-         };
- 
-         if (sCertifiedProps == null || sCertifiedProps.length == 0) return;
 -- 
-2.34.1
-
-
+2.45.2
 

@@ -1,0 +1,59 @@
+From fcc412c8e095adabecb9306333289e4de7246b59 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sun, 4 Aug 2024 14:23:23 -0300
+Subject: [PATCH 6/7] Dual tone background
+
+---
+ res/values/superior_strings.xml        |  4 ++++
+ res/xml/superior_lab_quicksettings.xml | 15 +++++++++++++--
+ 2 files changed, 17 insertions(+), 2 deletions(-)
+
+diff --git a/res/values/superior_strings.xml b/res/values/superior_strings.xml
+index c2964a7..01e0edd 100644
+--- a/res/values/superior_strings.xml
++++ b/res/values/superior_strings.xml
+@@ -467,4 +467,8 @@
+     <string name="qqs_rows_portrait_title">Quick QS Rows (portrait)</string>
+     <string name="qqs_rows_landscape_title">Quick QS Rows (landscape)</string>
+ 
++    <!-- QS Dual Tone Colors -->
++    <string name="qs_dual_tone_title">Dual tone background</string>
++    <string name="qs_dual_tone_summary">Enable dual tone background colors</string>
++
+ </resources>
+diff --git a/res/xml/superior_lab_quicksettings.xml b/res/xml/superior_lab_quicksettings.xml
+index ed43acd..7585d65 100644
+--- a/res/xml/superior_lab_quicksettings.xml
++++ b/res/xml/superior_lab_quicksettings.xml
+@@ -9,8 +9,7 @@
+     xmlns:settings="http://schemas.android.com/apk/res/com.android.settings">
+ 
+      <PreferenceCategory
+-        android:key="quick_settings_general_category"
+-        android:title="@string/general_category">
++        android:title="User Interface">
+ 
+ 	<ListPreference
+             android:key="qs_tile_ui_style"
+@@ -27,6 +26,18 @@
+             android:summary="%s"
+             android:defaultValue="0" />
+ 
++	<com.superior.support.preferences.SystemSettingSwitchPreference
++	    android:key="qs_dual_tone"
++	    android:title="@string/qs_dual_tone_title"
++	    android:summary="@string/qs_dual_tone_summary"
++	    android:defaultValue="true" />
++
++    </PreferenceCategory>
++
++    <PreferenceCategory
++        android:key="quick_settings_general_category"
++        android:title="@string/general_category">
++
+         <com.superior.support.preferences.SecureSettingSwitchPreference
+             android:key="quick_settings_vibrate"
+             android:title="@string/quick_settings_vibrate_title"
+-- 
+2.46.0
+
