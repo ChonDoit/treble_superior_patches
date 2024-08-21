@@ -1,3 +1,12 @@
+A13-v20240820
+| Fix Play Integrity
+| Add Spoof Settings into TrebleApp
+| Address an OTA denial
+| Allow to spoof encryption state
+| Allow to disable SAF restrictions
+| Allow to disable media player squiggle animation
+| Add Google Drive to system apps
+
 A13-v20240804
 | Allow to disable dual tone QS background
 | Allow to enable Media Player Compact Mode
