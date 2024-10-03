@@ -1,0 +1,71 @@
+From ea0c4bc6b71c4674939475f25ae2e81e982d50c0 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Mon, 20 May 2024 13:27:25 -0300
+Subject: [PATCH] dnsresolver: Support no-bpf usecase
+
+---
+ DnsResolver/DnsBpfHelper.cpp                  | 22 +++++++++++++++----
+ ...id_server_connectivity_ClatCoordinator.cpp |  2 +-
+ 2 files changed, 19 insertions(+), 5 deletions(-)
+
+diff --git a/DnsResolver/DnsBpfHelper.cpp b/DnsResolver/DnsBpfHelper.cpp
+index de8bef5..c5256f5 100644
+--- a/DnsResolver/DnsBpfHelper.cpp
++++ b/DnsResolver/DnsBpfHelper.cpp
+@@ -38,9 +38,19 @@ base::Result<void> DnsBpfHelper::init() {
+     return base::Error(EOPNOTSUPP);
+   }
+ 
+-  RETURN_IF_RESULT_NOT_OK(mConfigurationMap.init(CONFIGURATION_MAP_PATH));
+-  RETURN_IF_RESULT_NOT_OK(mUidOwnerMap.init(UID_OWNER_MAP_PATH));
+-  RETURN_IF_RESULT_NOT_OK(mDataSaverEnabledMap.init(DATA_SAVER_ENABLED_MAP_PATH));
++  auto ret1 = mConfigurationMap.init(CONFIGURATION_MAP_PATH);
++  if (!ret1.ok()) {
++    LOG(ERROR) << __func__ << ": Failed mConfigurationMap.init";
++  }
++  auto ret2 = mUidOwnerMap.init(UID_OWNER_MAP_PATH);
++  if (!ret2.ok()) {
++    LOG(ERROR) << __func__ << ": Failed mConfigurationMap.init";
++  }
++  auto ret3 = mDataSaverEnabledMap.init(DATA_SAVER_ENABLED_MAP_PATH);
++  if (!ret3.ok()) {
++    LOG(ERROR) << __func__ << ":  Failed mConfigurationMap.init";
++  }
++
+   return {};
+ }
+ 
+@@ -49,12 +59,16 @@ base::Result<bool> DnsBpfHelper::isUidNetworkingBlocked(uid_t uid, bool metered)
+   if (!mConfigurationMap.isValid() || !mUidOwnerMap.isValid()) {
+     LOG(ERROR) << __func__
+                << ": BPF maps are not ready. Forgot to call ADnsHelper_init?";
+-    return base::Error(EUNATCH);
++    return false;
+   }
+ 
+   auto enabledRules = mConfigurationMap.readValue(UID_RULES_CONFIGURATION_KEY);
+   RETURN_IF_RESULT_NOT_OK(enabledRules);
+ 
++  if (!enabledRules.ok()) {
++    return false;
++  }
++
+   auto value = mUidOwnerMap.readValue(uid);
+   uint32_t uidRules = value.ok() ? value.value().rule : 0;
+ 
+diff --git a/service/jni/com_android_server_connectivity_ClatCoordinator.cpp b/service/jni/com_android_server_connectivity_ClatCoordinator.cpp
+index 787ef8f..d32383c 100644
+--- a/service/jni/com_android_server_connectivity_ClatCoordinator.cpp
++++ b/service/jni/com_android_server_connectivity_ClatCoordinator.cpp
+@@ -143,7 +143,7 @@ static void verifyClatPerms() {
+         return;
+     }
+ 
+-    if (fatal) abort();
++    // if (fatal) abort();
+ }
+ 
+ #undef V
+-- 
+2.34.1
+

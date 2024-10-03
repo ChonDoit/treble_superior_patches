@@ -1,4 +1,4 @@
-From 7aea91b1e670f545cb86167e1b1473b84af29eac Mon Sep 17 00:00:00 2001
+From 1b6e0989e7c8fdd3d4813f4aa19aa40d39b43d79 Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Sun, 24 May 2020 17:22:22 +0200
 Subject: [PATCH 06/10] Allow mismatches of exfat genfscon
@@ -23,5 +23,5 @@ index 99410da0..7f614c03 100644
  			fprintf(stderr, "Received conflicting %s vs %s but ignore\n", a_genfscon->path_str, b_genfscon->path_str);
  			return 0;
 -- 
-2.25.1
+2.34.1
 

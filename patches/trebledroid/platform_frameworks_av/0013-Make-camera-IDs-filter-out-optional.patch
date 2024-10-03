@@ -1,7 +1,7 @@
-From ede04716d3171dccb6b1a6507a3b53f0abf8c1f3 Mon Sep 17 00:00:00 2001
+From 152328ae268b982acedcba95c7d9e48ddd465d40 Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Mon, 21 Dec 2020 20:19:11 +0100
-Subject: [PATCH 13/23] Make camera IDs filter-out optional
+Subject: [PATCH 13/24] Make camera IDs filter-out optional
 
 Nowadays most people have Camera 2 apps, and would like to have all
 cameras, rather than limit which cameras are available.
@@ -11,10 +11,10 @@ Add a property for that.
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/services/camera/libcameraservice/common/CameraProviderManager.cpp b/services/camera/libcameraservice/common/CameraProviderManager.cpp
-index b1639714ba..50b5d45400 100644
+index 1f01e95..5f71fab 100644
 --- a/services/camera/libcameraservice/common/CameraProviderManager.cpp
 +++ b/services/camera/libcameraservice/common/CameraProviderManager.cpp
-@@ -265,7 +265,9 @@ std::vector<std::string> CameraProviderManager::getAPI1CompatibleCameraDeviceIds
+@@ -328,7 +328,9 @@ std::vector<std::string> CameraProviderManager::getAPI1CompatibleCameraDeviceIds
          // API1 app doesn't handle logical and physical camera devices well. So
          // for each camera facing, only take the first id advertised by HAL in
          // all [logical, physical1, physical2, ...] id combos, and filter out the rest.

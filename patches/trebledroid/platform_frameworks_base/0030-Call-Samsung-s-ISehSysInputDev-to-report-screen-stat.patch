@@ -1,33 +1,32 @@
-From 77a0d495db8a09e91dea1e3958491ebcabbff113 Mon Sep 17 00:00:00 2001
+From 844e4f92f7324a5aa5988669e84cbe92ab4fcf27 Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Wed, 14 Dec 2022 17:21:00 -0500
-Subject: [PATCH 30/53] Call Samsung's ISehSysInputDev to report screen state
+Subject: [PATCH 30/54] Call Samsung's ISehSysInputDev to report screen state
  to touchscreen driver
 
 This fixes touchscreen not waking up on Galaxy F23
 ---
- services/core/Android.bp                      |  2 ++
- .../server/display/LocalDisplayAdapter.java   | 32 +++++++++++++++++++
- 2 files changed, 34 insertions(+)
+ services/core/Android.bp                      |  1 +
+ .../server/display/LocalDisplayAdapter.java   | 31 +++++++++++++++++++
+ 2 files changed, 32 insertions(+)
 
 diff --git a/services/core/Android.bp b/services/core/Android.bp
-index 10596ba31518..80215acddb3f 100644
+index 5fe4be72c036..1934f8196639 100644
 --- a/services/core/Android.bp
 +++ b/services/core/Android.bp
-@@ -186,6 +186,8 @@ java_library_static {
-         "ImmutabilityAnnotation",
-         "securebox",
-         "vendor.aac.hardware.richtap.vibrator",
-+        "vendor.samsung.hardware.sysinput-V1-java",
-+        "vendor.samsung.hardware.sysinput-V1.2-java",
-         "faceunlock_framework",
+@@ -255,6 +255,7 @@ java_library_static {
+         "net_flags_lib",
+         "stats_flags_lib",
+         "core_os_flags_lib",
++        "vendor.samsung.hardware.sysinput-V1.2-java", // HIDL
      ],
      javac_shard_size: 50,
+     javacflags: [
 diff --git a/services/core/java/com/android/server/display/LocalDisplayAdapter.java b/services/core/java/com/android/server/display/LocalDisplayAdapter.java
-index 89d865e5ae39..9f2793a16a28 100644
+index 88c24e0a7eff..ac4a9c474c9e 100644
 --- a/services/core/java/com/android/server/display/LocalDisplayAdapter.java
 +++ b/services/core/java/com/android/server/display/LocalDisplayAdapter.java
-@@ -33,6 +33,7 @@ import android.os.Trace;
+@@ -38,6 +38,7 @@ import android.os.Trace;
  import android.util.DisplayUtils;
  import android.util.LongSparseArray;
  import android.util.Slog;
@@ -35,7 +34,7 @@ index 89d865e5ae39..9f2793a16a28 100644
  import android.util.SparseArray;
  import android.view.Display;
  import android.view.DisplayAddress;
-@@ -51,6 +52,8 @@ import com.android.server.display.mode.DisplayModeDirector;
+@@ -58,6 +59,8 @@ import com.android.server.display.notifications.DisplayNotificationManager;
  import com.android.server.lights.LightsManager;
  import com.android.server.lights.LogicalLight;
  
@@ -44,7 +43,7 @@ index 89d865e5ae39..9f2793a16a28 100644
  import java.io.PrintWriter;
  import java.util.ArrayList;
  import java.util.Arrays;
-@@ -234,6 +237,8 @@ final class LocalDisplayAdapter extends DisplayAdapter {
+@@ -251,6 +254,8 @@ final class LocalDisplayAdapter extends DisplayAdapter {
  
          private DisplayEventReceiver.FrameRateOverride[] mFrameRateOverrides =
                  new DisplayEventReceiver.FrameRateOverride[0];
@@ -53,10 +52,10 @@ index 89d865e5ae39..9f2793a16a28 100644
  
          LocalDisplayDevice(IBinder displayToken, long physicalDisplayId,
                  SurfaceControl.StaticDisplayInfo staticDisplayInfo,
-@@ -825,17 +830,44 @@ final class LocalDisplayAdapter extends DisplayAdapter {
+@@ -859,16 +864,42 @@ final class LocalDisplayAdapter extends DisplayAdapter {
                              }
-                             mSidekickActive = false;
                          }
+ 
 +                        if (!triedSamsungHal) {
 +                            triedSamsungHal = true;
 +                            try {
@@ -94,10 +93,8 @@ index 89d865e5ae39..9f2793a16a28 100644
 +                        }
 +
                          setCommittedState(state);
-+
+ 
                          // If we're entering a suspended (but not OFF) power state and we
-                         // have a sidekick available, tell it now that it can take control.
-                         if (Display.isSuspendedState(state) && state != Display.STATE_OFF
 -- 
-2.25.1
+2.34.1
 

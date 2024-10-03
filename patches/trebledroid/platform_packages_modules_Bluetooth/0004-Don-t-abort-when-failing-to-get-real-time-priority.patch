@@ -1,4 +1,4 @@
-From 72d6a401e5f84260e8f339c628085397dfe0092c Mon Sep 17 00:00:00 2001
+From 5cd9f407cd0bde7e119eb182ab973c99d595cb9c Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Sun, 17 Oct 2021 17:17:13 -0400
 Subject: [PATCH 4/8] Don't abort when failing to get real-time priority
@@ -15,40 +15,40 @@ Change-Id: Id25dac186628e933185bdfd640498004459b375a
  system/btif/src/btif_a2dp_sink.cc   |  2 +-
  system/btif/src/btif_a2dp_source.cc |  2 +-
  system/osi/src/alarm.cc             | 12 +++++++++++-
- system/stack/btu/btu_task.cc        |  2 +-
+ system/stack/btu/main_thread.cc     |  2 +-
  4 files changed, 14 insertions(+), 4 deletions(-)
 
 diff --git a/system/btif/src/btif_a2dp_sink.cc b/system/btif/src/btif_a2dp_sink.cc
-index fb7e8f3607..2d68d49c84 100644
+index 8e0083b014..0f6369e205 100644
 --- a/system/btif/src/btif_a2dp_sink.cc
 +++ b/system/btif/src/btif_a2dp_sink.cc
 @@ -197,7 +197,7 @@ bool btif_a2dp_sink_init() {
    /* Schedule the rest of the operations */
    if (!btif_a2dp_sink_cb.worker_thread.EnableRealTimeScheduling()) {
  #if defined(__ANDROID__)
--    LOG(FATAL) << __func__
-+    LOG(ERROR) << __func__
-                << ": Failed to increase A2DP decoder thread priority";
+-    log::fatal("Failed to increase A2DP decoder thread priority");
++    log::error("Failed to increase A2DP decoder thread priority");
  #endif
    }
+   btif_a2dp_sink_cb.worker_thread.DoInThread(
 diff --git a/system/btif/src/btif_a2dp_source.cc b/system/btif/src/btif_a2dp_source.cc
-index 2a538390fb..1b0ffab492 100644
+index 6b6555ec88..2dcf06dd3e 100644
 --- a/system/btif/src/btif_a2dp_source.cc
 +++ b/system/btif/src/btif_a2dp_source.cc
-@@ -365,7 +365,7 @@ static void btif_a2dp_source_startup_delayed() {
-   LOG_INFO("%s: state=%s", __func__, btif_a2dp_source_cb.StateStr().c_str());
+@@ -374,7 +374,7 @@ static void btif_a2dp_source_startup_delayed() {
+   log::info("state={}", btif_a2dp_source_cb.StateStr());
    if (!btif_a2dp_source_thread.EnableRealTimeScheduling()) {
  #if defined(__ANDROID__)
--    LOG(FATAL) << __func__ << ": unable to enable real time scheduling";
-+    LOG(ERROR) << __func__ << ": unable to enable real time scheduling";
+-    log::fatal("unable to enable real time scheduling");
++    log::error("unable to enable real time scheduling");
  #endif
    }
    if (!bluetooth::audio::a2dp::init(&btif_a2dp_source_thread)) {
 diff --git a/system/osi/src/alarm.cc b/system/osi/src/alarm.cc
-index 2f0a27ea71..ec0f71c232 100644
+index 408f4f3bee..4b48be24c7 100644
 --- a/system/osi/src/alarm.cc
 +++ b/system/osi/src/alarm.cc
-@@ -678,7 +678,17 @@ static bool timer_create_internal(const clockid_t clock_id, timer_t* timer) {
+@@ -673,7 +673,17 @@ static bool timer_create_internal(const clockid_t clock_id, timer_t* timer) {
    sigevent.sigev_notify = SIGEV_THREAD;
    sigevent.sigev_notify_function = (void (*)(union sigval))timer_callback;
    sigevent.sigev_notify_attributes = &thread_attr;
@@ -67,19 +67,19 @@ index 2f0a27ea71..ec0f71c232 100644
      LOG_ERROR("%s unable to create timer with clock %d: %s", __func__, clock_id,
                strerror(errno));
      if (clock_id == CLOCK_BOOTTIME_ALARM) {
-diff --git a/system/stack/btu/btu_task.cc b/system/stack/btu/btu_task.cc
-index 2aa2510c04..e50de320c4 100644
---- a/system/stack/btu/btu_task.cc
-+++ b/system/stack/btu/btu_task.cc
-@@ -122,7 +122,7 @@ void main_thread_start_up() {
+diff --git a/system/stack/btu/main_thread.cc b/system/stack/btu/main_thread.cc
+index a2cdd7bac6..045cbc3cbd 100644
+--- a/system/stack/btu/main_thread.cc
++++ b/system/stack/btu/main_thread.cc
+@@ -71,7 +71,7 @@ void main_thread_start_up() {
    }
    if (!main_thread.EnableRealTimeScheduling()) {
  #if defined(__ANDROID__)
--    LOG(FATAL) << __func__ << ": unable to enable real time scheduling";
-+    LOG(ERROR) << __func__ << ": unable to enable real time scheduling";
+-    log::fatal("unable to enable real time scheduling");
++    log::error("unable to enable real time scheduling");
  #else
-     LOG(ERROR) << __func__ << ": unable to enable real time scheduling";
+     log::error("unable to enable real time scheduling");
  #endif
 -- 
-2.25.1
+2.34.1
 

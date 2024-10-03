@@ -1,34 +1,50 @@
-A14_v20240304
-| Sync with Superior source
-| Fix somes settings crash
+##### 20241002 #####
 
-######
+| Superior Sync (EOL)
+| Nuked useless addon.d
+| GameSpace Fixes
+| Expandable Volume
+| Misc opt
 
-A14_v20240302
-| Sync with TD
+TrebleApp
+| Debuggable mode toggle (enabled by default)
 
-OWN CHANGES
-| Allow disable clipboard overlay
-| Add Quick Settings styles
+WIPE DATA/FACTORY RESET RECOMMENDED
 
-A14_v20240424
-| Fix major bootloop
-Thanks @Mitezuss and @rkvukda for logs.
+##### 20240921 #####
 
-A14_v20240412
-| Fix February bootloop
-No, this doesn't include magical fixes for MTK
+| Little TD Sync
+| Random Bluetooth fixes
+| Fix side FP position hint
+| Slightly reduce circle battery text
+| Add Google Drive to system apps
 
-A14-v20240211
-| February SPL
+| One-Tap Bluetooth tile
+| Monet Settings
+| GameSpace
+| Allow to disable ripple unlock effect
 
-A14-v20220204
-| Fix Wallpapers FC
-| Fix Recents Issue
-| Remove duplicated apps
-| Nuke fuseblk sepolicies
-| Merge latest changes pushed to TD sources
-| Fixed LockScreen clocks on GApps builds
+TrebleApp
+| Auto update spoof props option
 
-A14-v20240202
-| Initial Build
+##### 20240906 #####
+
+| Fix boot on <4.14 devices
+
+##### 20240905 #####
+
+| A11 QS toggle
+| Navbar buttons layouts
+| Quick Settings Header
+| Allow disable rotate floating button
+| Can't remember what more
+
+TrebleApp
+| Toogle to restart qcrild on boot (qcom incoming sms issue)
+
+##### 20240829 #####
+
+| Initial QPR3 Build
+
+TrebleApp
+| Misc: Allow to toggle Two-Pane layout

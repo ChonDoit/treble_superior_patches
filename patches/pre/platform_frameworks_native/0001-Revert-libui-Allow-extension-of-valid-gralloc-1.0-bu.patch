@@ -1,0 +1,102 @@
+From bec6d1cf1f24df7e113bb4a8bbcba78a9715e0ed Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sun, 25 Aug 2024 18:55:50 -0300
+Subject: [PATCH] Revert "libui: Allow extension of valid gralloc 1.0 buffer
+ usage bits"
+
+This reverts commit 5f7b861f1e038aa7a35e87ef0efb4c9f09ab8942.
+---
+ libs/ui/Android.bp   | 1 -
+ libs/ui/Gralloc2.cpp | 7 -------
+ libs/ui/Gralloc3.cpp | 7 -------
+ libs/ui/Gralloc4.cpp | 7 -------
+ libs/ui/Gralloc5.cpp | 7 -------
+ 5 files changed, 29 deletions(-)
+
+diff --git a/libs/ui/Android.bp b/libs/ui/Android.bp
+index d41fbac1ba..9cb298a132 100644
+--- a/libs/ui/Android.bp
++++ b/libs/ui/Android.bp
+@@ -156,7 +156,6 @@ cc_library_shared {
+         "android.hardware.graphics.allocator-ndk_shared",
+         "android.hardware.graphics.common-ndk_shared",
+         "libui-defaults",
+-        "gralloc_10_usage_bits_defaults",
+         // Uncomment the following line to enable VALIDATE_REGIONS traces
+         //defaults: ["libui-validate-regions-defaults"],
+     ],
+diff --git a/libs/ui/Gralloc2.cpp b/libs/ui/Gralloc2.cpp
+index 41306b51f6..a5aca9912f 100644
+--- a/libs/ui/Gralloc2.cpp
++++ b/libs/ui/Gralloc2.cpp
+@@ -48,13 +48,6 @@ uint64_t getValid10UsageBits() {
+         for (const auto bit : hardware::hidl_enum_range<BufferUsage>()) {
+             bits = bits | bit;
+         }
+-
+-        if (ADDNL_GRALLOC_10_USAGE_BITS) {
+-            uint64_t addnl_bits = static_cast<uint64_t>(ADDNL_GRALLOC_10_USAGE_BITS);
+-            ALOGI("Adding additional valid usage bits: 0x%" PRIx64, addnl_bits);
+-            bits = bits | addnl_bits;
+-        }
+-
+         return bits;
+     }();
+     return valid10UsageBits;
+diff --git a/libs/ui/Gralloc3.cpp b/libs/ui/Gralloc3.cpp
+index e9aa9c8d54..152b35a505 100644
+--- a/libs/ui/Gralloc3.cpp
++++ b/libs/ui/Gralloc3.cpp
+@@ -47,13 +47,6 @@ uint64_t getValidUsageBits() {
+              hardware::hidl_enum_range<hardware::graphics::common::V1_2::BufferUsage>()) {
+             bits = bits | bit;
+         }
+-
+-        if (ADDNL_GRALLOC_10_USAGE_BITS) {
+-            uint64_t addnl_bits = static_cast<uint64_t>(ADDNL_GRALLOC_10_USAGE_BITS);
+-            ALOGI("Adding additional valid usage bits: 0x%" PRIx64, addnl_bits);
+-            bits = bits | addnl_bits;
+-        }
+-
+         return bits;
+     }();
+     return validUsageBits;
+diff --git a/libs/ui/Gralloc4.cpp b/libs/ui/Gralloc4.cpp
+index f1322f1e4c..2a607308d1 100644
+--- a/libs/ui/Gralloc4.cpp
++++ b/libs/ui/Gralloc4.cpp
+@@ -75,13 +75,6 @@ uint64_t getValidUsageBits() {
+              hardware::hidl_enum_range<hardware::graphics::common::V1_2::BufferUsage>()) {
+             bits = bits | bit;
+         }
+-
+-        if (ADDNL_GRALLOC_10_USAGE_BITS) {
+-            uint64_t addnl_bits = static_cast<uint64_t>(ADDNL_GRALLOC_10_USAGE_BITS);
+-            ALOGI("Adding additional valid usage bits: 0x%" PRIx64, addnl_bits);
+-            bits = bits | addnl_bits;
+-        }
+-
+         return bits;
+     }();
+     return validUsageBits | kRemovedUsageBits;
+diff --git a/libs/ui/Gralloc5.cpp b/libs/ui/Gralloc5.cpp
+index abcdeea01c..11064ae7fc 100644
+--- a/libs/ui/Gralloc5.cpp
++++ b/libs/ui/Gralloc5.cpp
+@@ -191,13 +191,6 @@ static uint64_t getValidUsageBits() {
+         for (const auto bit : ndk::enum_range<BufferUsage>{}) {
+             bits |= static_cast<int64_t>(bit);
+         }
+-
+-        if (ADDNL_GRALLOC_10_USAGE_BITS) {
+-            uint64_t addnl_bits = static_cast<uint64_t>(ADDNL_GRALLOC_10_USAGE_BITS);
+-            ALOGI("Adding additional valid usage bits: 0x%" PRIx64, addnl_bits);
+-            bits |= addnl_bits;
+-        }
+-
+         return bits;
+     }();
+     return validUsageBits | kRemovedUsageBits;
+-- 
+2.34.1
+

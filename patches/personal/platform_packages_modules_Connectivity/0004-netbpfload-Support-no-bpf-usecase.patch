@@ -1,0 +1,27 @@
+From fce09cc548618e12ca62289c66d902d4d08c280a Mon Sep 17 00:00:00 2001
+From: khalvat-M <mmba313@gmail.com>
+Date: Thu, 27 Jun 2024 02:17:11 +0330
+Subject: [PATCH] netbpfload: Support no-bpf usecase
+
+Based on https://github.com/LineageOS-UL/android_system_bpf/commit/5519c18abea64769e65f6773590195ac5d54af50
+---
+ netbpfload/NetBpfLoad.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/netbpfload/NetBpfLoad.cpp b/netbpfload/NetBpfLoad.cpp
+index 7b9980ff05..62ab2b6664 100644
+--- a/netbpfload/NetBpfLoad.cpp
++++ b/netbpfload/NetBpfLoad.cpp
+@@ -366,7 +366,7 @@ int main(int argc, char** argv, char * const envp[]) {
+     //  which could otherwise fail with ENOENT during object pinning or renaming,
+     //  due to ordering issues)
+     for (const auto& location : locations) {
+-        if (createSysFsBpfSubDir(location.prefix)) return 1;
++        if (createSysFsBpfSubDir(location.prefix)) failed = true;
+     }
+ 
+     // Note: there's no actual src dir for fs_bpf_loader .o's,
+-- 
+2.34.1
+
+

@@ -1,22 +1,21 @@
-From c8c8583a915b469b6adbe8cdd3808487175d8268 Mon Sep 17 00:00:00 2001
+From 3e59ead9ac716dcdea0b9c0a9d7c966bca637de2 Mon Sep 17 00:00:00 2001
 From: Andy CrossGate Yan <GeForce8800Ultra@gmail.com>
 Date: Thu, 5 Apr 2018 10:01:19 +0800
-Subject: [PATCH 01/53] Disable vendor mismatch warning
+Subject: [PATCH 01/54] Disable vendor mismatch warning
 
 Change-Id: Ieb8fe91e2f02462f074312ed0f4885d183e9780b
 ---
- .../server/wm/ActivityTaskManagerService.java    | 16 ++--------------
- 1 file changed, 2 insertions(+), 14 deletions(-)
+ .../server/wm/ActivityTaskManagerService.java      | 14 +-------------
+ 1 file changed, 1 insertion(+), 13 deletions(-)
 
 diff --git a/services/core/java/com/android/server/wm/ActivityTaskManagerService.java b/services/core/java/com/android/server/wm/ActivityTaskManagerService.java
-index d7489f2c7b91..8e890a39e6de 100644
+index e283f3e8ef0e..ee9b04829617 100644
 --- a/services/core/java/com/android/server/wm/ActivityTaskManagerService.java
 +++ b/services/core/java/com/android/server/wm/ActivityTaskManagerService.java
-@@ -6094,20 +6094,8 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
-                 }
+@@ -6290,19 +6290,7 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
  
-                 if (!Build.isBuildConsistent()) {
--                    Slog.e(TAG, "Build fingerprint is not consistent, warning user");
+                 if (!isBuildConsistent) {
+                     Slog.e(TAG, "Build fingerprint is not consistent, warning user");
 -                    mUiHandler.post(() -> {
 -                        if (mShowDialogs) {
 -                            AlertDialog d = new BaseErrorDialog(mUiContext);
@@ -30,11 +29,10 @@ index d7489f2c7b91..8e890a39e6de 100644
 -                            d.show();
 -                        }
 -                    });
-+                    Slog.e(TAG, "Build fingerprint is not consistent");
 +                    // Do not emit warning about vendor mismatch
                  }
              }
-         }
+             Trace.traceEnd(TRACE_TAG_WINDOW_MANAGER);
 -- 
-2.25.1
+2.34.1
 

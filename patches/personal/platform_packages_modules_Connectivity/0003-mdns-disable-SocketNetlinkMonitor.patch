@@ -1,0 +1,26 @@
+From 84e052815af50645e33b7217079c656032b35ba0 Mon Sep 17 00:00:00 2001
+From: Yaroslav Zviezda <acroreiser@gmail.com>
+Date: Fri, 19 Apr 2024 00:25:52 +0300
+Subject: [PATCH] [UL] mdns: disable SocketNetlinkMonitor
+
+Change-Id: Id7e25ccb04704d54bd5f4e4ac3c2726f1935cbd4
+---
+ .../server/connectivity/mdns/internal/SocketNetlinkMonitor.java | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/service-t/src/com/android/server/connectivity/mdns/internal/SocketNetlinkMonitor.java b/service-t/src/com/android/server/connectivity/mdns/internal/SocketNetlinkMonitor.java
+index 6f16436abf..57a844c83b 100644
+--- a/service-t/src/com/android/server/connectivity/mdns/internal/SocketNetlinkMonitor.java
++++ b/service-t/src/com/android/server/connectivity/mdns/internal/SocketNetlinkMonitor.java
+@@ -79,7 +79,7 @@ public class SocketNetlinkMonitor extends NetlinkMonitor implements AbstractSock
+ 
+     @Override
+     public boolean isSupported() {
+-        return true;
++        return false;
+     }
+ 
+     @Override
+-- 
+2.34.1
+
