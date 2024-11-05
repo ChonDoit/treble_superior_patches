@@ -1,0 +1,28 @@
+From 43896692182e7daae6a363dce454010ffe34d4d5 Mon Sep 17 00:00:00 2001
+From: ChonDoit <you@example.com>
+Date: Wed, 23 Oct 2024 22:40:18 -0300
+Subject: [PATCH] Revert "SystemUI: Always disable rotation on lockscreen"
+
+This reverts commit d5a4d5d0e59f8bf790fce8f92e2cc5ce4a8e6ba3.
+---
+ .../statusbar/policy/KeyguardStateControllerImpl.java         | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/policy/KeyguardStateControllerImpl.java b/packages/SystemUI/src/com/android/systemui/statusbar/policy/KeyguardStateControllerImpl.java
+index 2f6c46a45e9c..9a30a37681ec 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/policy/KeyguardStateControllerImpl.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/policy/KeyguardStateControllerImpl.java
+@@ -284,7 +284,9 @@ public class KeyguardStateControllerImpl implements KeyguardStateController, Dum
+ 
+     @Override
+     public boolean isKeyguardScreenRotationAllowed() {
+-        return false;
++        return SystemProperties.getBoolean("lockscreen.rot_override", false)
++                || mContext.getResources().getBoolean(R.bool.config_enableLockScreenRotation)
++                || mFeatureFlags.isEnabled(LOCKSCREEN_ENABLE_LANDSCAPE);
+     }
+ 
+     @Override
+-- 
+2.45.1.windows.1
+

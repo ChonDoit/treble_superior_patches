@@ -7,7 +7,6 @@ core="$source/patches/trebledroid"
 personal="$source/patches/personal"
 pre="$source/patches/pre"
 fod="$source/patches/fod"
-health="$source/patches/health"
 
 if [ -e $pre ]; then
     printf "\n ##### APPLYING PRE-REQUISITE PATCHES #####\n";

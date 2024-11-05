@@ -1,0 +1,84 @@
+From ea06a2f80ac8a53a5b9f58ce8dac41ae9028ba23 Mon Sep 17 00:00:00 2001
+From: LuK1337 <priv.luk@gmail.com>
+Date: Tue, 15 Mar 2022 12:45:12 +0100
+Subject: [PATCH] AuthService: Add support for workaround side fps props
+
+HIDL fingerprint implementations have no way of providing this info.
+
+Change-Id: I1eeda59c84868715338b6707247a9c7eecca1af3
+---
+ .../com/android/server/biometrics/AuthService.java   | 12 ++++++++++++
+ .../fingerprint/aidl/FingerprintProvider.java        |  6 +++---
+ 2 files changed, 15 insertions(+), 3 deletions(-)
+
+diff --git a/services/core/java/com/android/server/biometrics/AuthService.java b/services/core/java/com/android/server/biometrics/AuthService.java
+index 9ae92c9f..3b7c4ed4 100644
+--- a/services/core/java/com/android/server/biometrics/AuthService.java
++++ b/services/core/java/com/android/server/biometrics/AuthService.java
+@@ -32,6 +32,8 @@ import static android.hardware.biometrics.BiometricAuthenticator.TYPE_NONE;
+ import static android.hardware.biometrics.BiometricConstants.BIOMETRIC_ERROR_CANCELED;
+ import static android.hardware.biometrics.BiometricManager.Authenticators;
+ 
++import static com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintProvider.getWorkaroundSensorProps;
++
+ import android.annotation.NonNull;
+ import android.annotation.Nullable;
+ import android.app.AppOpsManager;
+@@ -1257,6 +1259,10 @@ public class AuthService extends SystemService {
+         int[] udfpsProps = getContext().getResources().getIntArray(
+                 com.android.internal.R.array.config_udfps_sensor_props);
+ 
++	// Non-empty workaroundLocations indicates that the sensor is SFPS.
++        final List<SensorLocationInternal> workaroundLocations =
++                getWorkaroundSensorProps(getContext());
++
+         boolean isUdfps = !ArrayUtils.isEmpty(udfpsProps);
+         if(!isUdfps) {
+             try {
+@@ -1298,6 +1304,12 @@ public class AuthService extends SystemService {
+                     resetLockoutRequiresHardwareAuthToken,
+                     List.of(new SensorLocationInternal("" /* display */, udfpsProps[0],
+                             udfpsProps[1], udfpsProps[2])));
++	} else if (!workaroundLocations.isEmpty()) {
++            return new FingerprintSensorPropertiesInternal(sensorId,
++                    Utils.authenticatorStrengthToPropertyStrength(strength), maxEnrollmentsPerUser,
++                    componentInfo, sensorType, false /* halControlsIllumination */,
++                    resetLockoutRequiresHardwareAuthToken,
++                    workaroundLocations);
+         } else {
+             return new FingerprintSensorPropertiesInternal(sensorId,
+                     Utils.authenticatorStrengthToPropertyStrength(strength), maxEnrollmentsPerUser,
+diff --git a/services/core/java/com/android/server/biometrics/sensors/fingerprint/aidl/FingerprintProvider.java b/services/core/java/com/android/server/biometrics/sensors/fingerprint/aidl/FingerprintProvider.java
+index 198b5f02..785b4d37 100644
+--- a/services/core/java/com/android/server/biometrics/sensors/fingerprint/aidl/FingerprintProvider.java
++++ b/services/core/java/com/android/server/biometrics/sensors/fingerprint/aidl/FingerprintProvider.java
+@@ -998,7 +998,7 @@ public class FingerprintProvider implements IBinder.DeathRecipient, ServiceProvi
+     // TODO(b/174868353): workaround for gaps in HAL interface (remove and get directly from HAL)
+     // reads values via an overlay instead of querying the HAL
+     @NonNull
+-    private List<SensorLocationInternal> getWorkaroundSensorProps(@NonNull Context context) {
++    public static List<SensorLocationInternal> getWorkaroundSensorProps(@NonNull Context context) {
+         final List<SensorLocationInternal> sensorLocations = new ArrayList<>();
+ 
+         final TypedArray sfpsProps = context.getResources().obtainTypedArray(
+@@ -1019,7 +1019,7 @@ public class FingerprintProvider implements IBinder.DeathRecipient, ServiceProvi
+     }
+ 
+     @Nullable
+-    private SensorLocationInternal parseSensorLocation(@Nullable TypedArray array) {
++    private static SensorLocationInternal parseSensorLocation(@Nullable TypedArray array) {
+         if (array == null) {
+             return null;
+         }
+@@ -1031,7 +1031,7 @@ public class FingerprintProvider implements IBinder.DeathRecipient, ServiceProvi
+                     array.getInt(2, 0),
+                     array.getInt(3, 0));
+         } catch (Exception e) {
+-            Slog.w(getTag(), "malformed sensor location", e);
++            Slog.w(TAG, "malformed sensor location", e);
+         }
+         return null;
+     }
+-- 
+2.47.0
+

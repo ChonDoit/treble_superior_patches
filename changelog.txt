@@ -1,3 +1,11 @@
+##### 20241102 #####
+
+| Superior Sync (Changelog)
+| TrebleApp Update
+| Merge remaning Samsung FOD changes
+| Basic Spanish translation for Customization items
+| Other misc fixes
+
 ##### 20241002 #####
 
 | Superior Sync (EOL)
