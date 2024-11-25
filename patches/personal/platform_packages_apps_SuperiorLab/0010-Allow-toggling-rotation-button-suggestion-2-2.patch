@@ -1,0 +1,72 @@
+From 029c89f79971b6a9f4a51aa9305ef4e7863d1eda Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Wed, 4 Sep 2024 11:33:49 -0300
+Subject: [PATCH 10/14] Allow toggling rotation button suggestion [2/2]
+
+---
+ res/values/custom_strings.xml                          |  4 ++++
+ res/xml/superior_lab_notifications.xml                 |  7 +++++++
+ .../superior/lab/fragments/NotificationSettings.java   | 10 ++++++++++
+ 3 files changed, 21 insertions(+)
+
+diff --git a/res/values/custom_strings.xml b/res/values/custom_strings.xml
+index cc21a54..f77e2c3 100644
+--- a/res/values/custom_strings.xml
++++ b/res/values/custom_strings.xml
+@@ -101,4 +101,8 @@
+         <item>space;space;left,back,home,recent,right</item>
+     </string-array>
+ 
++    <!-- Floating rotation button -->
++    <string name="floating_rotation_button_title">Floating rotate button</string>
++    <string name="floating_rotation_button_summary">Show a floating rotate button when device is rotated</string>
++
+ </resources>
+diff --git a/res/xml/superior_lab_notifications.xml b/res/xml/superior_lab_notifications.xml
+index 405e5c5..e8f0689 100644
+--- a/res/xml/superior_lab_notifications.xml
++++ b/res/xml/superior_lab_notifications.xml
+@@ -29,5 +29,12 @@
+         android:summary="@string/show_clipboard_overlay_summary"
+         android:defaultValue="true"/>
+ 
++    <!-- Floating rotation button -->
++    <com.superior.support.preferences.SystemSettingSwitchPreference
++        android:key="enable_floating_rotation_button"
++        android:title="@string/floating_rotation_button_title"
++        android:summary="@string/floating_rotation_button_summary"
++        android:defaultValue="true" />
++
+     </PreferenceCategory>
+ </PreferenceScreen>
+diff --git a/src/com/superior/lab/fragments/NotificationSettings.java b/src/com/superior/lab/fragments/NotificationSettings.java
+index 7cb89cf..9f72fe3 100644
+--- a/src/com/superior/lab/fragments/NotificationSettings.java
++++ b/src/com/superior/lab/fragments/NotificationSettings.java
+@@ -19,6 +19,10 @@ package com.superior.lab.fragments;
+ import com.android.internal.logging.nano.MetricsProto;
+ 
+ import android.os.Bundle;
++import android.content.ContentResolver;
++import android.content.Context;
++import android.os.UserHandle;
++import android.provider.Settings;
+ import com.android.settings.R;
+ 
+ import com.android.settings.SettingsPreferenceFragment;
+@@ -32,6 +36,12 @@ public class NotificationSettings extends SettingsPreferenceFragment {
+         addPreferencesFromResource(R.xml.superior_lab_notifications);
+     }
+ 
++    public static void reset(Context mContext) {
++        ContentResolver resolver = mContext.getContentResolver();
++        Settings.System.putIntForUser(resolver,
++                Settings.System.ENABLE_FLOATING_ROTATION_BUTTON, 1, UserHandle.USER_CURRENT);
++    }
++
+     @Override
+     public int getMetricsCategory() {
+         return MetricsProto.MetricsEvent.SUPERIOR;
+-- 
+2.47.0
+

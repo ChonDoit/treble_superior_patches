@@ -1,0 +1,43 @@
+From 4ad5aa5ada734cc9527f73a33e22ca3df0ab9b15 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Tue, 27 Aug 2024 13:05:23 -0300
+Subject: [PATCH 04/14] Squiggle
+
+---
+ res/values/custom_strings.xml          | 4 ++++
+ res/xml/superior_lab_quicksettings.xml | 6 ++++++
+ 2 files changed, 10 insertions(+)
+
+diff --git a/res/values/custom_strings.xml b/res/values/custom_strings.xml
+index d7825c2..56ce38b 100644
+--- a/res/values/custom_strings.xml
++++ b/res/values/custom_strings.xml
+@@ -20,4 +20,8 @@
+     <string name="qs_compact_media_player_mode_title">Compact QS Media player</string>
+     <string name="qs_compact_media_player_mode_summary">Enable compact mode for Media Player Widget</string>
+ 
++    <!-- Squiggle animation -->
++    <string name="show_squiggle_animation_title">Show squiggle animation</string>
++    <string name="show_squiggle_animation_summary">Show media panel squiggle animation.</string>
++
+ </resources>
+diff --git a/res/xml/superior_lab_quicksettings.xml b/res/xml/superior_lab_quicksettings.xml
+index e6350c4..d7feab2 100644
+--- a/res/xml/superior_lab_quicksettings.xml
++++ b/res/xml/superior_lab_quicksettings.xml
+@@ -41,6 +41,12 @@
+             android:summary="@string/qs_compact_media_player_mode_summary"
+             android:defaultValue="true"  />
+ 
++        <com.superior.support.preferences.SecureSettingSwitchPreference
++            android:key="show_media_squiggle_animation"
++            android:title="@string/show_squiggle_animation_title"
++            android:summary="@string/show_squiggle_animation_summary"
++            android:defaultValue="true" />
++
+     </PreferenceCategory>
+ 
+     <PreferenceCategory
+-- 
+2.47.0
+

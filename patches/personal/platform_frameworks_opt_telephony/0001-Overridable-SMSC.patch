@@ -1,0 +1,62 @@
+From e1d3f7bbd2d33ffedf7d7eb3a851f461ded2a742 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sun, 10 Nov 2024 16:11:52 -0300
+Subject: [PATCH] Overridable SMSC
+
+---
+ .../com/android/internal/telephony/MessagingResponse.java  | 7 +++++--
+ src/java/com/android/internal/telephony/RadioResponse.java | 6 ++++--
+ 2 files changed, 9 insertions(+), 4 deletions(-)
+
+diff --git a/src/java/com/android/internal/telephony/MessagingResponse.java b/src/java/com/android/internal/telephony/MessagingResponse.java
+index 3ddf676..d77e3e9 100644
+--- a/src/java/com/android/internal/telephony/MessagingResponse.java
++++ b/src/java/com/android/internal/telephony/MessagingResponse.java
+@@ -24,6 +24,8 @@ import android.hardware.radio.messaging.IRadioMessagingResponse;
+ 
+ import com.android.internal.telephony.gsm.SmsBroadcastConfigInfo;
+ 
++import android.os.SystemProperties;
++
+ import java.util.ArrayList;
+ 
+ /**
+@@ -170,8 +172,9 @@ public class MessagingResponse extends IRadioMessagingResponse.Stub {
+      * @param smsc Short Message Service Center address on the device
+      */
+     public void getSmscAddressResponse(RadioResponseInfo responseInfo, String smsc) {
+-        if(smsc.contains("\"") || smsc.contains(","))
+-            smsc = "";
++	if (smsc == null || smsc.isEmpty() || smsc.contains("\"") || smsc.contains(",")) {
++            smsc = SystemProperties.get("persist.sys.phh.smsc", "");
++        }
+         RadioResponse.responseString(HAL_SERVICE_MESSAGING, mRil, responseInfo, smsc);
+     }
+ 
+diff --git a/src/java/com/android/internal/telephony/RadioResponse.java b/src/java/com/android/internal/telephony/RadioResponse.java
+index 729e959..fe73b4f 100644
+--- a/src/java/com/android/internal/telephony/RadioResponse.java
++++ b/src/java/com/android/internal/telephony/RadioResponse.java
+@@ -39,6 +39,7 @@ import android.hardware.radio.V1_6.SetupDataCallResult;
+ import android.os.AsyncResult;
+ import android.os.Message;
+ import android.os.SystemClock;
++import android.os.SystemProperties;
+ import android.telephony.AnomalyReporter;
+ import android.telephony.BarringInfo;
+ import android.telephony.CarrierRestrictionRules;
+@@ -1267,8 +1268,9 @@ public class RadioResponse extends IRadioResponse.Stub {
+      * @param smsc Short Message Service Center address on the device
+      */
+     public void getSmscAddressResponse(RadioResponseInfo responseInfo, String smsc) {
+-        if(smsc.contains("\"") || smsc.contains(","))
+-            smsc = "";
++	if (smsc == null || smsc.isEmpty() || smsc.contains("\"") || smsc.contains(",")) {
++            smsc = SystemProperties.get("persist.sys.phh.smsc", "");
++        }
+         responseString(responseInfo, smsc);
+     }
+ 
+-- 
+2.25.1
+

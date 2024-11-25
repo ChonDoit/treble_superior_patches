@@ -1,0 +1,46 @@
+From 32234c0a220e5fd1b20fb78e9819a641e7e85cf9 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Tue, 10 Sep 2024 22:48:35 -0300
+Subject: [PATCH 11/14] Gaming Mode
+
+---
+ res/values/custom_strings.xml |  3 +++
+ res/xml/superior_lab_misc.xml | 10 ++++++++++
+ 2 files changed, 13 insertions(+)
+
+diff --git a/res/values/custom_strings.xml b/res/values/custom_strings.xml
+index f77e2c3..7d44827 100644
+--- a/res/values/custom_strings.xml
++++ b/res/values/custom_strings.xml
+@@ -105,4 +105,7 @@
+     <string name="floating_rotation_button_title">Floating rotate button</string>
+     <string name="floating_rotation_button_summary">Show a floating rotate button when device is rotated</string>
+ 
++    <!-- Gaming mode -->
++    <string name="gaming_mode_title">Game space</string>
++    <string name="gaming_mode_summary">Extra features for immersive gaming experience</string>
+ </resources>
+diff --git a/res/xml/superior_lab_misc.xml b/res/xml/superior_lab_misc.xml
+index 78bd1b9..b0b8bf4 100644
+--- a/res/xml/superior_lab_misc.xml
++++ b/res/xml/superior_lab_misc.xml
+@@ -11,6 +11,16 @@
+     <PreferenceCategory
+         android:title="@string/general_category">
+ 
++	<!-- Gaming mode -->
++        <Preference
++            android:key="gaming_mode"
++            android:title="@string/gaming_mode_title"
++            android:summary="@string/gaming_mode_summary">
++            <intent android:action="android.intent.action.MAIN"
++                android:targetPackage="io.chaldeaprjkt.gamespace"
++                android:targetClass="io.chaldeaprjkt.gamespace.settings.SettingsActivity" />
++        </Preference>
++
+ 	<com.superior.support.preferences.GlobalSettingSwitchPreference
+             android:key="pie_animation_style"
+             android:title="@string/pie_animation_style_title"
+-- 
+2.47.0
+

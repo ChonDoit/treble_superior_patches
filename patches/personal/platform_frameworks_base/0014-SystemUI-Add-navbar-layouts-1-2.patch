@@ -1,0 +1,201 @@
+From 54dc95d6207228fc72d77e05df94042b64e91049 Mon Sep 17 00:00:00 2001
+From: LuK1337 <priv.luk@gmail.com>
+Date: Fri, 20 Sep 2019 18:30:03 +0200
+Subject: [PATCH 14/31] SystemUI: Add navbar layouts [1/2]
+
+* Originally implemented by jesec but since
+  then has been reworked by me to use RTL
+  instead of replacing left / right buttons.
+
+Change-Id: I6159f0232ba2ee9f45d2afbba7d11072d902d9ac
+---
+ core/java/android/provider/Settings.java      | 12 ++++
+ .../NavigationBarInflaterView.java            | 65 +++++++++++++++++--
+ .../navigationbar/NavigationBarView.java      |  2 +-
+ .../android/systemui/tuner/NavBarTuner.java   |  6 +-
+ 4 files changed, 74 insertions(+), 11 deletions(-)
+
+diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
+index 0269338b..1a51622f 100644
+--- a/core/java/android/provider/Settings.java
++++ b/core/java/android/provider/Settings.java
+@@ -12775,6 +12775,18 @@ public final class Settings {
+          */
+         public static final String SHOW_MEDIA_SQUIGGLE_ANIMATION = "show_media_squiggle_animation";
+ 
++	/**
++         * Select from different navigation bar layouts
++         * @hide
++         */
++        public static final String NAVBAR_LAYOUT_VIEWS = "navbar_layout_views";
++
++        /**
++         * Inverse navigation bar layout
++         * @hide
++         */
++        public static final String NAVBAR_INVERSE_LAYOUT = "navbar_inverse_layout";
++
+         /**
+          * Keys we no longer back up under the current schema, but want to continue to
+          * process when restoring historical backup datasets.
+diff --git a/packages/SystemUI/src/com/android/systemui/navigationbar/NavigationBarInflaterView.java b/packages/SystemUI/src/com/android/systemui/navigationbar/NavigationBarInflaterView.java
+index c1d98c9d..c9694756 100644
+--- a/packages/SystemUI/src/com/android/systemui/navigationbar/NavigationBarInflaterView.java
++++ b/packages/SystemUI/src/com/android/systemui/navigationbar/NavigationBarInflaterView.java
+@@ -23,6 +23,7 @@ import android.annotation.Nullable;
+ import android.content.Context;
+ import android.content.res.Configuration;
+ import android.graphics.drawable.Icon;
++import android.provider.Settings;
+ import android.util.AttributeSet;
+ import android.util.Log;
+ import android.util.SparseArray;
+@@ -43,15 +44,19 @@ import com.android.systemui.navigationbar.buttons.ReverseLinearLayout;
+ import com.android.systemui.navigationbar.buttons.ReverseLinearLayout.ReverseRelativeLayout;
+ import com.android.systemui.recents.OverviewProxyService;
+ import com.android.systemui.shared.system.QuickStepContract;
++import com.android.systemui.tuner.TunerService;
+ 
+ import java.io.PrintWriter;
+ import java.lang.ref.WeakReference;
+ import java.util.Objects;
+ 
+-public class NavigationBarInflaterView extends FrameLayout {
++public class NavigationBarInflaterView extends FrameLayout implements TunerService.Tunable {
+     private static final String TAG = "NavBarInflater";
+ 
+-    public static final String NAV_BAR_VIEWS = "sysui_nav_bar";
++    public static final String NAVBAR_LAYOUT_VIEWS =
++            Settings.Secure.NAVBAR_LAYOUT_VIEWS;
++    private static final String NAVBAR_INVERSE_LAYOUT =
++            Settings.Secure.NAVBAR_INVERSE_LAYOUT;
+     public static final String NAV_BAR_LEFT = "sysui_nav_bar_left";
+     public static final String NAV_BAR_RIGHT = "sysui_nav_bar_right";
+ 
+@@ -118,6 +123,9 @@ public class NavigationBarInflaterView extends FrameLayout {
+ 
+     private OverviewProxyService mOverviewProxyService;
+     private int mNavBarMode = NAV_BAR_MODE_3BUTTON;
++    private String mNavBarLayout;
++
++    private boolean mInverseLayout;
+ 
+     public NavigationBarInflaterView(Context context, AttributeSet attrs) {
+         super(context, attrs);
+@@ -168,18 +176,48 @@ public class NavigationBarInflaterView extends FrameLayout {
+         mNavBarMode = mode;
+     }
+ 
++    @Override
++    protected void onAttachedToWindow() {
++        super.onAttachedToWindow();
++        Dependency.get(TunerService.class).addTunable(this, NAVBAR_INVERSE_LAYOUT);
++        Dependency.get(TunerService.class).addTunable(this, NAVBAR_LAYOUT_VIEWS);
++    }
++
+     @Override
+     protected void onDetachedFromWindow() {
+         Dependency.get(NavigationModeController.class).removeListener(mListener);
++        Dependency.get(TunerService.class).removeTunable(this);
+         super.onDetachedFromWindow();
+     }
+ 
+-    public void onLikelyDefaultLayoutChange() {
+-        // Reevaluate new layout
+-        final String newValue = getDefaultLayout();
+-        if (!Objects.equals(mCurrentLayout, newValue)) {
++    @Override
++    public void onTuningChanged(String key, String newValue) {
++        if (NAVBAR_INVERSE_LAYOUT.equals(key)) {
++            mInverseLayout = TunerService.parseIntegerSwitch(newValue, false);
++            updateLayoutInversion();
++	} else if (NAVBAR_LAYOUT_VIEWS.equals(key)) {
++            mNavBarLayout = (String) newValue;
++            onLikelyDefaultLayoutChange(true);
++        }
++    }
++
++    @Override
++    public void onConfigurationChanged(Configuration newConfig) {
++        super.onConfigurationChanged(newConfig);
++        updateLayoutInversion();
++    }
++
++    private void setNavigationBarLayout(String layoutValue, boolean force) {
++        if (!Objects.equals(mCurrentLayout, layoutValue) || force) {
+             clearViews();
+-            inflateLayout(newValue);
++            inflateLayout(layoutValue);
++        }
++    }
++
++    public void onLikelyDefaultLayoutChange(boolean force) {
++        setNavigationBarLayout(getDefaultLayout(), force);
++        if (!QuickStepContract.isGesturalMode(mNavBarMode)) {
++            setNavigationBarLayout(mNavBarLayout, force);
+         }
+     }
+ 
+@@ -284,6 +322,19 @@ public class NavigationBarInflaterView extends FrameLayout {
+         updateButtonDispatchersCurrentView();
+     }
+ 
++    private void updateLayoutInversion() {
++        if (mInverseLayout) {
++            Configuration config = mContext.getResources().getConfiguration();
++            if (config.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL) {
++                setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
++            } else {
++                setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
++            }
++        } else {
++            setLayoutDirection(View.LAYOUT_DIRECTION_INHERIT);
++        }
++    }
++
+     private void addGravitySpacer(LinearLayout layout) {
+         layout.addView(new Space(mContext), new LinearLayout.LayoutParams(0, 0, 1));
+     }
+diff --git a/packages/SystemUI/src/com/android/systemui/navigationbar/NavigationBarView.java b/packages/SystemUI/src/com/android/systemui/navigationbar/NavigationBarView.java
+index 184fd184..be690d2f 100644
+--- a/packages/SystemUI/src/com/android/systemui/navigationbar/NavigationBarView.java
++++ b/packages/SystemUI/src/com/android/systemui/navigationbar/NavigationBarView.java
+@@ -785,7 +785,7 @@ public class NavigationBarView extends FrameLayout implements
+     public void updateStates() {
+         if (mNavigationInflaterView != null) {
+             // Reinflate the navbar if needed, no-op unless the swipe up state changes
+-            mNavigationInflaterView.onLikelyDefaultLayoutChange();
++            mNavigationInflaterView.onLikelyDefaultLayoutChange(false);
+         }
+ 
+         updateSlippery();
+diff --git a/packages/SystemUI/src/com/android/systemui/tuner/NavBarTuner.java b/packages/SystemUI/src/com/android/systemui/tuner/NavBarTuner.java
+index ec6f8629..63b314c9 100644
+--- a/packages/SystemUI/src/com/android/systemui/tuner/NavBarTuner.java
++++ b/packages/SystemUI/src/com/android/systemui/tuner/NavBarTuner.java
+@@ -22,7 +22,7 @@ import static com.android.systemui.navigationbar.NavigationBarInflaterView.MENU_
+ import static com.android.systemui.navigationbar.NavigationBarInflaterView.NAVSPACE;
+ import static com.android.systemui.navigationbar.NavigationBarInflaterView.NAV_BAR_LEFT;
+ import static com.android.systemui.navigationbar.NavigationBarInflaterView.NAV_BAR_RIGHT;
+-import static com.android.systemui.navigationbar.NavigationBarInflaterView.NAV_BAR_VIEWS;
++import static com.android.systemui.navigationbar.NavigationBarInflaterView.NAVBAR_LAYOUT_VIEWS;
+ import static com.android.systemui.navigationbar.NavigationBarInflaterView.extractButton;
+ import static com.android.systemui.navigationbar.NavigationBarInflaterView.extractImage;
+ import static com.android.systemui.navigationbar.NavigationBarInflaterView.extractKeycode;
+@@ -112,11 +112,11 @@ public class NavBarTuner extends TunerPreferenceFragment {
+                 val = "default";
+             }
+             preference.setValue(val);
+-        }), NAV_BAR_VIEWS);
++        }), NAVBAR_LAYOUT_VIEWS);
+         preference.setOnPreferenceChangeListener((preference1, newValue) -> {
+             String val = (String) newValue;
+             if ("default".equals(val)) val = null;
+-            Dependency.get(TunerService.class).setValue(NAV_BAR_VIEWS, val);
++            Dependency.get(TunerService.class).setValue(NAVBAR_LAYOUT_VIEWS, val);
+             return true;
+         });
+     }
+-- 
+2.47.0
+

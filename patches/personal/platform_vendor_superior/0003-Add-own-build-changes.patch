@@ -1,0 +1,164 @@
+From 128622ab66f9627c02dee83bad31c0cf65afd580 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sat, 11 Nov 2023 17:03:04 +0000
+Subject: [PATCH] Add own build changes
+
+---
+ config/phh_gsi.mk | 60 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 60 insertions(+)
+ create mode 100644 config/phh_gsi.mk
+
+diff --git a/config/phh_gsi.mk b/config/phh_gsi.mk
+new file mode 100644
+index 0000000..9ee27fb
+--- /dev/null
++++ b/config/phh_gsi.mk
+@@ -0,0 +1,60 @@
++# Call for Secure build
++$(call inherit-product, device/phh/treble/secure.mk)
++PHH-SECURE_BUILD ?= false
++
++# The Gapps
++WITH_THE_GAPPS := gapps
++FULL_GAPPS := false
++ifeq ($(WITH_THE_GAPPS), gapps)
++    $(call inherit-product-if-exists, vendor/gapps/gapps.mk)
++        else ifeq ($(WITH_THE_GAPPS), vanilla)
++    $(call inherit-product-if-exists, vendor/gapps/vanilla.mk)
++endif
++
++# Don't Build Kernel
++TARGET_NO_KERNEL_OVERRIDE := true
++
++# Use CCache
++USE_CCACHE := true
++
++# Private Keys
++$(call inherit-product-if-exists, vendor/keys/keys.mk)
++
++# Set Build Variant prop for OTA
++ifeq ($(WITH_THE_GAPPS), vanilla)
++    PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.phh.buildvariant=Vanilla
++    else ifeq ($(FULL_GAPPS),true)
++        ifeq ($(PHH-SECURE_BUILD),true)
++            PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.phh.buildvariant=Gapps-Secure
++                else
++            PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.phh.buildvariant=Gapps
++        endif
++            else
++        ifeq ($(PHH-SECURE_BUILD),true)
++            PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.phh.buildvariant=Slim-Secure
++                else
++            PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.phh.buildvariant=Slim
++        endif
++endif
++
++PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
++    persist.sys.spoof.enabled=true \
++    persist.sys.binary_xml=false \
++    dalvik.vm.dex2oat64.enabled=true \
++    ro.system.ota.json_url=https://raw.githubusercontent.com/ChonDoit/treble_superior_patches/14/ota.json
++
++PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
++    persist.sys.spoof.product=oriole_beta \
++    persist.sys.spoof.device=oriole \
++    persist.sys.spoof.manufacturer=Google \
++    persist.sys.spoof.brand=google \
++    persist.sys.spoof.model=Pixel 6 \
++    persist.sys.spoof.enabled=true \
++    persist.sys.spoof.fingerprint=google/oriole_beta/oriole:15/AP41.240823.009/12329489:user/release-keys \
++    persist.sys.spoof.security_patch=2024-09-05 \
++    persist.sys.spoof.first_api_level=31 \
++    persist.sys.spoof.id=AP41.240823.009 \
++    persist.sys.spoof.type=user \
++    persist.sys.spoof.tags=release-keys \
++    persist.sys.spoof.incremental= \
++    persist.sys.spoof.release=
+diff --git a/config/phh_gsi.mk b/config/phh_gsi.mk
+index abd0628..0241d51 100644
+--- a/config/phh_gsi.mk
++++ b/config/phh_gsi.mk
+@@ -37,24 +37,5 @@ ifeq ($(WITH_THE_GAPPS), vanilla)
+         endif
+ endif
+ 
+-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
+-    persist.sys.spoof.enabled=true \
+-    persist.sys.binary_xml=false \
+-    dalvik.vm.dex2oat64.enabled=true \
+-    ro.system.ota.json_url=https://raw.githubusercontent.com/ChonDoit/treble_superior_patches/14/ota.json
+-
+-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
+-    persist.sys.spoof.product=oriole_beta \
+-    persist.sys.spoof.device=oriole \
+-    persist.sys.spoof.manufacturer=Google \
+-    persist.sys.spoof.brand=google \
+-    persist.sys.spoof.model=Pixel 6 \
+-    persist.sys.spoof.enabled=true \
+-    persist.sys.spoof.fingerprint=google/oriole_beta/oriole:15/AP41.240823.009/12329489:user/release-keys \
+-    persist.sys.spoof.security_patch=2024-09-05 \
+-    persist.sys.spoof.first_api_level=31 \
+-    persist.sys.spoof.id=AP41.240823.009 \
+-    persist.sys.spoof.type=user \
+-    persist.sys.spoof.tags=release-keys \
+-    persist.sys.spoof.incremental= \
+-    persist.sys.spoof.release=
++# Custom Props
++TARGET_SYSTEM_PROP := vendor/superior/config/system.prop $(TARGET_SYSTEM_PROP)
+diff --git a/config/system.prop b/config/system.prop
+new file mode 100644
+index 0000000..a61b3d7
+--- /dev/null
++++ b/config/system.prop
+@@ -0,0 +1,19 @@
++persist.sys.binary_xml=false
++dalvik.vm.dex2oat64.enabled=true
++ro.system.ota.json_url=https://raw.githubusercontent.com/ChonDoit/treble_superior_patches/14/ota.json
++
++persist.sys.spoof.bootloader=false
++persist.sys.spoof.keybox=true
++persist.sys.spoof.enabled=true
++persist.sys.spoof.product=oriole_beta
++persist.sys.spoof.device=oriole
++persist.sys.spoof.manufacturer=Google
++persist.sys.spoof.brand=google
++persist.sys.spoof.model=Pixel 6
++persist.sys.spoof.enabled=true
++persist.sys.spoof.fingerprint=google/oriole_beta/oriole:15/AP41.240823.009/12329489:user/release-keys
++persist.sys.spoof.security_patch=2024-09-05
++persist.sys.spoof.first_api_level=31
++persist.sys.spoof.id=AP41.240823.009
++persist.sys.spoof.type=user
++persist.sys.spoof.tags=release-keys
+diff --git a/config/system.prop b/config/system.prop
+index a61b3d7..1ad099f 100644
+--- a/config/system.prop
++++ b/config/system.prop
+@@ -2,18 +2,17 @@ persist.sys.binary_xml=false
+ dalvik.vm.dex2oat64.enabled=true
+ ro.system.ota.json_url=https://raw.githubusercontent.com/ChonDoit/treble_superior_patches/14/ota.json
+ 
+-persist.sys.spoof.bootloader=false
+-persist.sys.spoof.keybox=true
++persist.sys.spoof.bka=true
+ persist.sys.spoof.enabled=true
+-persist.sys.spoof.product=oriole_beta
+-persist.sys.spoof.device=oriole
++persist.sys.spoof.product=akita_beta
++persist.sys.spoof.device=akita
+ persist.sys.spoof.manufacturer=Google
+ persist.sys.spoof.brand=google
+-persist.sys.spoof.model=Pixel 6
++persist.sys.spoof.model=Pixel 8a
+ persist.sys.spoof.enabled=true
+-persist.sys.spoof.fingerprint=google/oriole_beta/oriole:15/AP41.240823.009/12329489:user/release-keys
++persist.sys.spoof.fingerprint=google/akita_beta/akita:15/AP41.240925.009/12534705:user/release-keys
+ persist.sys.spoof.security_patch=2024-09-05
+ persist.sys.spoof.first_api_level=31
+-persist.sys.spoof.id=AP41.240823.009
++persist.sys.spoof.id=P41.240925.009
+ persist.sys.spoof.type=user
+ persist.sys.spoof.tags=release-keys
+-- 
+2.46.0
+

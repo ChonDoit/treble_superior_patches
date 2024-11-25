@@ -1,0 +1,26 @@
+From 4e1747180496f8d2ef95a588db950aa150af6987 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Thu, 19 Sep 2024 23:50:49 -0300
+Subject: [PATCH 19/31] Reduce Circle Battery Text
+
+Unnecessarily larger than it should be
+---
+ .../src/com/android/settingslib/graph/CircleBatteryDrawable.kt  | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/packages/SettingsLib/src/com/android/settingslib/graph/CircleBatteryDrawable.kt b/packages/SettingsLib/src/com/android/settingslib/graph/CircleBatteryDrawable.kt
+index 28d6deda..b3f6f148 100644
+--- a/packages/SettingsLib/src/com/android/settingslib/graph/CircleBatteryDrawable.kt
++++ b/packages/SettingsLib/src/com/android/settingslib/graph/CircleBatteryDrawable.kt
+@@ -227,7 +227,7 @@ class CircleBatteryDrawable(private val context: Context, frameColor: Int) : Dra
+         // compute percentage text
+         if (!charging && batteryLevel != 100 && showPercent) {
+             textPaint.color = getColorForLevel(batteryLevel)
+-            textPaint.textSize = height * 0.52f
++            textPaint.textSize = height * 0.46f
+             val textHeight = -textPaint.fontMetrics.ascent
+             val pctText =
+                 if (batteryLevel > criticalLevel)
+-- 
+2.47.0
+

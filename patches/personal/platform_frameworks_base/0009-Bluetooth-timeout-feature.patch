@@ -1,0 +1,188 @@
+From 3a098a8614ccacbc4f5cd36e71ac5d278dafec89 Mon Sep 17 00:00:00 2001
+From: Oliver Scott <olivercscott@gmail.com>
+Date: Fri, 2 Oct 2020 12:37:30 -0400
+Subject: [PATCH 09/31] Bluetooth timeout feature
+
+* Now use AOSP settings storage instead of LineageSettings.
+  This is so the Bluetooth APEX module can access the setting.
+
+Also includes squashed change:
+
+Author: Tommy Webb <tommy@calyxinstitute.org>
+Date:   Thu May 18 13:49:24 2023 -0400
+
+    fixup! Bluetooth timeout feature
+
+    Only allow admin users to adjust the Bluetooth timeout.
+
+    Issue: calyxos#1633
+    Change-Id: I8b3ae8f0faffde194ee417548e7d200842000fb6
+
+Issue: calyxos#124
+Change-Id: I4f4646139cd42b7ad20b486ed77dd00499aa3c6e
+Signed-off-by: aswin7469 <aswinas@pixysos.com>
+---
+ core/java/android/provider/Settings.java      |  6 ++
+ .../bluetooth/BluetoothEventManager.java      | 27 ++++++++
+ .../bluetooth/BluetoothTimeoutReceiver.java   | 65 +++++++++++++++++++
+ 3 files changed, 98 insertions(+)
+ create mode 100644 packages/SettingsLib/src/com/android/settingslib/bluetooth/BluetoothTimeoutReceiver.java
+
+diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
+index 9c04b35e..4811bc78 100644
+--- a/core/java/android/provider/Settings.java
++++ b/core/java/android/provider/Settings.java
+@@ -19522,6 +19522,12 @@ public final class Settings {
+         public static final String NR_NSA_TRACKING_SCREEN_OFF_MODE =
+                 "nr_nsa_tracking_screen_off_mode";
+ 
++	/**
++         * The amount of time in milliseconds before bluetooth is turned off
++         * @hide
++         */
++        public static final String BLUETOOTH_OFF_TIMEOUT = "bluetooth_off_timeout";
++
+         /**
+          * Whether to show People Space.
+          * Values are:
+diff --git a/packages/SettingsLib/src/com/android/settingslib/bluetooth/BluetoothEventManager.java b/packages/SettingsLib/src/com/android/settingslib/bluetooth/BluetoothEventManager.java
+index 647fcb9f..9dd314d2 100644
+--- a/packages/SettingsLib/src/com/android/settingslib/bluetooth/BluetoothEventManager.java
++++ b/packages/SettingsLib/src/com/android/settingslib/bluetooth/BluetoothEventManager.java
+@@ -30,7 +30,9 @@ import android.content.BroadcastReceiver;
+ import android.content.Context;
+ import android.content.Intent;
+ import android.content.IntentFilter;
++import android.database.ContentObserver;
+ import android.os.UserHandle;
++import android.provider.Settings;
+ import android.telephony.TelephonyManager;
+ import android.util.Log;
+ 
+@@ -134,6 +136,19 @@ public class BluetoothEventManager {
+         addHandler(BluetoothDevice.ACTION_ACL_DISCONNECTED, new AclStateChangedHandler());
+ 
+         registerAdapterIntentReceiver();
++
++	mContext.getContentResolver().registerContentObserver(
++                Settings.Global.getUriFor(Settings.Global.BLUETOOTH_OFF_TIMEOUT),
++                false,
++                new ContentObserver(handler) {
++            @Override
++            public void onChange(boolean selfChange) {
++                super.onChange(selfChange);
++                BluetoothTimeoutReceiver.setTimeoutAlarm(mContext,
++                        Settings.Global.getLong(context.getContentResolver(),
++                                Settings.Global.BLUETOOTH_OFF_TIMEOUT, 0));
++            }
++        });
+     }
+ 
+     /** Register to start receiving callbacks for Bluetooth events. */
+@@ -297,6 +312,10 @@ public class BluetoothEventManager {
+             }
+             // Inform CachedDeviceManager that the adapter state has changed
+             mDeviceManager.onBluetoothStateChanged(state);
++	    if (state == BluetoothAdapter.STATE_ON)
++                BluetoothTimeoutReceiver.setTimeoutAlarm(context,
++                        Settings.Global.getLong(context.getContentResolver(),
++                                Settings.Global.BLUETOOTH_OFF_TIMEOUT, 0));
+         }
+     }
+ 
+@@ -312,6 +331,9 @@ public class BluetoothEventManager {
+                 callback.onScanningStateChanged(mStarted);
+             }
+             mDeviceManager.onScanningStateChanged(mStarted);
++	    BluetoothTimeoutReceiver.setTimeoutAlarm(context,
++                    mStarted ? 0 : Settings.Global.getLong(context.getContentResolver(),
++                            Settings.Global.BLUETOOTH_OFF_TIMEOUT, 0));
+         }
+     }
+ 
+@@ -348,6 +370,11 @@ public class BluetoothEventManager {
+             int state = intent.getIntExtra(BluetoothAdapter.EXTRA_CONNECTION_STATE,
+                     BluetoothAdapter.ERROR);
+             dispatchConnectionStateChanged(cachedDevice, state);
++	    if (state == BluetoothAdapter.STATE_DISCONNECTED) {
++                BluetoothTimeoutReceiver.setTimeoutAlarm(context,
++                        Settings.Global.getLong(context.getContentResolver(),
++                                Settings.Global.BLUETOOTH_OFF_TIMEOUT, 0));
++            }
+         }
+     }
+ 
+diff --git a/packages/SettingsLib/src/com/android/settingslib/bluetooth/BluetoothTimeoutReceiver.java b/packages/SettingsLib/src/com/android/settingslib/bluetooth/BluetoothTimeoutReceiver.java
+new file mode 100644
+index 00000000..bbeb5f35
+--- /dev/null
++++ b/packages/SettingsLib/src/com/android/settingslib/bluetooth/BluetoothTimeoutReceiver.java
+@@ -0,0 +1,65 @@
++/*
++ * Copyright (C) 2020 The Calyx Institute
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.settingslib.bluetooth;
++
++import android.app.AlarmManager;
++import android.app.PendingIntent;
++import android.bluetooth.BluetoothAdapter;
++import android.content.BroadcastReceiver;
++import android.content.ComponentName;
++import android.content.Context;
++import android.content.Intent;
++import android.util.Log;
++
++import java.util.Date;
++
++public class BluetoothTimeoutReceiver extends BroadcastReceiver {
++    private static final String TAG = "BluetoothTimeoutReceiver";
++
++    private static final String INTENT_TIMEOUT = "android.bluetooth.intent.TIMEOUT";
++
++    public static void setTimeoutAlarm(Context context, long alarmTime) {
++        Intent intent = new Intent(INTENT_TIMEOUT);
++        intent.setClassName("com.android.settings", "com.android.settingslib.bluetooth.BluetoothTimeoutReceiver");
++        PendingIntent pending = PendingIntent.getBroadcast(
++                context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_MUTABLE);
++        AlarmManager alarmManager =
++                (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
++
++        if (alarmTime != 0) {
++            alarmTime = System.currentTimeMillis() + alarmTime;
++            Log.d(TAG, "setTimeoutAlarm(): alarmTime = " + new Date(alarmTime));
++            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarmTime, pending);
++        } else
++            alarmManager.cancel(pending);
++    }
++
++    @Override
++    public void onReceive(Context context, Intent intent) {
++        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
++        if (intent.getAction() == null && !intent.getAction().equals(INTENT_TIMEOUT)) {
++            return;
++        }
++        if (bluetoothAdapter != null) {
++            if (bluetoothAdapter.getState() == BluetoothAdapter.STATE_ON &&
++                    bluetoothAdapter.getConnectionState() == BluetoothAdapter.STATE_DISCONNECTED)
++                bluetoothAdapter.disable();
++        } else {
++            Log.e(TAG, "bluetoothAdapter is NULL!!");
++        }
++    }
++}
+-- 
+2.47.0
+

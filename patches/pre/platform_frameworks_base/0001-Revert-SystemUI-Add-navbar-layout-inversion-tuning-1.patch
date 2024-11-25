@@ -1,0 +1,102 @@
+From 2186ee7a697ebfd71f4450f79230bc523744c32f Mon Sep 17 00:00:00 2001
+From: ChonDoit <you@example.com>
+Date: Wed, 23 Oct 2024 22:38:46 -0300
+Subject: [PATCH 1/2] Revert "SystemUI: Add navbar layout inversion tuning
+ [1/2]"
+
+This reverts commit c43e10025259360c880fd99fdf846bc0f39d6a01.
+---
+ .../NavigationBarInflaterView.java            | 40 +------------------
+ 1 file changed, 1 insertion(+), 39 deletions(-)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/navigationbar/NavigationBarInflaterView.java b/packages/SystemUI/src/com/android/systemui/navigationbar/NavigationBarInflaterView.java
+index b9befe9f03b3..c1d98c9daf1d 100644
+--- a/packages/SystemUI/src/com/android/systemui/navigationbar/NavigationBarInflaterView.java
++++ b/packages/SystemUI/src/com/android/systemui/navigationbar/NavigationBarInflaterView.java
+@@ -43,19 +43,17 @@ import com.android.systemui.navigationbar.buttons.ReverseLinearLayout;
+ import com.android.systemui.navigationbar.buttons.ReverseLinearLayout.ReverseRelativeLayout;
+ import com.android.systemui.recents.OverviewProxyService;
+ import com.android.systemui.shared.system.QuickStepContract;
+-import com.android.systemui.tuner.TunerService;
+ 
+ import java.io.PrintWriter;
+ import java.lang.ref.WeakReference;
+ import java.util.Objects;
+ 
+-public class NavigationBarInflaterView extends FrameLayout implements TunerService.Tunable {
++public class NavigationBarInflaterView extends FrameLayout {
+     private static final String TAG = "NavBarInflater";
+ 
+     public static final String NAV_BAR_VIEWS = "sysui_nav_bar";
+     public static final String NAV_BAR_LEFT = "sysui_nav_bar_left";
+     public static final String NAV_BAR_RIGHT = "sysui_nav_bar_right";
+-    public static final String NAV_BAR_INVERSE = "sysui_nav_bar_inverse";
+ 
+     public static final String MENU_IME_ROTATE = "menu_ime";
+     public static final String BACK = "back";
+@@ -121,8 +119,6 @@ public class NavigationBarInflaterView extends FrameLayout implements TunerServi
+     private OverviewProxyService mOverviewProxyService;
+     private int mNavBarMode = NAV_BAR_MODE_3BUTTON;
+ 
+-    private boolean mInverseLayout;
+-
+     public NavigationBarInflaterView(Context context, AttributeSet attrs) {
+         super(context, attrs);
+         createInflaters();
+@@ -172,33 +168,12 @@ public class NavigationBarInflaterView extends FrameLayout implements TunerServi
+         mNavBarMode = mode;
+     }
+ 
+-    @Override
+-    protected void onAttachedToWindow() {
+-        super.onAttachedToWindow();
+-        Dependency.get(TunerService.class).addTunable(this, NAV_BAR_INVERSE);
+-    }
+-
+     @Override
+     protected void onDetachedFromWindow() {
+         Dependency.get(NavigationModeController.class).removeListener(mListener);
+-        Dependency.get(TunerService.class).removeTunable(this);
+         super.onDetachedFromWindow();
+     }
+ 
+-    @Override
+-    public void onTuningChanged(String key, String newValue) {
+-        if (NAV_BAR_INVERSE.equals(key)) {
+-            mInverseLayout = TunerService.parseIntegerSwitch(newValue, false);
+-            updateLayoutInversion();
+-        }
+-    }
+-
+-    @Override
+-    public void onConfigurationChanged(Configuration newConfig) {
+-        super.onConfigurationChanged(newConfig);
+-        updateLayoutInversion();
+-    }
+-
+     public void onLikelyDefaultLayoutChange() {
+         // Reevaluate new layout
+         final String newValue = getDefaultLayout();
+@@ -309,19 +284,6 @@ public class NavigationBarInflaterView extends FrameLayout implements TunerServi
+         updateButtonDispatchersCurrentView();
+     }
+ 
+-    private void updateLayoutInversion() {
+-        if (mInverseLayout) {
+-            Configuration config = mContext.getResources().getConfiguration();
+-            if (config.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL) {
+-                setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+-            } else {
+-                setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+-            }
+-        } else {
+-            setLayoutDirection(View.LAYOUT_DIRECTION_INHERIT);
+-        }
+-    }
+-
+     private void addGravitySpacer(LinearLayout layout) {
+         layout.addView(new Space(mContext), new LinearLayout.LayoutParams(0, 0, 1));
+     }
+-- 
+2.45.1.windows.1
+

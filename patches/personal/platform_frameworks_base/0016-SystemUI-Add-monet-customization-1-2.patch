@@ -1,0 +1,310 @@
+From f7529a087455f1e5ab4db63822ea3ff5123cc8e6 Mon Sep 17 00:00:00 2001
+From: Pranav Vashi <neobuddy89@gmail.com>
+Date: Tue, 4 Apr 2023 10:22:47 +0530
+Subject: [PATCH 16/31] SystemUI: Add monet customization [1/2]
+
+Co-authored-by: Ido Ben-Hur <idoybh2@gmail.com>
+Signed-off-by: Pranav Vashi <neobuddy89@gmail.com>
+Signed-off-by: LordShenron <shen.priyanshu@gmail.com>
+Signed-off-by: anoosragh69 <ok.ano0s6090@gmail.com>
+---
+ .../com/android/systemui/monet/ColorScheme.kt | 54 ++++++++++---
+ .../com/android/systemui/monet/Shades.java    | 18 ++++-
+ .../theme/ThemeOverlayController.java         | 80 ++++++++++++++++++-
+ 3 files changed, 133 insertions(+), 19 deletions(-)
+
+diff --git a/packages/SystemUI/monet/src/com/android/systemui/monet/ColorScheme.kt b/packages/SystemUI/monet/src/com/android/systemui/monet/ColorScheme.kt
+index 46a90f63..29d48254 100644
+--- a/packages/SystemUI/monet/src/com/android/systemui/monet/ColorScheme.kt
++++ b/packages/SystemUI/monet/src/com/android/systemui/monet/ColorScheme.kt
+@@ -209,10 +209,10 @@ internal class ChromaSource : Chroma {
+ }
+ 
+ internal class TonalSpec(val hue: Hue = HueSource(), val chroma: Chroma) {
+-    fun shades(sourceColor: Cam): List<Int> {
++    fun shades(sourceColor: Cam, luminanceFactor: Float, chromaFactor: Float): List<Int> {
+         val hue = hue.get(sourceColor)
+         val chroma = chroma.get(sourceColor)
+-        return Shades.of(hue.toFloat(), chroma.toFloat()).toList()
++        return Shades.of(hue.toFloat(), chroma.toFloat(), luminanceFactor, chromaFactor).toList()
+     }
+ 
+     fun getAtTone(sourceColor: Cam, tone: Float): Int {
+@@ -331,9 +331,11 @@ class TonalPalette
+ internal constructor(
+     private val spec: TonalSpec,
+     seedColor: Int,
++    luminanceFactor: Float = 1f,
++    chromaFactor: Float = 1f,
+ ) {
+     val seedCam: Cam = Cam.fromInt(seedColor)
+-    val allShades: List<Int> = spec.shades(seedCam)
++    val allShades: List<Int> = spec.shades(seedCam, luminanceFactor, chromaFactor)
+     val allShadesMapped: Map<Int, Int> = SHADE_KEYS.zip(allShades).toMap()
+     val baseColor: Int
+ 
+@@ -382,7 +384,12 @@ internal constructor(
+ class ColorScheme(
+     @ColorInt val seed: Int,
+     val darkTheme: Boolean,
+-    val style: Style = Style.TONAL_SPOT
++    val style: Style = Style.TONAL_SPOT,
++    val luminanceFactor: Float = 1f,
++    val chromaFactor: Float = 1f,
++    val tintBackground: Boolean = false,
++    @ColorInt val customSeed: Int? = null,
++    @ColorInt val bgSeed: Int? = null
+ ) {
+ 
+     val accent1: TonalPalette
+@@ -397,8 +404,15 @@ class ColorScheme(
+     constructor(
+         wallpaperColors: WallpaperColors,
+         darkTheme: Boolean,
+-        style: Style = Style.TONAL_SPOT
+-    ) : this(getSeedColor(wallpaperColors, style != Style.CONTENT), darkTheme, style)
++        style: Style = Style.TONAL_SPOT,
++        luminanceFactor: Float = 1f,
++        chromaFactor: Float = 1f,
++        tintBackground: Boolean = false,
++        customSeed: Int? = null,
++        bgSeed: Int? = null
++    ) : this(getSeedColor(wallpaperColors, style != Style.CONTENT),
++            darkTheme, style, luminanceFactor, chromaFactor, tintBackground,
++            customSeed, bgSeed)
+ 
+     val allHues: List<TonalPalette>
+         get() {
+@@ -429,21 +443,37 @@ class ColorScheme(
+         get() = ColorUtils.setAlphaComponent(if (darkTheme) accent1.s100 else accent1.s500, 0xFF)
+ 
+     init {
+-        val proposedSeedCam = Cam.fromInt(seed)
++        val proposedSeedCam = Cam.fromInt(if (customSeed == null) seed else customSeed)
+         val seedArgb =
+-            if (seed == Color.TRANSPARENT) {
++            if (customSeed == null) {
++                seed
++            } else if (customSeed == Color.TRANSPARENT) {
+                 GOOGLE_BLUE
+             } else if (style != Style.CONTENT && proposedSeedCam.chroma < 5) {
+                 GOOGLE_BLUE
+             } else {
+-                seed
++                customSeed
++            }
++
++        val proposedBgSeedCam = Cam.fromInt(if (bgSeed == null) seed else bgSeed)
++        val bgSeedArgb =
++            if (bgSeed == null) {
++                seedArgb
++            } else if (bgSeed == Color.TRANSPARENT) {
++                GOOGLE_BLUE
++            } else if (style != Style.CONTENT && proposedBgSeedCam.chroma < 5) {
++                GOOGLE_BLUE
++            } else {
++                bgSeed
+             }
+ 
+-        accent1 = TonalPalette(style.coreSpec.a1, seedArgb)
++        accent1 = TonalPalette(style.coreSpec.a1, seedArgb, luminanceFactor, chromaFactor)
+         accent2 = TonalPalette(style.coreSpec.a2, seedArgb)
+         accent3 = TonalPalette(style.coreSpec.a3, seedArgb)
+-        neutral1 = TonalPalette(style.coreSpec.n1, seedArgb)
+-        neutral2 = TonalPalette(style.coreSpec.n2, seedArgb)
++        neutral1 = TonalPalette(style.coreSpec.n1, bgSeedArgb,
++                if (tintBackground) luminanceFactor else 1f,
++                if (tintBackground) chromaFactor else 1f)
++        neutral2 = TonalPalette(style.coreSpec.n2, bgSeedArgb)
+     }
+ 
+     val shadeCount
+diff --git a/packages/SystemUI/monet/src/com/android/systemui/monet/Shades.java b/packages/SystemUI/monet/src/com/android/systemui/monet/Shades.java
+index c97b9601..d2a9960c 100644
+--- a/packages/SystemUI/monet/src/com/android/systemui/monet/Shades.java
++++ b/packages/SystemUI/monet/src/com/android/systemui/monet/Shades.java
+@@ -49,18 +49,28 @@ public class Shades {
+      *
+      * @param hue    hue in CAM16 color space
+      * @param chroma chroma in CAM16 color space
++     * @param lFactor multiplier of luminance
++     * @param cFactor multiplier of chroma
+      * @return shades of a color, as argb integers. Ordered by lightness descending.
+      */
+-    public static @ColorInt int[] of(float hue, float chroma) {
++    public static @ColorInt int[] of(float hue, float chroma, float lFactor, float cFactor) {
+         int[] shades = new int[12];
+         // At tone 90 and above, blue and yellow hues can reach a much higher chroma.
+         // To preserve a consistent appearance across all hues, use a maximum chroma of 40.
+-        shades[0] = ColorUtils.CAMToColor(hue, Math.min(40f, chroma), 99);
+-        shades[1] = ColorUtils.CAMToColor(hue, Math.min(40f, chroma), 95);
++        shades[0] = ColorUtils.CAMToColor(hue, Math.min(40f, chroma) * cFactor, 99 * lFactor);
++        shades[1] = ColorUtils.CAMToColor(hue, Math.min(40f, chroma) * cFactor, 95 * lFactor);
+         for (int i = 2; i < 12; i++) {
+             float lStar = (i == 6) ? MIDDLE_LSTAR : 100 - 10 * (i - 1);
+-            shades[i] = ColorUtils.CAMToColor(hue, chroma, lStar);
++            shades[i] = ColorUtils.CAMToColor(hue, chroma * cFactor, lStar * lFactor);
+         }
+         return shades;
+     }
++
++    public static @ColorInt int[] of(float hue, float chroma) {
++        return of(hue, chroma, 1f);
++    }
++
++    public static @ColorInt int[] of(float hue, float chroma, float lFactor) {
++        return of(hue, chroma, lFactor, 1f);
++    }
+ }
+diff --git a/packages/SystemUI/src/com/android/systemui/theme/ThemeOverlayController.java b/packages/SystemUI/src/com/android/systemui/theme/ThemeOverlayController.java
+index facf9b75..a5f801e6 100644
+--- a/packages/SystemUI/src/com/android/systemui/theme/ThemeOverlayController.java
++++ b/packages/SystemUI/src/com/android/systemui/theme/ThemeOverlayController.java
+@@ -84,6 +84,7 @@ import com.android.systemui.statusbar.policy.ConfigurationController;
+ import com.android.systemui.statusbar.policy.ConfigurationController.ConfigurationListener;
+ import com.android.systemui.statusbar.policy.DeviceProvisionedController;
+ import com.android.systemui.statusbar.policy.DeviceProvisionedController.DeviceProvisionedListener;
++import com.android.systemui.tuner.TunerService;
+ import com.android.systemui.util.kotlin.JavaAdapter;
+ import com.android.systemui.util.settings.SecureSettings;
+ import com.android.systemui.util.settings.SystemSettings;
+@@ -125,10 +126,18 @@ import javax.inject.Inject;
+  * associated work profiles
+  */
+ @SysUISingleton
+-public class ThemeOverlayController implements CoreStartable, Dumpable {
++public class ThemeOverlayController implements CoreStartable, Dumpable, TunerService.Tunable {
+     protected static final String TAG = "ThemeOverlayController";
+     private static final boolean DEBUG = true;
+ 
++    private static final String PREF_CHROMA_FACTOR ="monet_engine_chroma_factor";
++    private static final String PREF_LUMINANCE_FACTOR ="monet_engine_luminance_factor";
++    private static final String PREF_TINT_BACKGROUND ="monet_engine_tint_background";
++    private static final String PREF_CUSTOM_COLOR ="monet_engine_custom_color";
++    private static final String PREF_COLOR_OVERRIDE ="monet_engine_color_override";
++    private static final String PREF_CUSTOM_BGCOLOR ="monet_engine_custom_bgcolor";
++    private static final String PREF_BGCOLOR_OVERRIDE ="monet_engine_bgcolor_override";
++
+     private final ThemeOverlayApplier mThemeManager;
+     private final UserManager mUserManager;
+     private final BroadcastDispatcher mBroadcastDispatcher;
+@@ -177,12 +186,21 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
+     private final UiModeManager mUiModeManager;
+     private DynamicScheme mDynamicSchemeDark;
+     private DynamicScheme mDynamicSchemeLight;
++    private final TunerService mTunerService;
+ 
+     // Defers changing themes until Setup Wizard is done.
+     private boolean mDeferredThemeEvaluation;
+     // Determines if we should ignore THEME_CUSTOMIZATION_OVERLAY_PACKAGES setting changes.
+     private boolean mSkipSettingChange;
+ 
++    private float mChromaFactor = 1.0f;
++    private float mLuminanceFactor = 1.0f;
++    private boolean mTintBackground;
++    private boolean mCustomColor;
++    private int mColorOverride;
++    private boolean mCustomBgColor;
++    private int mBgColorOverride;
++
+     private final DeviceProvisionedListener mDeviceProvisionedListener =
+             new DeviceProvisionedListener() {
+                 @Override
+@@ -425,7 +443,8 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
+             KeyguardTransitionInteractor keyguardTransitionInteractor,
+             UiModeManager uiModeManager,
+             ActivityManager activityManager,
+-            ConfigurationController configurationController) {
++            ConfigurationController configurationController,
++            TunerService tunerService) {
+         mContext = context;
+         mIsMonetEnabled = featureFlags.isEnabled(Flags.MONET);
+         mIsFidelityEnabled = featureFlags.isEnabled(Flags.COLOR_FIDELITY);
+@@ -447,6 +466,7 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
+         mKeyguardTransitionInteractor = keyguardTransitionInteractor;
+         mUiModeManager = uiModeManager;
+         mActivityManager = activityManager;
++        mTunerService = tunerService;
+         dumpManager.registerDumpable(TAG, this);
+     }
+ 
+@@ -610,6 +630,14 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
+             return;
+         }
+ 
++        mTunerService.addTunable(this, PREF_CHROMA_FACTOR);
++        mTunerService.addTunable(this, PREF_LUMINANCE_FACTOR);
++        mTunerService.addTunable(this, PREF_TINT_BACKGROUND);
++        mTunerService.addTunable(this, PREF_CUSTOM_COLOR);
++        mTunerService.addTunable(this, PREF_COLOR_OVERRIDE);
++        mTunerService.addTunable(this, PREF_CUSTOM_BGCOLOR);
++        mTunerService.addTunable(this, PREF_BGCOLOR_OVERRIDE);
++
+         // Upon boot, make sure we have the most up to date colors
+         Runnable updateColors = () -> {
+             WallpaperColors systemColor = mWallpaperManager.getWallpaperColors(
+@@ -665,6 +693,49 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
+         }
+     }
+ 
++    @Override
++    public void onTuningChanged(String key, String newValue) {
++        switch (key) {
++            case PREF_CHROMA_FACTOR:
++                mChromaFactor =
++                        (float) TunerService.parseInteger(newValue, 100) / 100f;
++                reevaluateSystemTheme(true /* forceReload */);
++                break;
++            case PREF_LUMINANCE_FACTOR:
++                mLuminanceFactor =
++                        (float) TunerService.parseInteger(newValue, 100) / 100f;
++                reevaluateSystemTheme(true /* forceReload */);
++                break;
++            case PREF_TINT_BACKGROUND:
++                mTintBackground =
++                        TunerService.parseIntegerSwitch(newValue, false);
++                reevaluateSystemTheme(true /* forceReload */);
++                break;
++            case PREF_CUSTOM_COLOR:
++                mCustomColor =
++                        TunerService.parseIntegerSwitch(newValue, false);
++                reevaluateSystemTheme(true /* forceReload */);
++                break;
++            case PREF_COLOR_OVERRIDE:
++                mColorOverride =
++                        TunerService.parseInteger(newValue, 0xFF1b6ef3);
++                reevaluateSystemTheme(true /* forceReload */);
++                break;
++            case PREF_CUSTOM_BGCOLOR:
++                mCustomBgColor =
++                        TunerService.parseIntegerSwitch(newValue, false);
++                reevaluateSystemTheme(true /* forceReload */);
++                break;
++            case PREF_BGCOLOR_OVERRIDE:
++                mBgColorOverride =
++                        TunerService.parseInteger(newValue, 0xFF1b6ef3);
++                reevaluateSystemTheme(true /* forceReload */);
++                break;
++            default:
++                break;
++         }
++    }
++
+     private void reevaluateSystemTheme(boolean forceReload) {
+         final WallpaperColors currentColors = mCurrentColors.get(mUserTracker.getUserId());
+         final int mainColor;
+@@ -748,7 +819,10 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
+ 
+     private void createOverlays(int color) {
+         boolean nightMode = isNightMode();
+-        mColorScheme = new ColorScheme(color, nightMode, mThemeStyle);
++        mColorScheme = new ColorScheme(color, nightMode, mCustomColor ? Style.TONAL_SPOT : mThemeStyle,
++                    mLuminanceFactor, mChromaFactor, mTintBackground,
++                    mCustomColor ? mColorOverride : null,
++                    mCustomBgColor ? mBgColorOverride : null);
+         mNeutralOverlay = createNeutralOverlay();
+         mSecondaryOverlay = createAccentOverlay();
+ 
+-- 
+2.47.0
+

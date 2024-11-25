@@ -1,0 +1,45 @@
+From 28dcb1ffde48ba7d031203d14430fcf02cee49d2 Mon Sep 17 00:00:00 2001
+From: Chenyang Zhong <zhongcy95@gmail.com>
+Date: Wed, 2 Nov 2022 13:37:49 +0800
+Subject: [PATCH 21/31] AuthRippleController: Always finish the
+ LightRevealScrim
+
+The unlock ripple animation triggers a CircleReveal effect of
+the LightRevealScrim. The CircleReveal uses a ValueAnimator that
+gives in when something else takes over the reveal. If the taking
+over happens till the end of the animator, the revealAmount of the
+CircleReveal will not be updated, thus leaving a black-white
+radial gradient patten in the notification panel background.
+
+Make sure to always finish the reveal in such case, by setting
+the revealAmount when the animator is approaching the end.
+
+Test: put an app in landscape, lock the screen, unlock with a
+      physical fingerprint sensor, and check the notification panel
+
+Change-Id: Id96404de524b32146bb776210b006b75fd035017
+Signed-off-by: Chenyang Zhong <zhongcy95@gmail.com>
+Signed-off-by: minaripenguin37 <alexfinhart@gmail.com>
+Signed-off-by: minaripenguin <minaripenguin@users.noreply.github.com>
+---
+ .../com/android/systemui/biometrics/AuthRippleController.kt   | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/biometrics/AuthRippleController.kt b/packages/SystemUI/src/com/android/systemui/biometrics/AuthRippleController.kt
+index 32255064..44e03261 100644
+--- a/packages/SystemUI/src/com/android/systemui/biometrics/AuthRippleController.kt
++++ b/packages/SystemUI/src/com/android/systemui/biometrics/AuthRippleController.kt
+@@ -270,6 +270,10 @@ class AuthRippleController @Inject constructor(
+                     startDelay = keyguardStateController.keyguardFadingAwayDelay
+                     addUpdateListener { animator ->
+                         if (lightRevealScrim.revealEffect != circleReveal) {
++			    // When the animator is almost done, fully reveal the scrim.
++                            if (animator.animatedValue as Float >= 0.9999f) {
++                                lightRevealScrim.revealAmount = 1f
++                            }
+                             // if something else took over the reveal, let's cancel ourselves
+                             cancel()
+                             return@addUpdateListener
+-- 
+2.47.0
+

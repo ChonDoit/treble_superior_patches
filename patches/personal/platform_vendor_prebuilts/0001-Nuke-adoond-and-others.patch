@@ -1,0 +1,67 @@
+From 469a467d1943235315c12686d1675dc8ab559ef9 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Tue, 1 Oct 2024 00:38:33 -0300
+Subject: [PATCH] Nuke adoond and others
+
+---
+ prebuilts.mk | 33 ---------------------------------
+ 1 file changed, 33 deletions(-)
+
+diff --git a/prebuilts.mk b/prebuilts.mk
+index 1f5cb92..b4ce9dd 100644
+--- a/prebuilts.mk
++++ b/prebuilts.mk
+@@ -9,31 +9,10 @@
+ # limitations under the License.
+ #
+ 
+-# Backup Tool
+-PRODUCT_COPY_FILES += \
+-    vendor/prebuilts/common/bin/backuptool.sh:install/bin/backuptool.sh \
+-    vendor/prebuilts/common/bin/backuptool.functions:install/bin/backuptool.functions \
+-    vendor/prebuilts/common/bin/50-superior.sh:$(TARGET_COPY_OUT_SYSTEM)/addon.d/50-superior.sh
+-
+-PRODUCT_ARTIFACT_PATH_REQUIREMENT_ALLOWED_LIST += \
+-    system/addon.d/50-superior.sh
+-
+-ifneq ($(strip $(AB_OTA_PARTITIONS) $(AB_OTA_POSTINSTALL_CONFIG)),)
+-PRODUCT_COPY_FILES += \
+-    vendor/prebuilts/common/bin/backuptool_ab.sh:$(TARGET_COPY_OUT_SYSTEM)/bin/backuptool_ab.sh \
+-    vendor/prebuilts/common/bin/backuptool_ab.functions:$(TARGET_COPY_OUT_SYSTEM)/bin/backuptool_ab.functions \
+-    vendor/prebuilts/common/bin/backuptool_postinstall.sh:$(TARGET_COPY_OUT_SYSTEM)/bin/backuptool_postinstall.sh
+-
+-PRODUCT_ARTIFACT_PATH_REQUIREMENT_ALLOWED_LIST += \
+-    system/bin/backuptool_ab.sh \
+-    system/bin/backuptool_ab.functions \
+-    system/bin/backuptool_postinstall.sh
+-
+ ifneq ($(TARGET_BUILD_VARIANT),user)
+ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
+     ro.ota.allow_downgrade=true
+ endif
+-endif
+ 
+ # Cloned app exemption
+ PRODUCT_COPY_FILES += \
+@@ -51,18 +30,6 @@ include vendor/prebuilts/audio.mk
+ # Bootanimation
+ include vendor/prebuilts/common/bootanimation/bootanimation.mk
+ 
+-# Google Photos Pixel Exclusive XML
+-PRODUCT_COPY_FILES += \
+-    vendor/prebuilts/etc/sysconfig/google_build.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/sysconfig/google_build.xml \
+-    vendor/prebuilts/etc/sysconfig/nexus.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/sysconfig/nexus.xml \
+-    vendor/prebuilts/etc/sysconfig/pixel_2016_exclusive.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/sysconfig/pixel_2016_exclusive.xml \
+-    vendor/prebuilts/etc/sysconfig/pixel_experience_2017.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/sysconfig/pixel_experience_2017.xml \
+-    vendor/prebuilts/etc/sysconfig/pixel_experience_2018.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/sysconfig/pixel_experience_2018.xml \
+-    vendor/prebuilts/etc/sysconfig/pixel_experience_2019.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/sysconfig/pixel_experience_2019.xml \
+-    vendor/prebuilts/etc/sysconfig/pixel_experience_2019_midyear.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/sysconfig/pixel_experience_2019_midyear.xml \
+-    vendor/prebuilts/etc/sysconfig/pixel_experience_2020.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/sysconfig/pixel_experience_2020.xml \
+-    vendor/prebuilts/etc/sysconfig/pixel_experience_2020_midyear.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/sysconfig/pixel_experience_2020_midyear.xml
+-
+ # DOT Gallery
+ ifeq ($(USE_DOTGALLERY),true)
+ PRODUCT_PACKAGES += \
+-- 
+2.25.1
+

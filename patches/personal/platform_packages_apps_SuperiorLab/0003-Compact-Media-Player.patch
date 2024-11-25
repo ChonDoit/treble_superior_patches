@@ -1,0 +1,341 @@
+From 1b72071348c3c9147a5d41ff436fb0f550abd14b Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Tue, 27 Aug 2024 13:03:08 -0300
+Subject: [PATCH 03/14] Compact Media Player
+
+---
+ res/values/custom_strings.xml                 |   7 +
+ res/xml/superior_lab_quicksettings.xml        | 251 ++++++++++--------
+ .../superior/lab/fragments/QuickSettings.java |  11 +
+ 3 files changed, 153 insertions(+), 116 deletions(-)
+
+diff --git a/res/values/custom_strings.xml b/res/values/custom_strings.xml
+index e81e068..d7825c2 100644
+--- a/res/values/custom_strings.xml
++++ b/res/values/custom_strings.xml
+@@ -5,6 +5,8 @@
+ -->
+ <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+ 
++    <string name="qs_general">General</string>
++
+     <!-- Android P animation style -->
+     <string name="pie_animation_style_title">Android P animation style</string>
+     <string name="pie_animation_style_summary">Enable Android P \"Default\" animations</string>
+@@ -13,4 +15,9 @@
+     <string name="show_clipboard_overlay_title">Show clipboard overlay</string>
+     <string name="show_clipboard_overlay_summary">Show an overlay in the left bottom corner of the screen when something is copied to the clipboard</string>
+ 
++    <!-- Compact QS Media Player-->
++    <string name="qs_media_player">Media Player</string>
++    <string name="qs_compact_media_player_mode_title">Compact QS Media player</string>
++    <string name="qs_compact_media_player_mode_summary">Enable compact mode for Media Player Widget</string>
++
+ </resources>
+diff --git a/res/xml/superior_lab_quicksettings.xml b/res/xml/superior_lab_quicksettings.xml
+index 0c8c7c1..e6350c4 100644
+--- a/res/xml/superior_lab_quicksettings.xml
++++ b/res/xml/superior_lab_quicksettings.xml
+@@ -4,121 +4,140 @@
+      SPDX-License-Identifier: Apache-2.0
+ -->
+ <PreferenceScreen
+-     xmlns:android="http://schemas.android.com/apk/res/android"
+-     android:title="@string/quicksettings_title"
+-     xmlns:settings="http://schemas.android.com/apk/res/com.android.settings">
+-
+-     <com.superior.support.preferences.SecureSettingSwitchPreference
+-          android:key="quick_settings_vibrate"
+-          android:title="@string/quick_settings_vibrate_title"
+-          android:summary="@string/quick_settings_vibrate_summary"
+-          android:defaultValue="false" />
+-
+-     <com.superior.support.preferences.SystemSettingSwitchPreference
+-          android:key="qs_show_data_usage"
+-          android:title="@string/qs_show_data_usage_title"
+-          android:summary="@string/qs_show_data_usage_summary"
+-          android:defaultValue="false" />
+-
+-     <ListPreference
+-          android:key="status_bar_quick_qs_pulldown"
+-          android:title="@string/status_bar_quick_qs_pulldown"
+-          android:entries="@array/quick_pulldown_entries"
+-          android:entryValues="@array/quick_pulldown_values"
+-          android:defaultValue="0" />
+-
+-     <!-- QS Header -->
+-     <Preference
+-          android:key="qs_header_image"
+-          android:summary="@string/qs_header_image_summary"
+-          android:title="@string/qs_header_image_title"
+-          android:fragment="com.superior.lab.fragments.QsHeaderImageSettings" />
+-
+-     <PreferenceCategory
+-          android:title="@string/qs_show_brightness_slider_title">
+-
+-          <!-- Brightness slider -->
+-          <com.superior.support.preferences.SecureSettingListPreference
+-               android:key="qs_show_brightness_slider"
+-               android:title="@string/qs_show_brightness_slider_title"
+-               android:entries="@array/qs_show_brightness_slider_entries"
+-               android:entryValues="@array/qs_show_brightness_slider_values"
+-               android:defaultValue="2" />
+-
+-          <com.superior.support.preferences.SecureSettingListPreference
+-               android:key="qs_brightness_slider_position"
+-               android:dependency="qs_show_brightness_slider"
+-               android:title="@string/qs_brightness_slider_position_title"
+-               android:entries="@array/qs_brightness_slider_position_entries"
+-               android:entryValues="@array/qs_brightness_slider_position_values"
+-               android:defaultValue="1" />
+-
+-          <com.superior.support.preferences.SecureSettingSwitchPreference
+-               android:key="qs_show_auto_brightness"
+-               android:dependency="qs_show_brightness_slider"
+-               android:title="@string/qs_show_auto_brightness_title"
+-               android:summary="@string/qs_show_auto_brightness_summary"
+-               android:defaultValue="true" />
+-
+-     </PreferenceCategory>
+-
+-     <PreferenceCategory
+-          android:key="qs_layout_category"
+-          android:title="@string/qs_layout_category_title">
+-
+-          <com.superior.support.preferences.SystemSettingSwitchPreference
+-               android:key="qs_tile_label_hide"
+-               android:title="@string/qs_tile_label_hide_title"
+-               android:summary="@string/qs_tile_label_hide_summary"
+-               android:defaultValue="false" />
+-
+-          <com.superior.support.preferences.SystemSettingSeekBarPreference
+-               android:key="qs_tile_label_size"
+-               android:title="@string/qs_tile_label_size_title"
+-               android:max="15"
+-               settings:min="10"
+-               settings:interval="1"
+-               settings:units="sp"
+-               android:defaultValue="14" />
+-
+-          <com.superior.support.preferences.SystemSettingSwitchPreference
+-               android:key="qs_tile_vertical_layout"
+-               android:title="@string/qs_tile_layout_title"
+-               android:summary="@string/qs_tile_layout_summary"
+-               android:defaultValue="false" />
+-
+-          <com.superior.support.preferences.SystemSettingSeekBarPreference
+-               android:key="qs_layout_columns"
+-               android:title="@string/qs_columns_portrait_title"
+-               android:max="5"
+-               settings:min="2"
+-               settings:interval="1"
+-               android:defaultValue="2" />
+-
+-          <com.superior.support.preferences.SystemSettingSeekBarPreference
+-               android:key="qs_layout_columns_landscape"
+-               android:title="@string/qs_columns_landscape_title"
+-               android:max="5"
+-               settings:min="2"
+-               settings:interval="1"
+-               android:defaultValue="2" />
+-
+-          <com.superior.support.preferences.SystemSettingSeekBarPreference
+-               android:key="qqs_layout_rows"
+-               android:title="@string/qqs_rows_portrait_title"
+-               android:max="3"
+-               settings:min="1"
+-               settings:interval="1"
+-               android:defaultValue="2" />
+-
+-          <com.superior.support.preferences.SystemSettingSeekBarPreference
+-               android:key="qqs_layout_rows_landscape"
+-               android:title="@string/qqs_rows_landscape_title"
+-               android:max="3"
+-               settings:min="1"
+-               settings:interval="1"
+-               android:defaultValue="2" />
+-
+-     </PreferenceCategory>
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    android:title="@string/quicksettings_title"
++    xmlns:settings="http://schemas.android.com/apk/res/com.android.settings">
++
++    <PreferenceCategory
++        android:title="@string/qs_general">
++
++        <ListPreference
++            android:key="status_bar_quick_qs_pulldown"
++            android:title="@string/status_bar_quick_qs_pulldown"
++            android:entries="@array/quick_pulldown_entries"
++            android:entryValues="@array/quick_pulldown_values"
++            android:defaultValue="0" />
++
++        <com.superior.support.preferences.SecureSettingSwitchPreference
++            android:key="quick_settings_vibrate"
++            android:title="@string/quick_settings_vibrate_title"
++            android:summary="@string/quick_settings_vibrate_summary"
++            android:defaultValue="false" />
++
++        <com.superior.support.preferences.SystemSettingSwitchPreference
++            android:key="qs_show_data_usage"
++            android:title="@string/qs_show_data_usage_title"
++            android:summary="@string/qs_show_data_usage_summary"
++            android:defaultValue="false" />
++
++    </PreferenceCategory>
++
++    <PreferenceCategory
++        android:title="@string/qs_media_player">
++
++        <com.superior.support.preferences.SystemSettingSwitchPreference
++            android:key="qs_compact_media_player_mode"
++            android:title="@string/qs_compact_media_player_mode_title"
++            android:summary="@string/qs_compact_media_player_mode_summary"
++            android:defaultValue="true"  />
++
++    </PreferenceCategory>
++
++    <PreferenceCategory
++        android:title="@string/qs_ui_title">
++
++        <Preference
++            android:key="qs_header_image"
++            android:summary="@string/qs_header_image_summary"
++            android:title="@string/qs_header_image_title"
++            android:fragment="com.superior.lab.fragments.QsHeaderImageSettings" />
++
++    </PreferenceCategory>
++
++    <PreferenceCategory
++        android:title="@string/qs_show_brightness_slider_title">
++
++        <com.superior.support.preferences.SecureSettingListPreference
++            android:key="qs_show_brightness_slider"
++            android:title="@string/qs_show_brightness_slider_title"
++            android:entries="@array/qs_show_brightness_slider_entries"
++            android:entryValues="@array/qs_show_brightness_slider_values"
++            android:defaultValue="2" />
++
++        <com.superior.support.preferences.SecureSettingListPreference
++            android:key="qs_brightness_slider_position"
++            android:dependency="qs_show_brightness_slider"
++            android:title="@string/qs_brightness_slider_position_title"
++            android:entries="@array/qs_brightness_slider_position_entries"
++            android:entryValues="@array/qs_brightness_slider_position_values"
++            android:defaultValue="1" />
++
++        <com.superior.support.preferences.SecureSettingSwitchPreference
++            android:key="qs_show_auto_brightness"
++            android:dependency="qs_show_brightness_slider"
++            android:title="@string/qs_show_auto_brightness_title"
++            android:summary="@string/qs_show_auto_brightness_summary"
++            android:defaultValue="true" />
++
++    </PreferenceCategory>
++
++    <PreferenceCategory
++        android:key="qs_layout_category"
++        android:title="@string/qs_layout_category_title">
++
++        <com.superior.support.preferences.SystemSettingSwitchPreference
++            android:key="qs_tile_label_hide"
++            android:title="@string/qs_tile_label_hide_title"
++            android:summary="@string/qs_tile_label_hide_summary"
++            android:defaultValue="false" />
++
++        <com.superior.support.preferences.SystemSettingSeekBarPreference
++            android:key="qs_tile_label_size"
++            android:title="@string/qs_tile_label_size_title"
++            android:max="15"
++            settings:min="10"
++            settings:interval="1"
++            settings:units="sp"
++            android:defaultValue="14" />
++
++        <com.superior.support.preferences.SystemSettingSwitchPreference
++            android:key="qs_tile_vertical_layout"
++            android:title="@string/qs_tile_layout_title"
++            android:summary="@string/qs_tile_layout_summary"
++            android:defaultValue="false" />
++
++        <com.superior.support.preferences.SystemSettingSeekBarPreference
++            android:key="qs_layout_columns"
++            android:title="@string/qs_columns_portrait_title"
++            android:max="5"
++            settings:min="2"
++            settings:interval="1"
++            android:defaultValue="2" />
++
++        <com.superior.support.preferences.SystemSettingSeekBarPreference
++            android:key="qs_layout_columns_landscape"
++            android:title="@string/qs_columns_landscape_title"
++            android:max="5"
++            settings:min="2"
++            settings:interval="1"
++            android:defaultValue="2" />
++
++        <com.superior.support.preferences.SystemSettingSeekBarPreference
++            android:key="qqs_layout_rows"
++            android:title="@string/qqs_rows_portrait_title"
++            android:max="3"
++            settings:min="1"
++            settings:interval="1"
++            android:defaultValue="2" />
++
++        <com.superior.support.preferences.SystemSettingSeekBarPreference
++            android:key="qqs_layout_rows_landscape"
++            android:title="@string/qqs_rows_landscape_title"
++            android:max="3"
++            settings:min="1"
++            settings:interval="1"
++            android:defaultValue="2" />
++
++    </PreferenceCategory>
+ 
+ </PreferenceScreen>
+\ No newline at end of file
+diff --git a/src/com/superior/lab/fragments/QuickSettings.java b/src/com/superior/lab/fragments/QuickSettings.java
+index 15d7898..a2f12c7 100644
+--- a/src/com/superior/lab/fragments/QuickSettings.java
++++ b/src/com/superior/lab/fragments/QuickSettings.java
+@@ -44,12 +44,16 @@ import com.superior.support.preferences.SystemSettingListPreference;
+ import java.util.List;
+ import java.util.ArrayList;
+ 
++import com.android.internal.util.superior.SuperiorUtils;
++
+ public class QuickSettings extends SettingsPreferenceFragment implements
+         OnPreferenceChangeListener {
+ 
+     private static final String QUICK_PULLDOWN = "status_bar_quick_qs_pulldown";
++    private static final String KEY_QS_COMPACT_PLAYER  = "qs_compact_media_player_mode";
+ 
+     private ListPreference mQuickPulldown;
++    private Preference mQsCompactPlayer;
+ 
+     @Override
+     public void onCreate(Bundle icicle) {
+@@ -68,6 +72,10 @@ public class QuickSettings extends SettingsPreferenceFragment implements
+         mQuickPulldown.setSummary(mQuickPulldown.getEntry());
+         mQuickPulldown.setOnPreferenceChangeListener(this);
+ 
++	mQsCompactPlayer = (Preference) findPreference(KEY_QS_COMPACT_PLAYER);
++        mQsCompactPlayer.setOnPreferenceChangeListener(this);
++
++
+     }
+ 
+     @Override
+@@ -82,6 +90,9 @@ public class QuickSettings extends SettingsPreferenceFragment implements
+             mQuickPulldown.setSummary(
+                     mQuickPulldown.getEntries()[index]);
+             return true;
++	} else if (preference == mQsCompactPlayer) {
++            SuperiorUtils.showSystemUiRestartDialog(getActivity());
++            return true;
+         }
+         return false;
+     }
+-- 
+2.47.0
+

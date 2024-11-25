@@ -1,0 +1,489 @@
+From e4ef06d4f81fbbe5a1a69a5659963f7937e7a357 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sat, 5 Oct 2024 21:41:22 -0300
+Subject: [PATCH 1/3] Spanish Translation
+
+---
+ res/values-es/superior_strings.xml | 253 +++++++++++++++++++++++++++++
+ 1 file changed, 253 insertions(+)
+ create mode 100644 res/values-es/superior_strings.xml
+
+diff --git a/res/values-es/superior_strings.xml b/res/values-es/superior_strings.xml
+new file mode 100644
+index 0000000..28cd223
+--- /dev/null
++++ b/res/values-es/superior_strings.xml
+@@ -0,0 +1,253 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++     Copyright 2022-2023 The SuperiorOS Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
++
++     <!-- About phone screen, Superior OS version -->
++     <string name="superior_version">SuperiorOS version</string>
++     <string name="superior_version_default">Unknown</string>
++     <string name="keywords_superior_version">SuperiorOS version, superior version</string>
++
++     <!-- About phone screen, build date -->
++     <string name="about_device_name">Dispositivo</string>
++     <string name="build_date">Fecha de compilación</string>
++     <string name="build_date_default">2015-01-01-0000</string>
++     <string name="keywords_build_date">build date, build info</string>
++
++     <!-- Notification log -->
++     <string name="notification_log_summary">Mostrar registro del historial de notificaciones</string>
++
++     <!-- Hardware info -->
++     <string name="soc_model">SoC Model</string>
++     <string name="total_ram">RAM total</string>
++
++     <!-- General -->
++     <string name="copied_to_clipboard">Copiado al portapapeles</string>
++     <string name="longpress_to_clipboard">Matener para copiar</string>
++
++     <!-- Package details -->
++     <string name="package_details_group_title">Detalles del paquetes</string>
++     <string name="package_name">Nombre del paquete</string>
++     <string name="package_version">Version de Paquete</string>
++     <string name="package_version_text">
++          <xliff:g id="version_num">%1$s</xliff:g>
++     </string>
++
++     <!-- Warning message for the sd card setup -->
++     <string name="storage_warning_internal">Advertencia: This option may not work properly or lead to
++          data loss and is therefore not recommended!</string>
++
++     <!-- Summary for list to control apps that ignore battery saving restrictions -->
++     <string name="high_power_apps_summary">Disponibilidad de optimizacion de bateria</string>
++
++     <!-- Superior Lab -->
++     <string name="superior_lab_dash_title">Superior Lab</string>
++
++     <!-- Density category -->
++     <string name="density_category">Densidad de pantalla</string>
++
++     <!-- Running Services -->
++     <string name="background_processes_settings_title">Procesos en segundo plano</string>
++
++     <!-- Add sliders for color balance adjustment via ColorDisplayManager -->
++     <string name="color_mode_balance_category">Balance de colores</string>
++     <string name="color_mode_balance_red">Rojo</string>
++     <string name="color_mode_balance_green">Verde</string>
++     <string name="color_mode_balance_blue">Azul</string>
++
++     <!-- Summary for the top level wallpapers settings [CHAR LIMIT=NONE]-->
++     <string name="wallpaper_dashboard_custom_summary">Colores, Iconos temáticos, Cuadricula de aplicaciones</string>
++
++     <!-- Force LTE_CA -->
++     <string name="force_lte_ca">Forzar LTE+(CA)</string>
++     <string name="force_lte_ca_summary">Forzar el funcionamiento de LTE+(CA)</string>
++
++     <!-- Message shown in fingerprint enrollment dialog to locate the sensor -->
++     <string name="fingerprint_enroll_find_sensor_message_front">Localice el sensor de huellas dactilares en la parte frontal de su teléfono.</string>
++     <string name="fingerprint_enroll_find_sensor_message_rear">Localice el sensor de huellas dactilares en la parte posterior de su teléfono.</string>
++
++     <!-- Message shown when user touches the icon on the screen, instead of the real fingerprint
++    sensor -->
++     <string name="fingerprint_enroll_touch_dialog_message_front">Toque el sensor en la parte frontal de su teléfono.</string>
++     <string name="fingerprint_enroll_touch_dialog_message_rear">Toque el sensor en la parte posterior de su teléfono.</string>
++     <string name="fingerprint_enroll_touch_dialog_message_side">Toque el sensor en el costado de su teléfono.</string>
++
++     <!-- String for removal of sensitive info on about, depending on tap -->
++     <string name="device_info_protected_single_press">Toca para mas información</string>
++
++     <!-- Model and Hardware -->
++     <string name="superior_processor_title">Procesador</string>
++     <string name="superior_storage_code_title">Almacenamiento</string>
++     <string name="superior_battery_type_title">Batería</string>
++     <string name="superior_screen_title">Pantalla</string>
++     <string name="net_info">Red</string>
++     <string name="mod_info">@string/model_info</string>
++     <string name="id_info">Identificadores</string>
++     <string name="model_summary">Modelo, Numero de teléfono, IMEI, etc</string>
++     <string name="model_name">Estado del dispositivo</string>
++     <string name="legal_summary">Licencias y legales</string>
++
++     <!-- Display settings screen, peak refresh rate settings summary [CHAR LIMIT=NONE] -->
++     <string name="refresh_rate_title">Tasa de refresco</string>
++     <string name="refresh_rate_summary_vrr_off">%d Hz</string>
++     <string name="refresh_rate_summary_vrr_on">%d Hz (Adaptivo)</string>
++     <string name="refresh_rate_vrr_title">Tasa de refresco (Adaptiva)</string>
++     <string name="refresh_rate_vrr_summary">Reducir automáticamente la tasa de refresco cuando la pantalla está inactiva para ahorrar energía. Puede causar parpadeo o cambio de color en ciertas pantallas</string>
++     <string name="refresh_rate_footer">AUna tasa de refreco más alta hace que la pantalla sea más suave pero aumenta el consumo de energía</string>
++     <string name="peak_refresh_rate_summary_custom">Aumenta automáticamente la tasa de refresco de 60 a %1$d Hz para algún contenido. Aumenta el uso de la batería.</string>
++
++     <!-- High touch sensitivity -->
++     <string name="high_touch_sensitivity_title">Alta sensibilidad al tacto</string>
++     <string name="high_touch_sensitivity_summary">Aumenta la sensibilidad de la pantalla táctil para que se pueda usar con guantes</string>
++
++     <!-- Touchscreen hovering -->
++     <string name="touchscreen_hovering_title">Pantalla táctil deslizante</string>
++     <string name="touchscreen_hovering_summary">Permite deslizarse por la pantalla como un ratón en navegadores, escritorios remotos, etc</string>
++
++     <!-- High touch polling rate -->
++     <string name="high_touch_polling_rate_title">Alta tasa de sondeo táctil</string>
++     <string name="high_touch_polling_rate_summary">Aumentar la tasa de sondeo de la pantalla táctil</string>
++
++     <!-- Charging control settings -->
++     <string name="charging_control_title">Control de carga</string>
++     <string name="charging_control_summary">Personaliza limites y tiempos de carga</string>
++     <string name="charging_control_enable_title">Habilita el control de carga</string>
++     <string name="charging_control_mode_title">Modo de carga</string>
++     <string name="charging_control_mode_auto_title">Programación automática</string>
++     <string name="charging_control_mode_auto_summary">Determine automáticamente cuándo comenzar a cargar en función de las alarmas configuradas</string>
++     <string name="charging_control_mode_custom_title">Horario personalizado</string>
++     <string name="charging_control_mode_custom_summary">Establecer un tiempo objetivo para la carga completa</string>
++     <string name="charging_control_mode_limit_title">Limitar la carga</string>
++     <string name="charging_control_mode_limit_summary">Limitar la carga a un determinado porcentaje</string>
++     <string name="charging_control_start_time_title">Hora de inicio</string>
++     <string name="charging_control_start_time_summary">El control de carga se activa a las %s</string>
++     <string name="charging_control_target_time_title">Tiempo objetivo hasta la carga completa</string>
++     <string name="charging_control_target_time_summary">La batería estará completamente cargada en %s</string>
++     <string name="charging_control_limit_title">Limite</string>
++
++     <!-- Ambient wake toggles -->
++     <string name="doze_gesture_ambient_title">Show Ambient</string>
++     <string name="doze_gesture_ambient_summary">Show Ambient Display instead of fully waking the screen up</string>
++
++     <!-- Misc gesture settings -->
++     <string name="back_gesture_haptic_title">Respuesta háptica</string>
++     <string name="back_gesture_haptic_summary">Habilitar el efecto háptico en el gesto hacia atrás</string>
++
++     <!-- Back gesture height -->
++     <string name="back_height_low_label">Pantalla Completa</string>
++     <string name="back_height_high_label">Abajo</string>
++     <string name="back_options_dialog_title">Opciones</string>
++     <string name="back_height_message">Cantidad de altura de la pantalla utilizada como región táctil para el gesto hacia atrás.</string>
++
++     <!-- Custom actions -->
++     <string name="action_nothing">No action</string>
++     <string name="action_menu">Menu</string>
++     <string name="action_app_switch">Recents</string>
++     <string name="action_search">Assistant</string>
++     <string name="action_voice_search">Voice search</string>
++     <string name="action_launch_camera">Camera</string>
++     <string name="action_last_app">Last app</string>
++     <string name="action_splitscreen">Split screen</string>
++     <string name="action_flashlight">Flashlight</string>
++     <string name="action_clear_notifications">Clear notifications</string>
++     <string name="action_volume_panel">Volume panel</string>
++     <string name="action_screen_off">Screen off</string>
++     <string name="action_notifications">Notifications</string>
++     <string name="action_power_menu">Power menu</string>
++     <string name="action_screenshot">Screenshot</string>
++     <string name="action_qs_panel">QS panel</string>
++     <string name="action_app_action">Application</string>
++     <string name="action_ringer_modes">Ringer modes</string>
++     <string name="kill_app">Kill foreground app</string>
++     <string name="recent_app_toggle">Switch recent app</string>
++ 
++     <!-- Long swipe gestures -->
++     <string name="navbar_gesture_tweaks_pref_title">Gestos Avanzados</string>
++     <string name="navbar_gesture_tweaks_pref_summary">Customize gestures and set custom actions</string>
++     <string name="navbar_gesture_tweaks_cat_title">Avanzado</string>
++     <string name="swipe_app_select_summary">Select an app to launch with the squeeze action</string>
++     <string name="long_back_swipe_timeout_title">Long swipe action timeout</string>
++     <string name="left_swipe_actions_title">Long left swipe action</string>
++     <string name="left_swipe_app_action_title">Select long left swipe app</string>
++     <string name="right_swipe_actions_title">Long right swipe action</string>
++     <string name="right_swipe_app_action_title">Select long right swipe app</string>
++     <string name="left_vertical_swipe_actions_title">Vertical left L-swipe action</string>
++     <string name="left_vertical_swipe_app_action_title">Select vertical left swipe app</string>
++     <string name="right_vertical_swipe_actions_title">Vertical right L-swipe action</string>
++     <string name="right_vertical_swipe_app_action_title">Select vertical right swipe app</string>
++     <string name="gesture_nav_tweaks_footer_info">To choose a specific app activity for the action, long press on any app in the apps picker.\n\nIf launcher is showing, do the swipe at the very bottom area of the screen to trigger the action.</string>
++     <string name="back_swipe_extended_title">Extended swipe action</string>
++     <string name="back_swipe_extended_summary">Trigger action on wider swipe (more than half of display size), or a L swipe (vertically longer enough)</string>
++
++     <!-- Black theme -->
++     <string name="system_black_theme_title">Usar tema negro</string>
++     <string name="system_black_theme_summary">Forzar fondo negro</string>
++
++     <!-- Battery Info -->
++     <string name="battery_info_summary">Mostrar informacion detallada de la batería</string>
++     <!-- Battery Info: Technology -->
++     <string name="battery_technology">Tecnología</string>
++     <string name="battery_technology_not_available">@string/battery_cycle_count_not_available</string>
++     <!-- Battery Info: Health -->
++     <string name="battery_health">Salud</string>
++     <string name="battery_health_good">Buena</string>
++     <string name="battery_health_overheat">Sobrecalentamiento</string>
++     <string name="battery_health_dead">Muerta</string>
++     <string name="battery_health_over_voltage">Sobrevoltaje</string>
++     <string name="battery_health_unspecified_failure">Falla sin especificar</string>
++     <string name="battery_health_cold">Fría</string>
++     <string name="battery_health_unknown">Desconocido</string>
++     <!-- Battery Info: Temperature -->
++     <string name="battery_temperature">Temperatura</string>
++     <string name="battery_temperature_not_available">@string/battery_cycle_count_not_available</string>
++     <!-- Battery Info: Voltage -->
++     <string name="battery_voltage">Voltaje</string>
++     <string name="battery_voltage_not_available">@string/battery_cycle_count_not_available</string>
++     <!-- Battery Info: Charge Counter -->
++     <string name="battery_charge_counter_summary">%1$d mAh</string>
++     <!-- Battery Info: Design Capacity -->
++     <string name="battery_design_capacity">Capacidad teórica</string>
++     <string name="battery_design_capacity_summary">%1$d mAh</string>
++     <string name="battery_design_capacity_not_available">@string/battery_cycle_count_not_available</string>
++     <!-- Battery Info: Maximum Capacity -->
++     <string name="battery_maximum_capacity">Capacidad Maxima</string>
++     <string name="battery_maximum_capacity_summary">%1$d mAh (%2$d%%)</string>
++     <string name="battery_maximum_capacity_not_available">@string/battery_cycle_count_not_available</string>
++
++     <!-- Bluetooth timeout -->
++     <string name="bluetooth_timeout">Apagado automatico</string>
++     <string name="bluetooth_timeout_summary">Apagar el bluetooth luego de <xliff:g id="timeout_description">%1$s</xliff:g> sin dispositivos conectados</string>
++     <string name="bluetooth_timeout_summary2">No apagar automaticamente</string>
++     <!-- Connected devices screen, setting option summary to change bluetooth timeout -->
++     <string name="bluetooth_timeout_summary_never">Nunca</string>
++     <string name="bluetooth_timeout_summary_15secs">15 segundos</string>
++     <string name="bluetooth_timeout_summary_30secs">30 segundos</string>
++     <string name="bluetooth_timeout_summary_1min">1 minuto</string>
++     <string name="bluetooth_timeout_summary_2mins">2 minutos</string>
++     <string name="bluetooth_timeout_summary_5mins">5 minutos</string>
++     <string name="bluetooth_timeout_summary_10mins">10 minutos</string>
++     <string name="bluetooth_timeout_summary_30mins">30 minutos</string>
++     <string name="bluetooth_timeout_summary_1hour">1 hora</string>
++
++     <!-- Assisted GPS switch -->
++     <string name="assisted_gps">A-GPS</string>
++     <string name="assisted_gps_summary">UUtilizar los datos de asistencia satelital de Internet.</string>
++
++     <!-- Pocket mode -->
++     <string name="pocket_mode_title">Modo bolsillo</string>
++     <string name="pocket_mode_summary">Verifica el sensor de proximidad al encerder y en la pantalla de bloqueo</string>
++
++</resources>
+diff --git a/res/values-es/superior_strings.xml b/res/values-es/superior_strings.xml
+index 28cd223..1d3da18 100644
+--- a/res/values-es/superior_strings.xml
++++ b/res/values-es/superior_strings.xml
+@@ -18,14 +18,12 @@
+ 
+      <!-- About phone screen, Superior OS version -->
+      <string name="superior_version">SuperiorOS version</string>
+-     <string name="superior_version_default">Unknown</string>
+-     <string name="keywords_superior_version">SuperiorOS version, superior version</string>
++     <string name="superior_version_default">Desconocida</string>
+ 
+      <!-- About phone screen, build date -->
+      <string name="about_device_name">Dispositivo</string>
+      <string name="build_date">Fecha de compilación</string>
+      <string name="build_date_default">2015-01-01-0000</string>
+-     <string name="keywords_build_date">build date, build info</string>
+ 
+      <!-- Notification log -->
+      <string name="notification_log_summary">Mostrar registro del historial de notificaciones</string>
+@@ -36,22 +34,22 @@
+ 
+      <!-- General -->
+      <string name="copied_to_clipboard">Copiado al portapapeles</string>
+-     <string name="longpress_to_clipboard">Matener para copiar</string>
++     <string name="longpress_to_clipboard">Mantener para copiar</string>
+ 
+      <!-- Package details -->
+      <string name="package_details_group_title">Detalles del paquetes</string>
+      <string name="package_name">Nombre del paquete</string>
+-     <string name="package_version">Version de Paquete</string>
++     <string name="package_version">Versión de Paquete</string>
+      <string name="package_version_text">
+           <xliff:g id="version_num">%1$s</xliff:g>
+      </string>
+ 
+      <!-- Warning message for the sd card setup -->
+-     <string name="storage_warning_internal">Advertencia: This option may not work properly or lead to
+-          data loss and is therefore not recommended!</string>
++     <string name="storage_warning_internal">Advertencia: Es posible que esta opción no funcione correctamente o que provoque
++          pérdida de datos y, por lo tanto, no se recomienda!</string>
+ 
+      <!-- Summary for list to control apps that ignore battery saving restrictions -->
+-     <string name="high_power_apps_summary">Disponibilidad de optimizacion de bateria</string>
++     <string name="high_power_apps_summary">Disponibilidad de optimización de batería</string>
+ 
+      <!-- Superior Lab -->
+      <string name="superior_lab_dash_title">Superior Lab</string>
+@@ -103,10 +101,10 @@
+      <!-- Display settings screen, peak refresh rate settings summary [CHAR LIMIT=NONE] -->
+      <string name="refresh_rate_title">Tasa de refresco</string>
+      <string name="refresh_rate_summary_vrr_off">%d Hz</string>
+-     <string name="refresh_rate_summary_vrr_on">%d Hz (Adaptivo)</string>
+-     <string name="refresh_rate_vrr_title">Tasa de refresco (Adaptiva)</string>
++     <string name="refresh_rate_summary_vrr_on">%d Hz (Adaptativo)</string>
++     <string name="refresh_rate_vrr_title">Tasa de refresco (Adaptativa)</string>
+      <string name="refresh_rate_vrr_summary">Reducir automáticamente la tasa de refresco cuando la pantalla está inactiva para ahorrar energía. Puede causar parpadeo o cambio de color en ciertas pantallas</string>
+-     <string name="refresh_rate_footer">AUna tasa de refreco más alta hace que la pantalla sea más suave pero aumenta el consumo de energía</string>
++     <string name="refresh_rate_footer">AUna tasa de refresco más alta hace que la pantalla sea más suave pero aumenta el consumo de energía</string>
+      <string name="peak_refresh_rate_summary_custom">Aumenta automáticamente la tasa de refresco de 60 a %1$d Hz para algún contenido. Aumenta el uso de la batería.</string>
+ 
+      <!-- High touch sensitivity -->
+@@ -139,8 +137,8 @@
+      <string name="charging_control_limit_title">Limite</string>
+ 
+      <!-- Ambient wake toggles -->
+-     <string name="doze_gesture_ambient_title">Show Ambient</string>
+-     <string name="doze_gesture_ambient_summary">Show Ambient Display instead of fully waking the screen up</string>
++     <string name="doze_gesture_ambient_title">Pantalla Ambiente</string>
++     <string name="doze_gesture_ambient_summary">Mostrar pantalla ambiente en lugar de activar completamente la pantalla</string>
+ 
+      <!-- Misc gesture settings -->
+      <string name="back_gesture_haptic_title">Respuesta háptica</string>
+@@ -153,32 +151,32 @@
+      <string name="back_height_message">Cantidad de altura de la pantalla utilizada como región táctil para el gesto hacia atrás.</string>
+ 
+      <!-- Custom actions -->
+-     <string name="action_nothing">No action</string>
+-     <string name="action_menu">Menu</string>
+-     <string name="action_app_switch">Recents</string>
+-     <string name="action_search">Assistant</string>
+-     <string name="action_voice_search">Voice search</string>
+-     <string name="action_launch_camera">Camera</string>
+-     <string name="action_last_app">Last app</string>
+-     <string name="action_splitscreen">Split screen</string>
+-     <string name="action_flashlight">Flashlight</string>
+-     <string name="action_clear_notifications">Clear notifications</string>
+-     <string name="action_volume_panel">Volume panel</string>
+-     <string name="action_screen_off">Screen off</string>
+-     <string name="action_notifications">Notifications</string>
+-     <string name="action_power_menu">Power menu</string>
+-     <string name="action_screenshot">Screenshot</string>
+-     <string name="action_qs_panel">QS panel</string>
+-     <string name="action_app_action">Application</string>
+-     <string name="action_ringer_modes">Ringer modes</string>
+-     <string name="kill_app">Kill foreground app</string>
+-     <string name="recent_app_toggle">Switch recent app</string>
++     <string name="action_nothing">Sin acción</string>
++     <string name="action_menu">Menú</string>
++     <string name="action_app_switch">Recientes</string>
++     <string name="action_search">Asistente</string>
++     <string name="action_voice_search">Búsqueda por voz</string>
++     <string name="action_launch_camera">Cámara</string>
++     <string name="action_last_app">Ultima aplicación</string>
++     <string name="action_splitscreen">Pantalla dividida</string>
++     <string name="action_flashlight">Linterna</string>
++     <string name="action_clear_notifications">Limpiar notificaciones</string>
++     <string name="action_volume_panel">Panel de volumen</string>
++     <string name="action_screen_off">Apagar pantalla</string>
++     <string name="action_notifications">Notificaciones</string>
++     <string name="action_power_menu">Menú de encendido</string>
++     <string name="action_screenshot">Captura de Pantalla</string>
++     <string name="action_qs_panel">Ajustes Rápidos</string>
++     <string name="action_app_action">Seleccionar aplicación</string>
++     <string name="action_ringer_modes">Modo de timbre</string>
++     <string name="kill_app">Cerrar aplicación en primer plano</string>
++     <string name="recent_app_toggle">Cambiar a aplicación reciente</string>
+  
+      <!-- Long swipe gestures -->
+      <string name="navbar_gesture_tweaks_pref_title">Gestos Avanzados</string>
+-     <string name="navbar_gesture_tweaks_pref_summary">Customize gestures and set custom actions</string>
++     <string name="navbar_gesture_tweaks_pref_summary">Personaliza gestos y establece acciones personalizadas</string>
+      <string name="navbar_gesture_tweaks_cat_title">Avanzado</string>
+-     <string name="swipe_app_select_summary">Select an app to launch with the squeeze action</string>
++     <string name="swipe_app_select_summary">Seleccione una aplicación para iniciarla con la acción aplastar</string>
+      <string name="long_back_swipe_timeout_title">Long swipe action timeout</string>
+      <string name="left_swipe_actions_title">Long left swipe action</string>
+      <string name="left_swipe_app_action_title">Select long left swipe app</string>
+@@ -197,7 +195,7 @@
+      <string name="system_black_theme_summary">Forzar fondo negro</string>
+ 
+      <!-- Battery Info -->
+-     <string name="battery_info_summary">Mostrar informacion detallada de la batería</string>
++     <string name="battery_info_summary">Mostrar información detallada de la batería</string>
+      <!-- Battery Info: Technology -->
+      <string name="battery_technology">Tecnología</string>
+      <string name="battery_technology_not_available">@string/battery_cycle_count_not_available</string>
+@@ -223,14 +221,14 @@
+      <string name="battery_design_capacity_summary">%1$d mAh</string>
+      <string name="battery_design_capacity_not_available">@string/battery_cycle_count_not_available</string>
+      <!-- Battery Info: Maximum Capacity -->
+-     <string name="battery_maximum_capacity">Capacidad Maxima</string>
++     <string name="battery_maximum_capacity">Capacidad Máxima</string>
+      <string name="battery_maximum_capacity_summary">%1$d mAh (%2$d%%)</string>
+      <string name="battery_maximum_capacity_not_available">@string/battery_cycle_count_not_available</string>
+ 
+      <!-- Bluetooth timeout -->
+-     <string name="bluetooth_timeout">Apagado automatico</string>
++     <string name="bluetooth_timeout">Apagado automático</string>
+      <string name="bluetooth_timeout_summary">Apagar el bluetooth luego de <xliff:g id="timeout_description">%1$s</xliff:g> sin dispositivos conectados</string>
+-     <string name="bluetooth_timeout_summary2">No apagar automaticamente</string>
++     <string name="bluetooth_timeout_summary2">No apagar automáticamente</string>
+      <!-- Connected devices screen, setting option summary to change bluetooth timeout -->
+      <string name="bluetooth_timeout_summary_never">Nunca</string>
+      <string name="bluetooth_timeout_summary_15secs">15 segundos</string>
+@@ -244,10 +242,10 @@
+ 
+      <!-- Assisted GPS switch -->
+      <string name="assisted_gps">A-GPS</string>
+-     <string name="assisted_gps_summary">UUtilizar los datos de asistencia satelital de Internet.</string>
++     <string name="assisted_gps_summary">Utilizar los datos de asistencia satelital de Internet.</string>
+ 
+      <!-- Pocket mode -->
+      <string name="pocket_mode_title">Modo bolsillo</string>
+-     <string name="pocket_mode_summary">Verifica el sensor de proximidad al encerder y en la pantalla de bloqueo</string>
++     <string name="pocket_mode_summary">Verifica el sensor de proximidad al encender y en la pantalla de bloqueo</string>
+ 
+ </resources>
+diff --git a/res/values-es/superior_strings.xml b/res/values-es/superior_strings.xml
+index 1d3da18..41f74aa 100644
+--- a/res/values-es/superior_strings.xml
++++ b/res/values-es/superior_strings.xml
+@@ -102,9 +102,9 @@
+      <string name="refresh_rate_title">Tasa de refresco</string>
+      <string name="refresh_rate_summary_vrr_off">%d Hz</string>
+      <string name="refresh_rate_summary_vrr_on">%d Hz (Adaptativo)</string>
+-     <string name="refresh_rate_vrr_title">Tasa de refresco (Adaptativa)</string>
++     <string name="refresh_rate_vrr_title">Tasa de refresco adaptativa</string>
+      <string name="refresh_rate_vrr_summary">Reducir automáticamente la tasa de refresco cuando la pantalla está inactiva para ahorrar energía. Puede causar parpadeo o cambio de color en ciertas pantallas</string>
+-     <string name="refresh_rate_footer">AUna tasa de refresco más alta hace que la pantalla sea más suave pero aumenta el consumo de energía</string>
++     <string name="refresh_rate_footer">Una tasa de refresco más alta hace que la pantalla sea más suave pero aumenta el consumo de energía</string>
+      <string name="peak_refresh_rate_summary_custom">Aumenta automáticamente la tasa de refresco de 60 a %1$d Hz para algún contenido. Aumenta el uso de la batería.</string>
+ 
+      <!-- High touch sensitivity -->
+@@ -176,19 +176,19 @@
+      <string name="navbar_gesture_tweaks_pref_title">Gestos Avanzados</string>
+      <string name="navbar_gesture_tweaks_pref_summary">Personaliza gestos y establece acciones personalizadas</string>
+      <string name="navbar_gesture_tweaks_cat_title">Avanzado</string>
+-     <string name="swipe_app_select_summary">Seleccione una aplicación para iniciarla con la acción aplastar</string>
+-     <string name="long_back_swipe_timeout_title">Long swipe action timeout</string>
+-     <string name="left_swipe_actions_title">Long left swipe action</string>
+-     <string name="left_swipe_app_action_title">Select long left swipe app</string>
+-     <string name="right_swipe_actions_title">Long right swipe action</string>
+-     <string name="right_swipe_app_action_title">Select long right swipe app</string>
+-     <string name="left_vertical_swipe_actions_title">Vertical left L-swipe action</string>
+-     <string name="left_vertical_swipe_app_action_title">Select vertical left swipe app</string>
+-     <string name="right_vertical_swipe_actions_title">Vertical right L-swipe action</string>
+-     <string name="right_vertical_swipe_app_action_title">Select vertical right swipe app</string>
+-     <string name="gesture_nav_tweaks_footer_info">To choose a specific app activity for the action, long press on any app in the apps picker.\n\nIf launcher is showing, do the swipe at the very bottom area of the screen to trigger the action.</string>
+-     <string name="back_swipe_extended_title">Extended swipe action</string>
+-     <string name="back_swipe_extended_summary">Trigger action on wider swipe (more than half of display size), or a L swipe (vertically longer enough)</string>
++     <string name="swipe_app_select_summary">Seleccione una aplicación para iniciar con la acción de apretar</string>
++     <string name="long_back_swipe_timeout_title">Tiempo de espera de acción de deslizamiento largo</string>
++     <string name="left_swipe_actions_title">Acción de deslizamiento largo a la izquierda</string>
++     <string name="left_swipe_app_action_title">Seleccionar aplicación de deslizamiento largo a la izquierda</string>
++     <string name="right_swipe_actions_title">Acción de deslizamiento largo a la derecha</string>
++     <string name="right_swipe_app_action_title">Seleccionar aplicación de deslizamiento largo a la derecha</string>
++     <string name="left_vertical_swipe_actions_title">Acción de deslizamiento vertical en L hacia la izquierda</string>
++     <string name="left_vertical_swipe_app_action_title">Seleccionar aplicación de deslizamiento largo vertical hacia la izquierda</string>
++     <string name="right_vertical_swipe_actions_title">Acción de deslizamiento vertical en L en la derecha</string>
++     <string name="right_vertical_swipe_app_action_title">Seleccionar aplicación de deslizamiento largo vertical hacia la izquierda</string>
++     <string name="gesture_nav_tweaks_footer_info">Para elegir una actividad específica de una aplicación para la acción, mantenga presionada la aplicación en el selector de aplicaciones.\n\nSi se encuentra mostrando el launcher, deslice el dedo desde una zona muy inferior de la pantalla para activar la acción.</string>
++     <string name="back_swipe_extended_title">Acción de deslizamiento extendido</string>
++     <string name="back_swipe_extended_summary">Active la acción con un deslizamiento más ancho (más de la mitad del tamaño de la pantalla) o un deslizamiento en L (verticalmente lo suficientemente largo)</string>
+ 
+      <!-- Black theme -->
+      <string name="system_black_theme_title">Usar tema negro</string>
+-- 
+2.25.1
+

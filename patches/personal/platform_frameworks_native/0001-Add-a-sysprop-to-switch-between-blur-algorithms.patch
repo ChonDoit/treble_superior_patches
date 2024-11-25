@@ -1,0 +1,231 @@
+From 739878cc93dae1de4d7a52eec403c864ca078406 Mon Sep 17 00:00:00 2001
+From: Robin Lee <rgl@google.com>
+Date: Thu, 4 Apr 2024 14:05:07 +0000
+Subject: [PATCH] Add a sysprop to switch between blur algorithms
+
+Bug: 185365391
+Test: adb root && adb shell 'setprop debug.renderengine.blur_algorithm kawase'   && adb shell 'stop; start' && sleep 30 && atest BlurTests
+Test: adb root && adb shell 'setprop debug.renderengine.blur_algorithm gaussian' && adb shell 'stop  start' && sleep 30 && atest BlurTests
+Test: adb root && adb shell 'setprop debug.renderengine.blur_algorithm ""'       && adb shell 'stop; start' && sleep 30 && atest BlurTests
+Merged-In: Ib977e1d54eb08946449d447101a0c65273aa3b40
+Change-Id: Ib977e1d54eb08946449d447101a0c65273aa3b40
+---
+ .../include/renderengine/RenderEngine.h       | 25 +++++++++++++------
+ libs/renderengine/skia/SkiaGLRenderEngine.cpp |  2 +-
+ libs/renderengine/skia/SkiaRenderEngine.cpp   | 21 +++++++++++++---
+ libs/renderengine/skia/SkiaRenderEngine.h     |  2 +-
+ libs/renderengine/skia/SkiaVkRenderEngine.cpp |  2 +-
+ libs/renderengine/tests/RenderEngineTest.cpp  |  2 +-
+ services/surfaceflinger/SurfaceFlinger.cpp    | 18 ++++++++++++-
+ 7 files changed, 56 insertions(+), 16 deletions(-)
+
+diff --git a/libs/renderengine/include/renderengine/RenderEngine.h b/libs/renderengine/include/renderengine/RenderEngine.h
+index de05268a67..3916566543 100644
+--- a/libs/renderengine/include/renderengine/RenderEngine.h
++++ b/libs/renderengine/include/renderengine/RenderEngine.h
+@@ -49,6 +49,11 @@
+  */
+ #define PROPERTY_DEBUG_RENDERENGINE_CAPTURE_FILENAME "debug.renderengine.capture_filename"
+ 
++/**
++ * Switches the cross-window background blur algorithm.
++ */
++#define PROPERTY_DEBUG_RENDERENGINE_BLUR_ALGORITHM "debug.renderengine.blur_algorithm"
++
+ /**
+  * Allows recording of Skia drawing commands with systrace.
+  */
+@@ -102,6 +107,12 @@ public:
+         VK,
+     };
+ 
++    enum class BlurAlgorithm {
++        NONE,
++        GAUSSIAN,
++        KAWASE,
++    };
++
+     static std::unique_ptr<RenderEngine> create(const RenderEngineCreationArgs& args);
+ 
+     static bool canSupport(GraphicsApi);
+@@ -253,7 +264,7 @@ struct RenderEngineCreationArgs {
+     bool useColorManagement;
+     bool enableProtectedContext;
+     bool precacheToneMapperShaderOnly;
+-    bool supportsBackgroundBlur;
++    RenderEngine::BlurAlgorithm blurAlgorithm;
+     RenderEngine::ContextPriority contextPriority;
+     RenderEngine::Threaded threaded;
+     RenderEngine::GraphicsApi graphicsApi;
+@@ -264,7 +275,7 @@ private:
+     // must be created by Builder via constructor with full argument list
+     RenderEngineCreationArgs(int _pixelFormat, uint32_t _imageCacheSize,
+                              bool _enableProtectedContext, bool _precacheToneMapperShaderOnly,
+-                             bool _supportsBackgroundBlur,
++                             RenderEngine::BlurAlgorithm _blurAlgorithm,
+                              RenderEngine::ContextPriority _contextPriority,
+                              RenderEngine::Threaded _threaded,
+                              RenderEngine::GraphicsApi _graphicsApi)
+@@ -272,7 +283,7 @@ private:
+             imageCacheSize(_imageCacheSize),
+             enableProtectedContext(_enableProtectedContext),
+             precacheToneMapperShaderOnly(_precacheToneMapperShaderOnly),
+-            supportsBackgroundBlur(_supportsBackgroundBlur),
++            blurAlgorithm(_blurAlgorithm),
+             contextPriority(_contextPriority),
+             threaded(_threaded),
+             graphicsApi(_graphicsApi) {}
+@@ -298,8 +309,8 @@ struct RenderEngineCreationArgs::Builder {
+         this->precacheToneMapperShaderOnly = precacheToneMapperShaderOnly;
+         return *this;
+     }
+-    Builder& setSupportsBackgroundBlur(bool supportsBackgroundBlur) {
+-        this->supportsBackgroundBlur = supportsBackgroundBlur;
++    Builder& setBlurAlgorithm(RenderEngine::BlurAlgorithm blurAlgorithm) {
++        this->blurAlgorithm = blurAlgorithm;
+         return *this;
+     }
+     Builder& setContextPriority(RenderEngine::ContextPriority contextPriority) {
+@@ -316,7 +327,7 @@ struct RenderEngineCreationArgs::Builder {
+     }
+     RenderEngineCreationArgs build() const {
+         return RenderEngineCreationArgs(pixelFormat, imageCacheSize, enableProtectedContext,
+-                                        precacheToneMapperShaderOnly, supportsBackgroundBlur,
++                                        precacheToneMapperShaderOnly, blurAlgorithm,
+                                         contextPriority, threaded, graphicsApi);
+     }
+ 
+@@ -326,7 +337,7 @@ private:
+     uint32_t imageCacheSize = 0;
+     bool enableProtectedContext = false;
+     bool precacheToneMapperShaderOnly = false;
+-    bool supportsBackgroundBlur = false;
++    RenderEngine::BlurAlgorithm blurAlgorithm = RenderEngine::BlurAlgorithm::NONE;
+     RenderEngine::ContextPriority contextPriority = RenderEngine::ContextPriority::MEDIUM;
+     RenderEngine::Threaded threaded = RenderEngine::Threaded::YES;
+     RenderEngine::GraphicsApi graphicsApi = RenderEngine::GraphicsApi::GL;
+diff --git a/libs/renderengine/skia/SkiaGLRenderEngine.cpp b/libs/renderengine/skia/SkiaGLRenderEngine.cpp
+index fea4129ec0..0f8687424e 100644
+--- a/libs/renderengine/skia/SkiaGLRenderEngine.cpp
++++ b/libs/renderengine/skia/SkiaGLRenderEngine.cpp
+@@ -269,7 +269,7 @@ SkiaGLRenderEngine::SkiaGLRenderEngine(const RenderEngineCreationArgs& args, EGL
+                                        EGLContext ctxt, EGLSurface placeholder,
+                                        EGLContext protectedContext, EGLSurface protectedPlaceholder)
+       : SkiaRenderEngine(args.threaded, static_cast<PixelFormat>(args.pixelFormat),
+-                         args.supportsBackgroundBlur),
++                         args.blurAlgorithm),
+         mEGLDisplay(display),
+         mEGLContext(ctxt),
+         mPlaceholderSurface(placeholder),
+diff --git a/libs/renderengine/skia/SkiaRenderEngine.cpp b/libs/renderengine/skia/SkiaRenderEngine.cpp
+index 6e393f03fa..3ef7315b35 100644
+--- a/libs/renderengine/skia/SkiaRenderEngine.cpp
++++ b/libs/renderengine/skia/SkiaRenderEngine.cpp
+@@ -271,12 +271,25 @@ void SkiaRenderEngine::setEnableTracing(bool tracingEnabled) {
+ }
+ 
+ SkiaRenderEngine::SkiaRenderEngine(Threaded threaded, PixelFormat pixelFormat,
+-                                   bool supportsBackgroundBlur)
++                                   BlurAlgorithm blurAlgorithm)
+       : RenderEngine(threaded), mDefaultPixelFormat(pixelFormat) {
+-    if (supportsBackgroundBlur) {
+-        ALOGD("Background Blurs Enabled");
+-        mBlurFilter = new KawaseBlurFilter();
++    switch (blurAlgorithm) {
++        case BlurAlgorithm::GAUSSIAN: {
++            ALOGD("Background Blurs Enabled (Gaussian algorithm)");
++            mBlurFilter = new GaussianBlurFilter();
++            break;
++        }
++        case BlurAlgorithm::KAWASE: {
++            ALOGD("Background Blurs Enabled (Kawase algorithm)");
++            mBlurFilter = new KawaseBlurFilter();
++            break;
++        }
++        default: {
++            mBlurFilter = nullptr;
++            break;
++        }
+     }
++
+     mCapture = std::make_unique<SkiaCapture>();
+ }
+ 
+diff --git a/libs/renderengine/skia/SkiaRenderEngine.h b/libs/renderengine/skia/SkiaRenderEngine.h
+index e88d44cca6..d6282af6df 100644
+--- a/libs/renderengine/skia/SkiaRenderEngine.h
++++ b/libs/renderengine/skia/SkiaRenderEngine.h
+@@ -59,7 +59,7 @@ class BlurFilter;
+ class SkiaRenderEngine : public RenderEngine {
+ public:
+     static std::unique_ptr<SkiaRenderEngine> create(const RenderEngineCreationArgs& args);
+-    SkiaRenderEngine(Threaded, PixelFormat pixelFormat, bool supportsBackgroundBlur);
++    SkiaRenderEngine(Threaded, PixelFormat pixelFormat, BlurAlgorithm);
+     ~SkiaRenderEngine() override;
+ 
+     std::future<void> primeCache(bool shouldPrimeUltraHDR) override final;
+diff --git a/libs/renderengine/skia/SkiaVkRenderEngine.cpp b/libs/renderengine/skia/SkiaVkRenderEngine.cpp
+index eb7a9d5bfa..76a9570c18 100644
+--- a/libs/renderengine/skia/SkiaVkRenderEngine.cpp
++++ b/libs/renderengine/skia/SkiaVkRenderEngine.cpp
+@@ -699,7 +699,7 @@ std::unique_ptr<SkiaVkRenderEngine> SkiaVkRenderEngine::create(
+ 
+ SkiaVkRenderEngine::SkiaVkRenderEngine(const RenderEngineCreationArgs& args)
+       : SkiaRenderEngine(args.threaded, static_cast<PixelFormat>(args.pixelFormat),
+-                         args.supportsBackgroundBlur) {}
++                         args.blurAlgorithm) {}
+ 
+ SkiaVkRenderEngine::~SkiaVkRenderEngine() {
+     finishRenderingAndAbandonContext();
+diff --git a/libs/renderengine/tests/RenderEngineTest.cpp b/libs/renderengine/tests/RenderEngineTest.cpp
+index 7b8eb8470f..d82a5a0bbf 100644
+--- a/libs/renderengine/tests/RenderEngineTest.cpp
++++ b/libs/renderengine/tests/RenderEngineTest.cpp
+@@ -115,7 +115,7 @@ public:
+                         .setImageCacheSize(1)
+                         .setEnableProtectedContext(false)
+                         .setPrecacheToneMapperShaderOnly(false)
+-                        .setSupportsBackgroundBlur(true)
++                        .setBlurAlgorithm(renderengine::RenderEngine::BlurAlgorithm::KAWASE)
+                         .setContextPriority(renderengine::RenderEngine::ContextPriority::MEDIUM)
+                         .setThreaded(renderengine::RenderEngine::Threaded::NO)
+                         .setGraphicsApi(graphicsApi())
+diff --git a/services/surfaceflinger/SurfaceFlinger.cpp b/services/surfaceflinger/SurfaceFlinger.cpp
+index d0c420ccaf..6ddbb9a79f 100644
+--- a/services/surfaceflinger/SurfaceFlinger.cpp
++++ b/services/surfaceflinger/SurfaceFlinger.cpp
+@@ -832,6 +832,22 @@ void chooseRenderEngineType(renderengine::RenderEngineCreationArgs::Builder& bui
+     }
+ }
+ 
++/**
++ * Choose a suggested blurring algorithm if supportsBlur is true. By default Kawase will be
++ * suggested as it's faster than a full Gaussian blur and looks close enough.
++ */
++renderengine::RenderEngine::BlurAlgorithm chooseBlurAlgorithm(bool supportsBlur) {
++    if (!supportsBlur) {
++        return renderengine::RenderEngine::BlurAlgorithm::NONE;
++    }
++    auto const algorithm = base::GetProperty(PROPERTY_DEBUG_RENDERENGINE_BLUR_ALGORITHM, "");
++    if (algorithm == "gaussian") {
++        return renderengine::RenderEngine::BlurAlgorithm::GAUSSIAN;
++    } else {
++        return renderengine::RenderEngine::BlurAlgorithm::KAWASE;
++    }
++}
++
+ // Do not call property_set on main thread which will be blocked by init
+ // Use StartPropertySetThread instead.
+ void SurfaceFlinger::init() FTL_FAKE_GUARD(kMainThreadContext) {
+@@ -849,7 +865,7 @@ void SurfaceFlinger::init() FTL_FAKE_GUARD(kMainThreadContext) {
+                            .setImageCacheSize(maxFrameBufferAcquiredBuffers)
+                            .setEnableProtectedContext(enable_protected_contents(false))
+                            .setPrecacheToneMapperShaderOnly(false)
+-                           .setSupportsBackgroundBlur(mSupportsBlur)
++                           .setBlurAlgorithm(chooseBlurAlgorithm(mSupportsBlur))
+                            .setContextPriority(
+                                    useContextPriority
+                                            ? renderengine::RenderEngine::ContextPriority::REALTIME
+-- 
+2.47.0
+

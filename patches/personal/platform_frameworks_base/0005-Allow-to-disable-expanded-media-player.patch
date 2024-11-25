@@ -1,0 +1,44 @@
+From 93f8d2c8606d1cd40cbf1bc64763a4b966275d7e Mon Sep 17 00:00:00 2001
+From: minaripenguin <minaripenguin@users.noreply.github.com>
+Date: Sun, 4 Aug 2024 14:15:07 -0300
+Subject: [PATCH 05/31] Allow to disable expanded media player
+
+---
+ .../media/controls/ui/controller/MediaViewController.kt    | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/media/controls/ui/controller/MediaViewController.kt b/packages/SystemUI/src/com/android/systemui/media/controls/ui/controller/MediaViewController.kt
+index ad7990b9..816a9e78 100644
+--- a/packages/SystemUI/src/com/android/systemui/media/controls/ui/controller/MediaViewController.kt
++++ b/packages/SystemUI/src/com/android/systemui/media/controls/ui/controller/MediaViewController.kt
+@@ -18,6 +18,8 @@ package com.android.systemui.media.controls.ui.controller
+ 
+ import android.content.Context
+ import android.content.res.Configuration
++import android.os.UserHandle
++import android.provider.Settings
+ import androidx.annotation.VisibleForTesting
+ import androidx.constraintlayout.widget.ConstraintSet
+ import androidx.constraintlayout.widget.ConstraintSet.MATCH_CONSTRAINT
+@@ -130,6 +132,9 @@ constructor(
+             return transitionLayout?.translationY ?: 0.0f
+         }
+ 
++    private val isCompactMode: Boolean = Settings.System.getIntForUser(context.contentResolver,
++            "qs_compact_media_player_mode", 1, UserHandle.USER_CURRENT) != 0
++
+     /** A callback for config changes */
+     private val configurationListener =
+         object : ConfigurationController.ConfigurationListener {
+@@ -269,7 +274,7 @@ constructor(
+ 
+     /** Get the constraintSet for a given expansion */
+     private fun constraintSetForExpansion(expansion: Float): ConstraintSet =
+-        if (expansion > 0) expandedLayout else collapsedLayout
++        if (isCompactMode) collapsedLayout else expandedLayout
+ 
+     /** Set the height of UMO background constraints. */
+     private fun setBackgroundHeights(height: Int) {
+-- 
+2.47.0
+

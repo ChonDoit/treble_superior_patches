@@ -1,0 +1,143 @@
+From df51be00b323bf8b77dcb3a589f2164e9ac15899 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sun, 3 Nov 2024 09:56:45 -0300
+Subject: [PATCH] Resources reorder and fixes
+
+---
+ res/values/superior_strings.xml        |  3 ++-
+ res/xml/superior_lab_lockscreen.xml    | 32 +++++++++++++-------------
+ res/xml/superior_lab_notifications.xml |  6 -----
+ res/xml/superior_lab_quicksettings.xml |  6 ++---
+ 5 files changed, 22 insertions(+), 27 deletions(-)
+
+diff --git a/res/values/superior_strings.xml b/res/values/superior_strings.xml
+index 93c043d..0207fcc 100644
+--- a/res/values/superior_strings.xml
++++ b/res/values/superior_strings.xml
+@@ -329,6 +329,7 @@
+      </string>
+ 
+      <!-- QS Header -->
++     <string name="qs_header_title">Header</string>
+      <string name="qs_header_image_title">Header image</string>
+      <string name="qs_header_image_summary">Select QS background header image</string>
+      <string name="qs_header_daylight_pack_title">Header image collection</string>
+@@ -373,4 +374,4 @@
+      <string name="lock_screen_fingerprint_error_vibration_summary">Vibrate when fingerprint
+           authentication fails</string>
+ 
+-</resources>
+\ No newline at end of file
++</resources>
+diff --git a/res/xml/superior_lab_lockscreen.xml b/res/xml/superior_lab_lockscreen.xml
+index 1617c08..7a12393 100644
+--- a/res/xml/superior_lab_lockscreen.xml
++++ b/res/xml/superior_lab_lockscreen.xml
+@@ -8,6 +8,12 @@
+     android:title="@string/lockscreen_title"
+     xmlns:settings="http://schemas.android.com/apk/res/com.android.settings">
+ 
++    <Preference
++        android:key="depth_wallpaper"
++        android:title="@string/dw_wallpaper_enabled_title"
++        android:summary="@string/dw_wallpaper_enabled_summary"
++        android:fragment="com.superior.lab.fragments.WallpaperDepth" />
++
+     <com.superior.support.preferences.SecureSettingSwitchPreference
+         android:key="pulse_on_new_tracks"
+         android:title="@string/pulse_on_new_tracks_title"
+@@ -26,12 +32,6 @@
+         android:summary="@string/quick_settings_secure_lock_screen_summary"
+         android:defaultValue="false" />
+ 
+-    <Preference
+-        android:key="depth_wallpaper"
+-        android:title="@string/dw_wallpaper_enabled_title"
+-        android:summary="@string/dw_wallpaper_enabled_summary"
+-        android:fragment="com.superior.lab.fragments.WallpaperDepth" />
+-
+     <PreferenceCategory
+         android:key="lock_screen_fingerprint_category"
+         android:title="@string/lock_screen_fingerprint_category">
+@@ -59,6 +59,15 @@
+     <PreferenceCategory
+         android:title="@string/weather_category_title">
+ 
++        <Preference
++            android:title="@string/weather_settings_title"
++            android:summary="@string/weather_settings_summary">
++            <intent
++                android:action="android.intent.action.MAIN"
++                android:targetPackage="org.omnirom.omnijaws"
++                android:targetClass="org.omnirom.omnijaws.SettingsActivity" />
++        </Preference>
++
+         <com.superior.support.preferences.SystemSettingSwitchPreference
+             android:key="lockscreen_weather_enabled"
+             android:title="@string/lockscreen_weather_title"
+@@ -79,14 +88,5 @@
+             android:defaultValue="true"
+             android:dependency="lockscreen_weather_enabled" />
+ 
+-        <Preference
+-            android:title="@string/weather_settings_title"
+-            android:summary="@string/weather_settings_summary">
+-            <intent
+-                android:action="android.intent.action.MAIN"
+-                android:targetPackage="org.omnirom.omnijaws"
+-                android:targetClass="org.omnirom.omnijaws.SettingsActivity" />
+-        </Preference>
+-
+     </PreferenceCategory>
+-</PreferenceScreen>
+\ No newline at end of file
++</PreferenceScreen>
+diff --git a/res/xml/superior_lab_notifications.xml b/res/xml/superior_lab_notifications.xml
+index e8f0689..fd08d35 100644
+--- a/res/xml/superior_lab_notifications.xml
++++ b/res/xml/superior_lab_notifications.xml
+@@ -11,12 +11,6 @@
+     <PreferenceCategory
+         android:title="@string/general_category">
+ 
+-    <com.superior.support.preferences.SystemSettingSwitchPreference
+-         android:key="notification_sound_vib_screen_on"
+-         android:title="@string/notification_sound_vib_screen_on_title"
+-         android:summary="@string/notification_sound_vib_screen_on_summary"
+-         android:defaultValue="true" />
+-
+     <com.superior.support.preferences.SystemSettingSwitchPreference
+         android:key="less_boring_heads_up"
+         android:title="@string/less_boring_heads_up_title"
+diff --git a/res/xml/superior_lab_quicksettings.xml b/res/xml/superior_lab_quicksettings.xml
+index a4fd86e..5b2cee6 100644
+--- a/res/xml/superior_lab_quicksettings.xml
++++ b/res/xml/superior_lab_quicksettings.xml
+@@ -45,7 +45,7 @@
+             android:key="qs_compact_media_player_mode"
+             android:title="@string/qs_compact_media_player_mode_title"
+             android:summary="@string/qs_compact_media_player_mode_summary"
+-            android:defaultValue="true"  />
++            android:defaultValue="true" />
+ 
+         <com.superior.support.preferences.SecureSettingSwitchPreference
+             android:key="show_media_squiggle_animation"
+@@ -76,7 +76,7 @@
+         <Preference
+             android:key="qs_header_image"
+             android:summary="@string/qs_header_image_summary"
+-            android:title="@string/qs_header_image_title"
++            android:title="@string/qs_header_title"
+             android:fragment="com.superior.lab.fragments.QsHeaderImageSettings" />
+ 
+     </PreferenceCategory>
+@@ -167,4 +167,4 @@
+ 
+     </PreferenceCategory>
+ 
+-</PreferenceScreen>
+\ No newline at end of file
++</PreferenceScreen>
+-- 
+2.25.1
+

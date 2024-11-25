@@ -1,0 +1,65 @@
+From 5b3e7485ba5f0d791340a9b9b495b2aefe8b3367 Mon Sep 17 00:00:00 2001
+From: Richard Raya <rdxzv.dev@gmail.com>
+Date: Sun, 18 Aug 2024 16:09:04 -0300
+Subject: [PATCH 08/31] ExternalStorageProvider: Conditionally remove SAF
+ restrictions [1/2]
+
+* Original commit gutted out entire codes in shouldBlockDirectoryFromTree
+  which could be lead to major privacy leakage
+  due to those invasive apps' behavior
+
+* Add toggle instead so that users could opt in/out
+
+Original commit msg:
+    ExternalStorageProvider: Remove SAF restrictions
+
+    * Inspired by https://github.com/DanGLES3/NoStorageRestrict
+
+    Change-Id: I073d9bb8edd49224e17c76a43683365a64686768
+    Signed-off-by: Richard Raya <rdxzv.dev@gmail.com>
+    Signed-off-by: Gustavo Mendes <gusttavo.me@outlook.com>
+
+Change-Id: I9f987b7dae80af95275f743cfbc935582ff2129e
+Signed-off-by: someone5678 <someone5678@users.noreply.github.com>
+---
+ core/java/android/provider/Settings.java                    | 6 ++++++
+ .../android/externalstorage/ExternalStorageProvider.java    | 6 ++++++
+ 2 files changed, 12 insertions(+)
+
+diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
+index 81d6aa6f..9c04b35e 100644
+--- a/core/java/android/provider/Settings.java
++++ b/core/java/android/provider/Settings.java
+@@ -19603,6 +19603,12 @@ public final class Settings {
+         @Readable
+         public static final String SPOOF_STORAGE_ENCRYPTION_STATUS = "spoof_storage_encryption_status";
+ 
++	/**
++         * Control whether to remove the restriction when selecting folders through SAF.
++         * @hide
++         */
++        public static final String NO_STORAGE_RESTRICT = "no_storage_restrict";
++
+         /**
+          * Setting indicating whether Low Power Standby is enabled, if supported.
+          *
+diff --git a/packages/ExternalStorageProvider/src/com/android/externalstorage/ExternalStorageProvider.java b/packages/ExternalStorageProvider/src/com/android/externalstorage/ExternalStorageProvider.java
+index 3409c29d..9ff44227 100644
+--- a/packages/ExternalStorageProvider/src/com/android/externalstorage/ExternalStorageProvider.java
++++ b/packages/ExternalStorageProvider/src/com/android/externalstorage/ExternalStorageProvider.java
+@@ -327,6 +327,12 @@ public class ExternalStorageProvider extends FileSystemProvider {
+     @Override
+     protected boolean shouldBlockDirectoryFromTree(@NonNull String documentId)
+             throws FileNotFoundException {
++	// Remove restriction if user really want it.
++        if (Settings.Global.getInt(
++                getContext().getContentResolver(), Settings.Global.NO_STORAGE_RESTRICT, 0) == 1) {
++            return false;
++        }
++
+         final File dir = getFileForDocId(documentId, false);
+         // The file is null or it is not a directory
+         if (dir == null || !dir.isDirectory()) {
+-- 
+2.47.0
+

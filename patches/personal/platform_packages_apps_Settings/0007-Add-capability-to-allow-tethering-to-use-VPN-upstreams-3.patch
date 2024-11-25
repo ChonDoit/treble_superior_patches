@@ -1,0 +1,44 @@
+From 5d4ce7fa495a911c2dad5058829e255b21691310 Mon Sep 17 00:00:00 2001
+From: Sam Mortimer <sam@mortimer.me.uk>
+Date: Thu, 4 Apr 2024 17:29:44 +0000
+Subject: [PATCH] Settings: Add capability to allow tethering to use VPN
+ upstreams [3/3]
+
+---
+ res/values/superior_strings.xml | 4 ++++
+ res/xml/tether_prefs.xml        | 6 ++++++
+ 2 files changed, 10 insertions(+)
+
+diff --git a/res/values/superior_strings.xml b/res/values/superior_strings.xml
+index b447d00..97fdc84 100644
+--- a/res/values/superior_strings.xml
++++ b/res/values/superior_strings.xml
+@@ -317,4 +317,8 @@
+     <string name="assisted_gps">A-GPS</string>
+     <string name="assisted_gps_summary">Use satellite assistance data from the internet.</string>
+ 
++    <!-- Hotspot extras -->
++    <string name="tethering_allow_vpn_upstreams_title">Allow clients to use VPNs</string>
++    <string name="tethering_allow_vpn_upstreams_summary">Permit hotspot clients to use this device\u2019s VPN connections for upstream connectivity</string>
++
+ </resources>
+diff --git a/res/xml/tether_prefs.xml b/res/xml/tether_prefs.xml
+index 89bd631..59934ef 100644
+--- a/res/xml/tether_prefs.xml
++++ b/res/xml/tether_prefs.xml
+@@ -49,6 +49,12 @@
+         android:summary="@string/ethernet_tethering_subtext"
+         settings:keywords="@string/keywords_hotspot_tethering" />
+ 
++     <com.superior.support.preferences.SecureSettingSwitchPreference
++        android:key="tethering_allow_vpn_upstreams"
++        android:title="@string/tethering_allow_vpn_upstreams_title"
++        android:summary="@string/tethering_allow_vpn_upstreams_summary"
++        android:defaultValue="false" />
++
+     <com.android.settingslib.widget.FooterPreference
+         android:key="disabled_on_data_saver"
+         android:title="@string/tether_settings_disabled_on_data_saver"
+-- 
+2.25.1
+

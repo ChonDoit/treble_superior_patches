@@ -1,7 +1,7 @@
-From b48b00be8f26f2195bb89eeb681c29dea32dbd7b Mon Sep 17 00:00:00 2001
+From b8dee96f48806376e98960d34891bf0b56914cf5 Mon Sep 17 00:00:00 2001
 From: ChonDoit <thphantomblog@gmail.com>
 Date: Thu, 30 May 2024 19:28:02 -0300
-Subject: [PATCH] Set a prop to define samsung proximity sensor
+Subject: [PATCH 02/31] Set a prop to define samsung proximity sensor
 
 ---
  .../server/display/DisplayPowerProximityStateController.java  | 4 ++++
@@ -44,5 +44,5 @@ index ee8ffe2f..76534cc3 100644
          }
          if (mProximitySensor != null) {
 -- 
-2.46.0
+2.47.0
 

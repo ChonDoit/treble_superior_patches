@@ -1,0 +1,23 @@
+From 046d3af88a9d23f303aa1cbfd658a25b4a9937e7 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Tue, 22 Oct 2024 14:14:23 -0300
+Subject: [PATCH 26/31] Fixup! Default Pocket Lock sensor
+
+---
+ core/res/res/values/superior_config.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/core/res/res/values/superior_config.xml b/core/res/res/values/superior_config.xml
+index c6fb93d1..457a12b8 100644
+--- a/core/res/res/values/superior_config.xml
++++ b/core/res/res/values/superior_config.xml
+@@ -137,5 +137,5 @@
+ 
+      <!-- Defines custom OEM sensor for pocket detection. -->
+      <string name="config_pocketJudgeVendorSensorName"></string>
+-     <string name="config_pocketJudgeVendorProximitySensorName"></string>
++     <string name="config_pocketJudgeVendorProximitySensorName">android.sensor.proximity</string>
+ </resources>
+-- 
+2.47.0
+

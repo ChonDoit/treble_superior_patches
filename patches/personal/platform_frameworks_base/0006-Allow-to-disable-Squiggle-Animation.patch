@@ -1,0 +1,148 @@
+From d06e1d56cdc700a6583a7b51c351e628c5db5059 Mon Sep 17 00:00:00 2001
+From: ReallySnow <reallysnow233@gmail.com>
+Date: Sun, 18 Aug 2024 16:51:34 -0300
+Subject: [PATCH 06/31] Allow to disable Squiggle Animation
+
+* Although the wavy animation is really nice, but some
+  users don't like it, so use a switch to control it
+  on and off
+* On: https://imgur.com/a/syVpSzh
+* Off: https://imgur.com/a/29s2ZjA
+
+ @semdoc: add backup validators
+
+Change-Id: I62a66c848da82d4be8af59df20127c9a96a2df79
+---
+ core/java/android/provider/Settings.java             |  7 +++++++
+ .../provider/settings/backup/SecureSettings.java     |  1 +
+ .../validators/SecureSettingsValidators.java         |  1 +
+ .../media/controls/ui/binder/SeekBarObserver.kt      |  2 +-
+ .../media/controls/ui/viewmodel/SeekBarViewModel.kt  | 12 +++++++++++-
+ 5 files changed, 21 insertions(+), 2 deletions(-)
+
+diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
+index eb93f839..03f3fdfb 100644
+--- a/core/java/android/provider/Settings.java
++++ b/core/java/android/provider/Settings.java
+@@ -12758,6 +12758,13 @@ public final class Settings {
+          */
+         public static final String SHOW_CLIPBOARD_OVERLAY = "show_clipboard_overlay";
+ 
++        /**
++         *  Toggle the media squiggle animation
++         *  0 = 0ff, 1 = on
++         * @hide
++         */
++        public static final String SHOW_MEDIA_SQUIGGLE_ANIMATION = "show_media_squiggle_animation";
++
+         /**
+          * Keys we no longer back up under the current schema, but want to continue to
+          * process when restoring historical backup datasets.
+diff --git a/packages/SettingsProvider/src/android/provider/settings/backup/SecureSettings.java b/packages/SettingsProvider/src/android/provider/settings/backup/SecureSettings.java
+index 55e7e701..b589341e 100644
+--- a/packages/SettingsProvider/src/android/provider/settings/backup/SecureSettings.java
++++ b/packages/SettingsProvider/src/android/provider/settings/backup/SecureSettings.java
+@@ -272,5 +272,6 @@ public class SecureSettings {
+         Settings.Secure.DOZE_PICK_UP_GESTURE_AMBIENT,
+         Settings.Secure.DOZE_SINGLE_TAP_GESTURE_AMBIENT,
+         Settings.Secure.QUICK_SETTINGS_TILES_VIBRATE,
++	Settings.Secure.SHOW_MEDIA_SQUIGGLE_ANIMATION,
+     };
+ }
+diff --git a/packages/SettingsProvider/src/android/provider/settings/validators/SecureSettingsValidators.java b/packages/SettingsProvider/src/android/provider/settings/validators/SecureSettingsValidators.java
+index a4ec1208..debc86a7 100644
+--- a/packages/SettingsProvider/src/android/provider/settings/validators/SecureSettingsValidators.java
++++ b/packages/SettingsProvider/src/android/provider/settings/validators/SecureSettingsValidators.java
+@@ -427,5 +427,6 @@ public class SecureSettingsValidators {
+         VALIDATORS.put(Secure.DOZE_PICK_UP_GESTURE_AMBIENT, BOOLEAN_VALIDATOR);
+         VALIDATORS.put(Secure.DOZE_SINGLE_TAP_GESTURE_AMBIENT, BOOLEAN_VALIDATOR);
+         VALIDATORS.put(Secure.QUICK_SETTINGS_TILES_VIBRATE, BOOLEAN_VALIDATOR);
++	VALIDATORS.put(Secure.SHOW_MEDIA_SQUIGGLE_ANIMATION, BOOLEAN_VALIDATOR);
+     }
+ }
+diff --git a/packages/SystemUI/src/com/android/systemui/media/controls/ui/binder/SeekBarObserver.kt b/packages/SystemUI/src/com/android/systemui/media/controls/ui/binder/SeekBarObserver.kt
+index 34f7c4dc..49cc7ce8 100644
+--- a/packages/SystemUI/src/com/android/systemui/media/controls/ui/binder/SeekBarObserver.kt
++++ b/packages/SystemUI/src/com/android/systemui/media/controls/ui/binder/SeekBarObserver.kt
+@@ -118,7 +118,7 @@ open class SeekBarObserver(private val holder: MediaViewHolder) :
+         holder.seekBar.thumb.alpha = if (data.seekAvailable) 255 else 0
+         holder.seekBar.isEnabled = data.seekAvailable
+         progressDrawable?.animate =
+-            data.playing && !data.scrubbing && animationEnabled && data.listening
++            data.playing && !data.scrubbing && animationEnabled && data.listening && data.enableSquiggle
+         progressDrawable?.transitionEnabled = !data.seekAvailable
+ 
+         if (holder.seekBar.maxHeight != seekBarEnabledMaxHeight) {
+diff --git a/packages/SystemUI/src/com/android/systemui/media/controls/ui/viewmodel/SeekBarViewModel.kt b/packages/SystemUI/src/com/android/systemui/media/controls/ui/viewmodel/SeekBarViewModel.kt
+index cef1e69e..6781953f 100644
+--- a/packages/SystemUI/src/com/android/systemui/media/controls/ui/viewmodel/SeekBarViewModel.kt
++++ b/packages/SystemUI/src/com/android/systemui/media/controls/ui/viewmodel/SeekBarViewModel.kt
+@@ -16,11 +16,15 @@
+ 
+ package com.android.systemui.media.controls.ui.viewmodel
+ 
++import android.content.Context
++import android.content.ContentResolver
+ import android.media.MediaMetadata
+ import android.media.session.MediaController
+ import android.media.session.PlaybackState
+ import android.os.SystemClock
+ import android.os.Trace
++import android.os.UserHandle
++import android.provider.Settings
+ import android.view.GestureDetector
+ import android.view.MotionEvent
+ import android.view.View
+@@ -81,6 +85,7 @@ private fun PlaybackState.computePosition(duration: Long): Long {
+ class SeekBarViewModel
+ @Inject
+ constructor(
++    private val context: Context,
+     @Background private val bgExecutor: RepeatableExecutor,
+     private val falsingManager: FalsingManager,
+ ) {
+@@ -90,6 +95,7 @@ constructor(
+             seekAvailable = false,
+             playing = false,
+             scrubbing = false,
++	    enableSquiggle = false,
+             elapsedTime = null,
+             duration = 0,
+             listening = false
+@@ -241,6 +247,8 @@ constructor(
+             NotificationMediaManager.isPlayingState(
+                 playbackState?.state ?: PlaybackState.STATE_NONE
+             )
++	val enableSquiggle = Settings.Secure.getIntForUser(context.getContentResolver(),
++                Settings.Secure.SHOW_MEDIA_SQUIGGLE_ANIMATION, 0, UserHandle.USER_CURRENT) != 0
+         val enabled =
+             if (
+                 playbackState == null ||
+@@ -249,7 +257,7 @@ constructor(
+             )
+                 false
+             else true
+-        _data = Progress(enabled, seekAvailable, playing, scrubbing, position, duration, listening)
++        _data = Progress(enabled, seekAvailable, playing, scrubbing, enableSquiggle, position, duration, listening)
+         checkIfPollingNeeded()
+     }
+ 
+@@ -266,6 +274,7 @@ constructor(
+                 seekAvailable = false,
+                 playing = false,
+                 scrubbing = false,
++		enableSquiggle = false,
+                 elapsedTime = position,
+                 duration = 100,
+                 listening = false,
+@@ -562,6 +571,7 @@ constructor(
+         /** whether playback state is not paused or connecting */
+         val playing: Boolean,
+         val scrubbing: Boolean,
++	val enableSquiggle: Boolean,
+         val elapsedTime: Int?,
+         val duration: Int,
+         /** whether seekBar is listening to progress updates */
+-- 
+2.47.0
+

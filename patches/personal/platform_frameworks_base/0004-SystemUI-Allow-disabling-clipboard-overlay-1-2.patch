@@ -1,0 +1,60 @@
+From fed7ff4d2cfeb6da18f378f1ef6bdc852d647151 Mon Sep 17 00:00:00 2001
+From: Adithya R <gh0strider.2k18.reborn@gmail.com>
+Date: Thu, 29 Jun 2023 17:30:05 +0000
+Subject: [PATCH 04/31] SystemUI: Allow disabling clipboard overlay [1/2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Change-Id: Ia755ca9021468a53c8f17413ca3faa787b00ceea
+Signed-off-by: Hưng Phan <phandinhhungvp2001@gmail.com>
+---
+ core/java/android/provider/Settings.java                   | 7 +++++++
+ .../systemui/clipboardoverlay/ClipboardListener.java       | 6 ++++++
+ 2 files changed, 13 insertions(+)
+
+diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
+index 5fdfb41b..eb93f839 100644
+--- a/core/java/android/provider/Settings.java
++++ b/core/java/android/provider/Settings.java
+@@ -12751,6 +12751,13 @@ public final class Settings {
+          */
+         public static final String QUICK_SETTINGS_TILES_VIBRATE = "quick_settings_vibrate";
+ 
++        /**
++         * Whether to show an overlay in the bottom corner of the screen on copying stuff
++         * into the clipboard.
++         * @hide
++         */
++        public static final String SHOW_CLIPBOARD_OVERLAY = "show_clipboard_overlay";
++
+         /**
+          * Keys we no longer back up under the current schema, but want to continue to
+          * process when restoring historical backup datasets.
+diff --git a/packages/SystemUI/src/com/android/systemui/clipboardoverlay/ClipboardListener.java b/packages/SystemUI/src/com/android/systemui/clipboardoverlay/ClipboardListener.java
+index c7a47b18..bae458dd 100644
+--- a/packages/SystemUI/src/com/android/systemui/clipboardoverlay/ClipboardListener.java
++++ b/packages/SystemUI/src/com/android/systemui/clipboardoverlay/ClipboardListener.java
+@@ -30,6 +30,7 @@ import android.content.ClipData;
+ import android.content.ClipboardManager;
+ import android.content.Context;
+ import android.os.Build;
++import android.os.UserHandle;
+ import android.provider.Settings;
+ import android.util.Log;
+ 
+@@ -89,6 +90,11 @@ public class ClipboardListener implements
+             return;
+         }
+ 
++        if (Settings.Secure.getIntForUser(mContext.getContentResolver(),
++                Settings.Secure.SHOW_CLIPBOARD_OVERLAY, 1, UserHandle.USER_CURRENT) == 0) {
++            return;
++        }
++
+         String clipSource = mClipboardManager.getPrimaryClipSource();
+         ClipData clipData = mClipboardManager.getPrimaryClip();
+ 
+-- 
+2.47.0
+

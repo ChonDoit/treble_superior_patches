@@ -1,0 +1,112 @@
+From 0ea13a0c55876182c66f21ba939d56bd85de49cb Mon Sep 17 00:00:00 2001
+From: Sam Mortimer <sam@mortimer.me.uk>
+Date: Mon, 3 Jan 2022 07:33:33 +0800
+Subject: [PATCH 28/31] Add capability to allow tethering to use VPN upstreams
+ [2/3]
+
+Squash of:
+
+Author: Sam Mortimer <sam@mortimer.me.uk>
+Date:   Thu Aug 15 19:40:55 2019 -0700
+
+    fw/b: Add capability to allow tethering to use VPN upstreams
+
+    * Toggled on/off at runtime via a new hotspot lineage setting.
+
+    * Dynamically updates the tethering upstream for existing hotspot
+      clients as VPNs are brought up / down or the hotspot setting
+      is changed.
+
+    * This implementation depends on fw/b config_tether_upstream_automatic
+      being set to true.
+
+    Change-Id: I2ac0b4acc0ea686dfdf54561cb3428808e337160
+
+Change-Id: I2363e9baa007eac25be04ce23f0de41b80c5da42
+
+----
+
+Author: Sam Mortimer <sam@mortimer.me.uk>
+Date:   Fri Sep 13 16:27:37 2019 -0700
+
+    fw/b: Prevent trying to enable hw offload for tethering via VPN upstreams
+
+    * Tethering via VPN upstream requires a sw path.
+
+    * hw offload setup happened to be being disabled anyway owing to a fail
+      return code from setDataLimit().  However, it was causing offload to be
+      disabled entirely (until next hotspot off / on event).
+
+    * Gracefully skip hw offload for vpn upstreams so that it is automatically
+      used again when a vpn is disconnected.
+
+    Change-Id: I4df13f02889305560903b7b1e919eedc7af78c07
+
+[mkbestas]: Remove LineageSettings dependency & port to android 11
+
+[uldiniad]: Replaced Settings.Secure private APIs and variables with alternatives
+
+[Android 12]: Tethering moved to packages/modules/Connectivity
+
+Change-Id: I77ed0142e653f4993486eea44e4dac21e3f67f17
+---
+ core/api/current.txt                                        | 1 +
+ core/java/android/provider/Settings.java                    | 6 ++++++
+ .../android/provider/settings/backup/SecureSettings.java    | 1 +
+ .../settings/validators/SecureSettingsValidators.java       | 1 +
+ 4 files changed, 9 insertions(+)
+
+diff --git a/core/api/current.txt b/core/api/current.txt
+index 62980ed5..eb80f3fb 100644
+--- a/core/api/current.txt
++++ b/core/api/current.txt
+@@ -37520,6 +37520,7 @@ package android.provider {
+     field public static final String SELECTED_INPUT_METHOD_SUBTYPE = "selected_input_method_subtype";
+     field public static final String SETTINGS_CLASSNAME = "settings_classname";
+     field public static final String SKIP_FIRST_USE_HINTS = "skip_first_use_hints";
++    field public static final String TETHERING_ALLOW_VPN_UPSTREAMS = "tethering_allow_vpn_upstreams";
+     field public static final String TOUCH_EXPLORATION_ENABLED = "touch_exploration_enabled";
+     field @Deprecated public static final String TTS_DEFAULT_COUNTRY = "tts_default_country";
+     field @Deprecated public static final String TTS_DEFAULT_LANG = "tts_default_lang";
+diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
+index aca597de..a04c0670 100644
+--- a/core/java/android/provider/Settings.java
++++ b/core/java/android/provider/Settings.java
+@@ -12452,6 +12452,12 @@ public final class Settings {
+         @Readable
+         public static final String TAP_GESTURE = "tap_gesture";
+ 
++	/**
++         * Whether tethering is allowed to use VPN upstreams
++         */
++        @SuppressLint({"NoSettingsProvider", "UnflaggedApi"})
++        public static final String TETHERING_ALLOW_VPN_UPSTREAMS = "tethering_allow_vpn_upstreams";
++
+         /**
+          * Controls whether the people strip is enabled.
+          * @hide
+diff --git a/packages/SettingsProvider/src/android/provider/settings/backup/SecureSettings.java b/packages/SettingsProvider/src/android/provider/settings/backup/SecureSettings.java
+index b589341e..b7bd57af 100644
+--- a/packages/SettingsProvider/src/android/provider/settings/backup/SecureSettings.java
++++ b/packages/SettingsProvider/src/android/provider/settings/backup/SecureSettings.java
+@@ -273,5 +273,6 @@ public class SecureSettings {
+         Settings.Secure.DOZE_SINGLE_TAP_GESTURE_AMBIENT,
+         Settings.Secure.QUICK_SETTINGS_TILES_VIBRATE,
+ 	Settings.Secure.SHOW_MEDIA_SQUIGGLE_ANIMATION,
++        Settings.Secure.TETHERING_ALLOW_VPN_UPSTREAMS,
+     };
+ }
+diff --git a/packages/SettingsProvider/src/android/provider/settings/validators/SecureSettingsValidators.java b/packages/SettingsProvider/src/android/provider/settings/validators/SecureSettingsValidators.java
+index debc86a7..fc6af051 100644
+--- a/packages/SettingsProvider/src/android/provider/settings/validators/SecureSettingsValidators.java
++++ b/packages/SettingsProvider/src/android/provider/settings/validators/SecureSettingsValidators.java
+@@ -428,5 +428,6 @@ public class SecureSettingsValidators {
+         VALIDATORS.put(Secure.DOZE_SINGLE_TAP_GESTURE_AMBIENT, BOOLEAN_VALIDATOR);
+         VALIDATORS.put(Secure.QUICK_SETTINGS_TILES_VIBRATE, BOOLEAN_VALIDATOR);
+ 	VALIDATORS.put(Secure.SHOW_MEDIA_SQUIGGLE_ANIMATION, BOOLEAN_VALIDATOR);
++        VALIDATORS.put(Secure.TETHERING_ALLOW_VPN_UPSTREAMS, BOOLEAN_VALIDATOR);
+     }
+ }
+-- 
+2.47.0
+

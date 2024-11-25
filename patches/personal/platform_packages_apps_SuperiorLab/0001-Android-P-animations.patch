@@ -1,0 +1,56 @@
+From 338c10896d1435e6ad10f4af6bdc245da976204c Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Tue, 27 Aug 2024 12:46:51 -0300
+Subject: [PATCH 01/14] Android P animations
+
+---
+ res/values/custom_strings.xml | 12 ++++++++++++
+ res/xml/superior_lab_misc.xml |  8 +++++++-
+ 2 files changed, 19 insertions(+), 1 deletion(-)
+ create mode 100644 res/values/custom_strings.xml
+
+diff --git a/res/values/custom_strings.xml b/res/values/custom_strings.xml
+new file mode 100644
+index 0000000..bcd374f
+--- /dev/null
++++ b/res/values/custom_strings.xml
+@@ -0,0 +1,12 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++     Copyright (C)2020-2024 The SuperiorOS Project
++     SPDX-License-Identifier: Apache-2.0
++-->
++<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
++
++    <!-- Android P animation style -->
++    <string name="pie_animation_style_title">Android P animation style</string>
++    <string name="pie_animation_style_summary">Enable Android P \"Default\" animations</string>
++
++</resources>
+diff --git a/res/xml/superior_lab_misc.xml b/res/xml/superior_lab_misc.xml
+index d0f2f77..4411e31 100644
+--- a/res/xml/superior_lab_misc.xml
++++ b/res/xml/superior_lab_misc.xml
+@@ -11,6 +11,12 @@
+     <PreferenceCategory
+         android:title="@string/general_category">
+ 
++	<com.superior.support.preferences.GlobalSettingSwitchPreference
++            android:key="pie_animation_style"
++            android:title="@string/pie_animation_style_title"
++            android:summary="@string/pie_animation_style_summary"
++            android:defaultValue="false" />
++
+         <com.superior.support.preferences.SecureSettingSwitchPreference
+             android:key="window_ignore_secure"
+             android:title="@string/laboratory_ignore_window_secure_title"
+@@ -28,4 +34,4 @@
+             android:summary="@string/spoofing_summary"
+             android:fragment="com.superior.lab.fragments.Spoofing" />
+     </PreferenceCategory>
+-</PreferenceScreen>
+\ No newline at end of file
++</PreferenceScreen>
+-- 
+2.47.0
+

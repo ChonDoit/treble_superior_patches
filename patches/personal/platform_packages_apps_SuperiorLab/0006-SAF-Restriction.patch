@@ -1,0 +1,43 @@
+From 96f6b4a8a0695d7d92c597898ab2cd57bfeee40e Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Tue, 27 Aug 2024 13:08:23 -0300
+Subject: [PATCH 06/14] SAF Restriction
+
+---
+ res/values/custom_strings.xml | 4 ++++
+ res/xml/superior_lab_misc.xml | 6 ++++++
+ 2 files changed, 10 insertions(+)
+
+diff --git a/res/values/custom_strings.xml b/res/values/custom_strings.xml
+index 1fe48a6..aa82cd0 100644
+--- a/res/values/custom_strings.xml
++++ b/res/values/custom_strings.xml
+@@ -28,4 +28,8 @@
+     <string name="spoof_storage_encryption_status_title">Spoof encryption status</string>
+     <string name="spoof_storage_encryption_status_summary">Spoof storage encryption status to encrypted.</string>
+ 
++    <!-- No storage restrict -->
++    <string name="no_storage_restrict_title">No storage restrict</string>
++    <string name="no_storage_restrict_summary">Remove the restriction when selecting folders through Storage Access Framework.</string>
++
+ </resources>
+diff --git a/res/xml/superior_lab_misc.xml b/res/xml/superior_lab_misc.xml
+index 4411e31..78bd1b9 100644
+--- a/res/xml/superior_lab_misc.xml
++++ b/res/xml/superior_lab_misc.xml
+@@ -17,6 +17,12 @@
+             android:summary="@string/pie_animation_style_summary"
+             android:defaultValue="false" />
+ 
++	<com.superior.support.preferences.GlobalSettingSwitchPreference
++            android:key="no_storage_restrict"
++            android:title="@string/no_storage_restrict_title"
++            android:summary="@string/no_storage_restrict_summary"
++            android:defaultValue="false"/>
++
+         <com.superior.support.preferences.SecureSettingSwitchPreference
+             android:key="window_ignore_secure"
+             android:title="@string/laboratory_ignore_window_secure_title"
+-- 
+2.47.0
+

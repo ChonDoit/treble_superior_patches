@@ -1,0 +1,259 @@
+From f91a19b3b2d157b1149ac198b30ccb96f2d98d0b Mon Sep 17 00:00:00 2001
+From: Oliver Scott <olivercscott@gmail.com>
+Date: Fri, 2 Oct 2020 12:37:30 -0400
+Subject: [PATCH 2/3] Bluetooth timeout feature
+
+* Now use AOSP settings storage instead of LineageSettings.
+  This is so the Bluetooth APEX module can access the setting.
+
+Also includes squashed change:
+
+Author: Tommy Webb <tommy@calyxinstitute.org>
+Date:   Thu May 18 13:49:24 2023 -0400
+
+    fixup! Bluetooth timeout feature
+
+    Only allow admin users to adjust the Bluetooth timeout.
+
+    Issue: calyxos#1633
+    Change-Id: I8b3ae8f0faffde194ee417548e7d200842000fb6
+
+Issue: calyxos#124
+Change-Id: I4f4646139cd42b7ad20b486ed77dd00499aa3c6e
+Signed-off-by: aswin7469 <aswinas@pixysos.com>
+---
+ AndroidManifest.xml                           |   7 +
+ res/values/superior_arrays.xml                |  26 ++++
+ res/values/superior_strings.xml               |  15 +++
+ res/xml/connected_devices.xml                 |   8 ++
+ .../BluetoothTimeoutPreferenceController.java | 121 ++++++++++++++++++
+ 5 files changed, 177 insertions(+)
+ create mode 100644 src/com/android/settings/bluetooth/BluetoothTimeoutPreferenceController.java
+
+diff --git a/AndroidManifest.xml b/AndroidManifest.xml
+index 9170658..79f8f39 100644
+--- a/AndroidManifest.xml
++++ b/AndroidManifest.xml
+@@ -3974,6 +3974,13 @@
+             </intent-filter>
+         </receiver>
+ 
++        <receiver android:name="com.android.settingslib.bluetooth.BluetoothTimeoutReceiver"
++            android:exported="true">
++            <intent-filter>
++                <action android:name="android.bluetooth.intent.TIMEOUT" />
++            </intent-filter>
++        </receiver>
++
+         <!-- Watch for ContactsContract.Profile changes and update the user's photo.  -->
+         <receiver android:name=".users.ProfileUpdateReceiver"
+             android:exported="true">
+diff --git a/res/values/superior_arrays.xml b/res/values/superior_arrays.xml
+index 2ed87ee..845bc48 100644
+--- a/res/values/superior_arrays.xml
++++ b/res/values/superior_arrays.xml
+@@ -176,4 +176,30 @@
+           <item>@string/settings_random4</item>
+           <item>@string/settings_random5</item>
+      </string-array>
++
++    <!-- Bluetooth settings.  The delay in inactivity before bluetooth is turned off. These are shown in a list dialog. -->
++    <string-array name="bluetooth_timeout_entries">
++        <item>@string/bluetooth_timeout_summary_never</item>
++        <item>@string/bluetooth_timeout_summary_15secs</item>
++        <item>@string/bluetooth_timeout_summary_30secs</item>
++        <item>@string/bluetooth_timeout_summary_1min</item>
++        <item>@string/bluetooth_timeout_summary_2mins</item>
++        <item>@string/bluetooth_timeout_summary_5mins</item>
++        <item>@string/bluetooth_timeout_summary_10mins</item>
++        <item>@string/bluetooth_timeout_summary_30mins</item>
++        <item>@string/bluetooth_timeout_summary_1hour</item>
++    </string-array>
++
++    <!-- Do not translate. -->
++    <string-array name="bluetooth_timeout_values" translatable="false">
++        <item>0</item>
++        <item>15000</item>
++        <item>30000</item>
++        <item>60000</item>
++        <item>120000</item>
++        <item>300000</item>
++        <item>600000</item>
++        <item>1800000</item>
++        <item>3600000</item>
++    </string-array>
+ </resources>
+diff --git a/res/values/superior_strings.xml b/res/values/superior_strings.xml
+index 441d6c2..29bb29f 100644
+--- a/res/values/superior_strings.xml
++++ b/res/values/superior_strings.xml
+@@ -303,4 +303,18 @@
+      <string name="battery_maximum_capacity">Maximum capacity</string>
+      <string name="battery_maximum_capacity_summary">%1$d mAh (%2$d%%)</string>
+      <string name="battery_maximum_capacity_not_available">@string/battery_cycle_count_not_available</string>
+-</resources>
+\ No newline at end of file
++
++    <!-- Bluetooth timeout -->
++    <string name="bluetooth_timeout">Bluetooth timeout</string>
++    <string name="bluetooth_timeout_summary">Bluetooth will turn off after <xliff:g id="timeout_description">%1$s</xliff:g> if no devices connected</string>
++    <string name="bluetooth_timeout_summary2">Do not automatically turn off Bluetooth</string>
++    <string name="bluetooth_timeout_summary_never">Never</string>
++    <string name="bluetooth_timeout_summary_15secs">15 seconds</string>
++    <string name="bluetooth_timeout_summary_30secs">30 seconds</string>
++    <string name="bluetooth_timeout_summary_1min">1 minute</string>
++    <string name="bluetooth_timeout_summary_2mins">2 minutes</string>
++    <string name="bluetooth_timeout_summary_5mins">5 minutes</string>
++    <string name="bluetooth_timeout_summary_10mins">10 minutes</string>
++    <string name="bluetooth_timeout_summary_30mins">30 minutes</string>
++    <string name="bluetooth_timeout_summary_1hour">1 hour</string>
++</resources>
+diff --git a/res/xml/connected_devices.xml b/res/xml/connected_devices.xml
+index 111d28e..bed0ff0 100644
+--- a/res/xml/connected_devices.xml
++++ b/res/xml/connected_devices.xml
+@@ -45,6 +45,14 @@
+         settings:useAdminDisabledSummary="true"
+         settings:userRestriction="no_config_bluetooth" />
+ 
++    <androidx.preference.ListPreference
++        android:key="bluetooth_timeout"
++        android:title="@string/bluetooth_timeout"
++        android:summary="@string/summary_placeholder"
++        android:entries="@array/bluetooth_timeout_entries"
++        android:entryValues="@array/bluetooth_timeout_values"
++        settings:controller="com.android.settings.bluetooth.BluetoothTimeoutPreferenceController"/>
++
+     <PreferenceCategory
+         android:key="previously_connected_devices"
+         android:title="@string/connected_device_saved_title"
+diff --git a/src/com/android/settings/bluetooth/BluetoothTimeoutPreferenceController.java b/src/com/android/settings/bluetooth/BluetoothTimeoutPreferenceController.java
+new file mode 100644
+index 0000000..47e79e9
+--- /dev/null
++++ b/src/com/android/settings/bluetooth/BluetoothTimeoutPreferenceController.java
+@@ -0,0 +1,121 @@
++/*
++ * Copyright (C) 2020-2021 The Calyx Institute
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.settings.bluetooth;
++
++import android.bluetooth.BluetoothAdapter;
++import android.content.Context;
++import android.os.UserManager;
++import android.provider.Settings;
++import android.util.Log;
++
++import androidx.preference.ListPreference;
++import androidx.preference.Preference;
++
++import com.android.settings.R;
++import com.android.settings.core.BasePreferenceController;
++import com.android.settings.core.PreferenceControllerMixin;
++
++public class BluetoothTimeoutPreferenceController extends BasePreferenceController implements
++        PreferenceControllerMixin, Preference.OnPreferenceChangeListener {
++    private static final String TAG = "BluetoothTimeoutPrefCtrl";
++
++    public static final int FALLBACK_BLUETOOTH_TIMEOUT_VALUE = 0;
++
++    private final String mBluetoothTimeoutKey;
++
++    protected BluetoothAdapter mBluetoothAdapter;
++
++    public BluetoothTimeoutPreferenceController(Context context, String key) {
++        super(context, key);
++        mBluetoothTimeoutKey = key;
++
++        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
++        if (mBluetoothAdapter == null) {
++            Log.e(TAG, "Bluetooth is not supported on this device");
++            return;
++        }
++    }
++
++    @Override
++    public int getAvailabilityStatus() {
++        if (mBluetoothAdapter != null) {
++            return UserManager.get(mContext).isAdminUser() ? AVAILABLE : DISABLED_FOR_USER;
++        }
++        return UNSUPPORTED_ON_DEVICE;
++    }
++
++    @Override
++    public String getPreferenceKey() {
++        return mBluetoothTimeoutKey;
++    }
++
++    @Override
++    public void updateState(Preference preference) {
++        final ListPreference timeoutListPreference = (ListPreference) preference;
++        final long currentTimeout = Settings.Global.getLong(mContext.getContentResolver(),
++                Settings.Global.BLUETOOTH_OFF_TIMEOUT, FALLBACK_BLUETOOTH_TIMEOUT_VALUE);
++        timeoutListPreference.setValue(String.valueOf(currentTimeout));
++        updateTimeoutPreferenceDescription(timeoutListPreference,
++                Long.parseLong(timeoutListPreference.getValue()));
++    }
++
++    @Override
++    public boolean onPreferenceChange(Preference preference, Object newValue) {
++        try {
++            long value = Long.parseLong((String) newValue);
++            Settings.Global.putLong(mContext.getContentResolver(),
++                    Settings.Global.BLUETOOTH_OFF_TIMEOUT, value);
++            updateTimeoutPreferenceDescription((ListPreference) preference, value);
++        } catch (NumberFormatException e) {
++            Log.e(TAG, "could not persist bluetooth timeout setting", e);
++        }
++        return true;
++    }
++
++    public static CharSequence getTimeoutDescription(
++            long currentTimeout, CharSequence[] entries, CharSequence[] values) {
++        if (currentTimeout < 0 || entries == null || values == null
++                || values.length != entries.length) {
++            return null;
++        }
++
++        for (int i = 0; i < values.length; i++) {
++            long timeout = Long.parseLong(values[i].toString());
++            if (currentTimeout == timeout) {
++                return entries[i];
++            }
++        }
++        return null;
++    }
++
++    private void updateTimeoutPreferenceDescription(ListPreference preference,
++                                                    long currentTimeout) {
++        final CharSequence[] entries = preference.getEntries();
++        final CharSequence[] values = preference.getEntryValues();
++        final CharSequence timeoutDescription = getTimeoutDescription(
++                currentTimeout, entries, values);
++        String summary = "";
++        if (timeoutDescription != null) {
++            if (currentTimeout != 0)
++                summary = mContext.getString(R.string.bluetooth_timeout_summary,
++                        timeoutDescription);
++            else
++                summary = mContext.getString(R.string.bluetooth_timeout_summary2);
++        }
++        preference.setSummary(summary);
++    }
++}
+-- 
+2.46.0
+

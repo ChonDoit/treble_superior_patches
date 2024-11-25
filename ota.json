@@ -1,23 +1,23 @@
 {
-  "version": "20241102",
-  "date": "1730596920",
+  "version": "20241123",
+  "date": "1732427000",
   "gsi": "SuperiorOS | by ChonDoe feat. TD",
   "changelog": "https://raw.githubusercontent.com/ChonDoit/treble_superior_patches/14/changelog.txt",
   "variants": [
     {
       "name": "Gapps",
-      "size": "1495017412",
-      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14/SuperiorOS_A14-arm64-bgS_20241102.img.xz"
+      "size": "1530461628",
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14/SuperiorOS_A14-arm64-bgS_20241124.img.xz"
     },
     {
       "name": "Slim",
-      "size": "1249889060",
-      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14/SuperiorOS_A14-arm64-bgS-slim_20241102.img.xz"
+      "size": "1291057452",
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14/SuperiorOS_A14-arm64-bgS-slim_20241124.img.xz"
     },
     {
       "name": "Vanilla",
-      "size": "931045916",
-      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14/SuperiorOS_A14-arm64-bvS_20241102.img.xz"
+      "size": "932474236",
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14/SuperiorOS_A14-arm64-bvS_20241124.img.xz"
     }
   ]
 }

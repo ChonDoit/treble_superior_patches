@@ -1,0 +1,58 @@
+From 61af0be977423aae96289c9acbf8b6a485a2b759 Mon Sep 17 00:00:00 2001
+From: someone5678 <someone5678@users.noreply.github.com>
+Date: Sun, 18 Aug 2024 14:38:28 -0300
+Subject: [PATCH 07/31] base: Allow spoof current storage encryption status
+
+* Some apps like Health Connect wants device to be encrypted
+* Spoof cyrpto state to encrypted while disabling encryption possible
+
+Change-Id: Ied3e080f3c91da861ea955692b991e6aee0946d4
+Signed-off-by: someone5678 <someone5678@users.noreply.github.com>
+---
+ core/java/android/app/admin/DevicePolicyManager.java | 6 +++++-
+ core/java/android/provider/Settings.java             | 7 +++++++
+ 2 files changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/core/java/android/app/admin/DevicePolicyManager.java b/core/java/android/app/admin/DevicePolicyManager.java
+index f6ffee77..2794d9d2 100644
+--- a/core/java/android/app/admin/DevicePolicyManager.java
++++ b/core/java/android/app/admin/DevicePolicyManager.java
+@@ -7270,6 +7270,10 @@ public class DevicePolicyManager {
+     /** @hide per-user version */
+     @UnsupportedAppUsage
+     public int getStorageEncryptionStatus(int userHandle) {
++        if (Settings.Global.getInt(mContext.getContentResolver(),
++                Settings.Global.SPOOF_STORAGE_ENCRYPTION_STATUS, 0) == 1) {
++            return ENCRYPTION_STATUS_ACTIVE;
++        }
+         if (mService != null) {
+             try {
+                 return mService.getStorageEncryptionStatus(mContext.getPackageName(), userHandle);
+@@ -17511,4 +17515,4 @@ public class DevicePolicyManager {
+         }
+         return -1;
+     }
+-}
+\ No newline at end of file
++}
+diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
+index 03f3fdfb..81d6aa6f 100644
+--- a/core/java/android/provider/Settings.java
++++ b/core/java/android/provider/Settings.java
+@@ -19596,6 +19596,13 @@ public final class Settings {
+         @Readable
+         public static final String PIE_ANIMATION_STYLE = "pie_animation_style";
+ 
++	/**
++         * Control whether to spoof current status of storage encryption.
++         * @hide
++         */
++        @Readable
++        public static final String SPOOF_STORAGE_ENCRYPTION_STATUS = "spoof_storage_encryption_status";
++
+         /**
+          * Setting indicating whether Low Power Standby is enabled, if supported.
+          *
+-- 
+2.47.0
+

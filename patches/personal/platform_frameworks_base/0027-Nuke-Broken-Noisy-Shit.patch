@@ -1,0 +1,141 @@
+From aafa9735a0f6224c00ba09db7e6cbd6a8578291e Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sat, 2 Nov 2024 22:03:44 -0300
+Subject: [PATCH 27/31] Nuke Broken Noisy Shit
+
+---
+ core/java/android/provider/Settings.java         |  8 --------
+ .../NotificationAttentionHelper.java             | 16 +---------------
+ .../notification/NotificationManagerService.java | 14 +-------------
+ 3 files changed, 2 insertions(+), 36 deletions(-)
+
+diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
+index 3988afe2..aca597de 100644
+--- a/core/java/android/provider/Settings.java
++++ b/core/java/android/provider/Settings.java
+@@ -6669,14 +6669,6 @@ public final class Settings {
+          */
+         public static final String LESS_BORING_HEADS_UP = "less_boring_heads_up";
+ 
+-        /**
+-         * Whether to play notification sound and vibration if screen is ON
+-         * 0 - never
+-         * 1 - always
+-         * @hide
+-         */
+-        public static final String NOTIFICATION_SOUND_VIB_SCREEN_ON = "notification_sound_vib_screen_on";
+-
+         /**
+          * Whether to show or hide alert slider notifications on supported devices
+          * @hide
+diff --git a/services/core/java/com/android/server/notification/NotificationAttentionHelper.java b/services/core/java/com/android/server/notification/NotificationAttentionHelper.java
+index 4ff44c43..097daf2e 100644
+--- a/services/core/java/com/android/server/notification/NotificationAttentionHelper.java
++++ b/services/core/java/com/android/server/notification/NotificationAttentionHelper.java
+@@ -163,8 +163,6 @@ public final class NotificationAttentionHelper {
+     private final PolitenessStrategy mStrategy;
+     private int mCurrentWorkProfileId = UserHandle.USER_NULL;
+ 
+-    private boolean mSoundVibScreenOn;
+-
+     public NotificationAttentionHelper(Context context, LightsManager lightsManager,
+             AccessibilityManager accessibilityManager, PackageManager packageManager,
+             UserManager userManager, NotificationUsageStats usageStats,
+@@ -292,9 +290,6 @@ public final class NotificationAttentionHelper {
+         mContext.getContentResolver().registerContentObserver(
+                 SettingsObserver.NOTIFICATION_LIGHT_PULSE_URI, false, mSettingsObserver,
+                 UserHandle.USER_ALL);
+-        mContext.getContentResolver().registerContentObserver(
+-                SettingsObserver.NOTIFICATION_SOUND_VIB_SCREEN_ON_URI, false, mSettingsObserver,
+-                UserHandle.USER_ALL);
+         if (Flags.politeNotifications()) {
+             mContext.getContentResolver().registerContentObserver(
+                     SettingsObserver.NOTIFICATION_COOLDOWN_ENABLED_URI, false, mSettingsObserver,
+@@ -393,8 +388,7 @@ public final class NotificationAttentionHelper {
+         }
+ 
+         if (aboveThreshold && isNotificationForCurrentUser(record, signals)) {
+-            boolean skipSound = mScreenOn && !mSoundVibScreenOn;
+-            if (mSystemReady && mAudioManager != null && !skipSound) {
++            if (mSystemReady && mAudioManager != null) {
+                 Uri soundUri = record.getSound();
+                 hasValidSound = soundUri != null && !Uri.EMPTY.equals(soundUri);
+                 VibrationEffect vibration = record.getVibration();
+@@ -1515,8 +1509,6 @@ public final class NotificationAttentionHelper {
+                 Settings.System.NOTIFICATION_COOLDOWN_ALL);
+         private static final Uri NOTIFICATION_COOLDOWN_VIBRATE_UNLOCKED_URI =
+                 Settings.System.getUriFor(Settings.System.NOTIFICATION_COOLDOWN_VIBRATE_UNLOCKED);
+-        private static final Uri NOTIFICATION_SOUND_VIB_SCREEN_ON_URI =
+-                Settings.System.getUriFor(Settings.System.NOTIFICATION_SOUND_VIB_SCREEN_ON);
+         public SettingsObserver() {
+             super(null);
+         }
+@@ -1534,12 +1526,6 @@ public final class NotificationAttentionHelper {
+                     updateLightsLocked();
+                 }
+             }
+-            if (uri == null || NOTIFICATION_SOUND_VIB_SCREEN_ON_URI.equals(uri)) {
+-                mSoundVibScreenOn = Settings.System.getIntForUser(
+-                        mContext.getContentResolver(),
+-                        Settings.System.NOTIFICATION_SOUND_VIB_SCREEN_ON, 1,
+-                        UserHandle.USER_CURRENT) == 1;
+-            }
+             if (Flags.politeNotifications()) {
+                 if (NOTIFICATION_COOLDOWN_ENABLED_URI.equals(uri)) {
+                     mNotificationCooldownEnabled = Settings.System.getIntForUser(
+diff --git a/services/core/java/com/android/server/notification/NotificationManagerService.java b/services/core/java/com/android/server/notification/NotificationManagerService.java
+index 42cd345a..11f7c8fd 100755
+--- a/services/core/java/com/android/server/notification/NotificationManagerService.java
++++ b/services/core/java/com/android/server/notification/NotificationManagerService.java
+@@ -774,8 +774,6 @@ public class NotificationManagerService extends SystemService {
+     // Broadcast intent receiver for notification permissions review-related intents
+     private ReviewNotificationPermissionsReceiver mReviewNotificationPermissionsReceiver;
+ 
+-    private boolean mSoundVibScreenOn;
+-
+     static class Archive {
+         final SparseArray<Boolean> mEnabled;
+         final int mBufferSize;
+@@ -2170,8 +2168,6 @@ public class NotificationManagerService extends SystemService {
+                 = Settings.Secure.getUriFor(Settings.Secure.LOCK_SCREEN_SHOW_NOTIFICATIONS);
+         private final Uri SHOW_NOTIFICATION_SNOOZE
+                 = Settings.Secure.getUriFor(Settings.Secure.SHOW_NOTIFICATION_SNOOZE);
+-        private final Uri NOTIFICATION_SOUND_VIB_SCREEN_ON
+-                = Settings.System.getUriFor(Settings.System.NOTIFICATION_SOUND_VIB_SCREEN_ON);
+ 
+         SettingsObserver(Handler handler) {
+             super(handler);
+@@ -2202,8 +2198,6 @@ public class NotificationManagerService extends SystemService {
+             resolver.registerContentObserver(SHOW_NOTIFICATION_SNOOZE,
+                     false, this, UserHandle.USER_ALL);
+ 
+-            resolver.registerContentObserver(NOTIFICATION_SOUND_VIB_SCREEN_ON,
+-                    false, this, UserHandle.USER_ALL);
+             update(null);
+         }
+ 
+@@ -2256,11 +2250,6 @@ public class NotificationManagerService extends SystemService {
+                     unsnoozeAll();
+                 }
+             }
+-            if (uri == null || NOTIFICATION_SOUND_VIB_SCREEN_ON.equals(uri)) {
+-                mSoundVibScreenOn = Settings.System.getIntForUser(resolver,
+-                        Settings.System.NOTIFICATION_SOUND_VIB_SCREEN_ON, 1,
+-                        UserHandle.USER_CURRENT) == 1;
+-            }
+         }
+ 
+         public void update(Uri uri, int userId) {
+@@ -9186,8 +9175,7 @@ public class NotificationManagerService extends SystemService {
+         }
+ 
+         if (aboveThreshold && isNotificationForCurrentUser(record)) {
+-            boolean skipSound = mScreenOn && !mSoundVibScreenOn;
+-            if (mSystemReady && mAudioManager != null && !skipSound) {
++            if (mSystemReady && mAudioManager != null) {
+                 Uri soundUri = record.getSound();
+                 hasValidSound = soundUri != null && !Uri.EMPTY.equals(soundUri);
+                 VibrationEffect vibration = record.getVibration();
+-- 
+2.47.0
+

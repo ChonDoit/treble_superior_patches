@@ -1,0 +1,184 @@
+From b00a1e2021749579b9c8aa3493e0b1829913bb9d Mon Sep 17 00:00:00 2001
+From: minaripenguin <minaripenguin@users.noreply.github.com>
+Date: Mon, 3 Apr 2023 08:09:16 +0800
+Subject: [PATCH 22/31] core: Optimize notification scaling/rendering
+
+* attempt to reduce qs jittering/jank
+* downscale icon/bitmap dimensions
+* tune notification text dimensions for UX and scaling performance
+
+Signed-off-by: minaripenguin <minaripenguin@users.noreply.github.com>
+
+core: Downscale more notification bitmap dimensions
+
+* measurements were based from RUI 4.0 notification bitmap measurements (approx)
+
+Signed-off-by: minaripenguin <minaripenguin@users.noreply.github.com>
+---
+ core/res/res/values/dimens.xml | 56 +++++++++++++++++-----------------
+ 1 file changed, 28 insertions(+), 28 deletions(-)
+
+diff --git a/core/res/res/values/dimens.xml b/core/res/res/values/dimens.xml
+index cc994857..b8cb4e9c 100644
+--- a/core/res/res/values/dimens.xml
++++ b/core/res/res/values/dimens.xml
+@@ -19,9 +19,9 @@
+ -->
+ <resources>
+     <!-- The width that is used when creating thumbnails of applications. -->
+-    <dimen name="thumbnail_width">192dp</dimen>
++    <dimen name="thumbnail_width">169dp</dimen>
+     <!-- The height that is used when creating thumbnails of applications. -->
+-    <dimen name="thumbnail_height">192dp</dimen>
++    <dimen name="thumbnail_height">169dp</dimen>
+     <!-- The amount to scale a fullscreen screenshot thumbnail. -->
+     <item name="thumbnail_fullscreen_scale" type="fraction">60%</item>
+     <!-- The width used to calculate scale for full screen thumbnail on TV -->
+@@ -278,10 +278,10 @@
+     <dimen name="call_notification_system_action_min_width">100dp</dimen>
+ 
+     <!-- The size of icons for visual actions in the notification_material_action_list -->
+-    <dimen name="notification_actions_icon_size">56dp</dimen>
++    <dimen name="notification_actions_icon_size">48dp</dimen>
+ 
+     <!-- The size of icons for visual actions in the notification_material_action_list -->
+-    <dimen name="notification_actions_icon_drawable_size">20dp</dimen>
++    <dimen name="notification_actions_icon_drawable_size">18dp</dimen>
+ 
+     <!-- The corner radius if the emphasized action buttons in a notification -->
+     <dimen name="notification_action_button_radius">18dp</dimen>
+@@ -323,7 +323,7 @@
+     <dimen name="notification_header_icon_size">18dp</dimen>
+ 
+     <!-- size (width and height) of the circle around the icon in the notification header -->
+-    <dimen name="notification_icon_circle_size">24dp</dimen>
++    <dimen name="notification_icon_circle_size">22dp</dimen>
+ 
+     <!-- padding between the notification icon and the circle containing it -->
+     <dimen name="notification_icon_circle_padding">4dp</dimen>
+@@ -344,10 +344,10 @@
+     <dimen name="notification_conversation_header_separating_margin">4dp</dimen>
+ 
+     <!-- The absolute size of the notification expand icon. -->
+-    <dimen name="notification_header_expand_icon_size">56dp</dimen>
++    <dimen name="notification_header_expand_icon_size">48dp</dimen>
+ 
+     <!-- the height of the expand button pill -->
+-    <dimen name="notification_expand_button_pill_height">24dp</dimen>
++    <dimen name="notification_expand_button_pill_height">20dp</dimen>
+ 
+     <!-- the padding of the expand icon in the notification header -->
+     <dimen name="notification_expand_button_icon_padding">2dp</dimen>
+@@ -370,10 +370,10 @@
+     <dimen name="notification_min_height">88dp</dimen>
+ 
+     <!-- The width of the big icons in notifications. -->
+-    <dimen name="notification_large_icon_width">64dp</dimen>
++    <dimen name="notification_large_icon_width">48dp</dimen>
+ 
+     <!-- The width of the big icons in notifications. -->
+-    <dimen name="notification_large_icon_height">64dp</dimen>
++    <dimen name="notification_large_icon_height">48dp</dimen>
+ 
+     <!-- The minimum width of the app name in the header if it shrinks -->
+     <dimen name="notification_header_shrink_min_width">72dp</dimen>
+@@ -382,13 +382,13 @@
+     <dimen name="notification_header_shrink_hide_width">24sp</dimen>
+ 
+     <!-- The size of the media actions in the media notification. -->
+-    <dimen name="media_notification_action_button_size">48dp</dimen>
++    <dimen name="media_notification_action_button_size">42dp</dimen>
+ 
+     <!-- The bottom padding for the media actions container. -->
+     <dimen name="media_notification_actions_padding_bottom">12dp</dimen>
+ 
+     <!-- The maximum size of the image in the expanded media notification -->
+-    <dimen name="media_notification_expanded_image_max_size">94dp</dimen>
++    <dimen name="media_notification_expanded_image_max_size">90dp</dimen>
+ 
+     <!-- The maximum size of the image in the expanded media notification -->
+     <dimen name="media_notification_expanded_image_margin_bottom">20dp</dimen>
+@@ -412,7 +412,7 @@
+     <dimen name="messaging_image_min_size">44dp</dimen>
+ 
+     <!-- The maximum size for any image in messaging style in order to be displayed -->
+-    <dimen name="messaging_image_max_height">136dp</dimen>
++    <dimen name="messaging_image_max_height">132dp</dimen>
+ 
+     <!-- Extra spacing before and after images in messaging style -->
+     <dimen name="messaging_image_extra_spacing">8dp</dimen>
+@@ -633,7 +633,7 @@
+     <dimen name="keyguard_avatar_frame_shadow_radius">1dp</dimen>
+ 
+     <!-- Size of the avator on hte multiuser lockscreen. -->
+-    <dimen name="keyguard_avatar_size">66dp</dimen>
++    <dimen name="keyguard_avatar_size">64dp</dimen>
+ 
+     <!-- Size of the text under the avator on the multiuser lockscreen. -->
+     <dimen name="keyguard_avatar_name_size">10sp</dimen>
+@@ -770,17 +770,17 @@
+     <dimen name="item_touch_helper_swipe_escape_max_velocity">800dp</dimen>
+ 
+     <!-- The maximum size of the small notification icon. -->
+-    <dimen name="notification_small_icon_size">48dp</dimen>
++    <dimen name="notification_small_icon_size">36dp</dimen>
+     <!-- The maximum height of any image in a remote view. This is applied to all images in custom remoteviews. This value is determined by the maximum notification height -->
+-    <dimen name="notification_custom_view_max_image_height">284dp</dimen>
++    <dimen name="notification_custom_view_max_image_height">250dp</dimen>
+     <!-- The maximum height of any image in a remote view. This is applied to all images in custom remoteviews. This value is determined a maximum notification width -->
+-    <dimen name="notification_custom_view_max_image_width">450dp</dimen>
++    <dimen name="notification_custom_view_max_image_width">396dp</dimen>
+     <!-- The maximum height of a big picture in a notification. The images will be reduced to that height in case they are bigger. This value is determined by the maximum notification height -->
+-    <dimen name="notification_big_picture_max_height">284dp</dimen>
++    <dimen name="notification_big_picture_max_height">250dp</dimen>
+     <!-- The maximum width of a big picture in a notification. The images will be reduced to that width in case they are bigger. This value is determined by the standard panel size -->
+-    <dimen name="notification_big_picture_max_width">416dp</dimen>
++    <dimen name="notification_big_picture_max_width">366dp</dimen>
+     <!-- The size of the right icon -->
+-    <dimen name="notification_right_icon_size">48dp</dimen>
++    <dimen name="notification_right_icon_size">36dp</dimen>
+     <!-- The margin between the right icon and the content. -->
+     <dimen name="notification_right_icon_content_margin">12dp</dimen>
+     <!-- The top and bottom margin of the right icon in the normal notification states -->
+@@ -797,29 +797,29 @@
+     <!-- The maximum size of Person avatar image in MessagingStyle notifications.
+          This is bigger than displayed because listeners can use it for other displays
+          e.g. wearables. -->
+-    <dimen name="notification_person_icon_max_size">144dp</dimen>
++    <dimen name="notification_person_icon_max_size">120dp</dimen>
+ 
+     <!-- The maximum size of the small notification icon on low memory devices. -->
+     <dimen name="notification_small_icon_size_low_ram">@dimen/notification_small_icon_size</dimen>
+     <!-- The maximum height of any image in a remote view. This is applied to all images in custom remoteviews. -->
+-    <dimen name="notification_custom_view_max_image_height_low_ram">208dp</dimen>
++    <dimen name="notification_custom_view_max_image_height_low_ram">184dp</dimen>
+     <!-- The maximum height of any image in a remote view. This is applied to all images in custom remoteviews. -->
+-    <dimen name="notification_custom_view_max_image_width_low_ram">294dp</dimen>
++    <dimen name="notification_custom_view_max_image_width_low_ram">259dp</dimen>
+     <!-- The maximum height of a big picture in a notification. The images will be reduced to that height in case they are bigger. -->
+-    <dimen name="notification_big_picture_max_height_low_ram">208dp</dimen>
++    <dimen name="notification_big_picture_max_height_low_ram">184dp</dimen>
+     <!-- The maximum width of a big picture in a notification. The images will be reduced to that width in case they are bigger. -->
+-    <dimen name="notification_big_picture_max_width_low_ram">294dp</dimen>
++    <dimen name="notification_big_picture_max_width_low_ram">259dp</dimen>
+     <!-- The size of the right icon image when on low ram -->
+     <dimen name="notification_right_icon_size_low_ram">@dimen/notification_right_icon_size</dimen>
+     <!-- The maximum size of Person avatar image in MessagingStyle notifications.
+      This is bigger than displayed because listeners can use it for other displays
+      e.g. wearables. -->
+-    <dimen name="notification_person_icon_max_size_low_ram">96dp</dimen>
++    <dimen name="notification_person_icon_max_size_low_ram">80dp</dimen>
+     <!-- The maximum size of the grayscale icon -->
+-    <dimen name="notification_grayscale_icon_max_size">256dp</dimen>
++    <dimen name="notification_grayscale_icon_max_size">225dp</dimen>
+ 
+-    <dimen name="messaging_avatar_size">48dp</dimen>
+-    <dimen name="conversation_avatar_size">48dp</dimen>
++    <dimen name="messaging_avatar_size">36dp</dimen>
++    <dimen name="conversation_avatar_size">36dp</dimen>
+     <!-- start margin of the icon circle in the conversation's skin of the header -->
+     <dimen name="conversation_icon_circle_start">28dp</dimen>
+     <!-- Start of the content in the conversation template -->
+-- 
+2.47.0
+

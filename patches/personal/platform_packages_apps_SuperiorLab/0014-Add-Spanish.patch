@@ -1,0 +1,480 @@
+From c3f6957befb1b40b8f79e186e43519750a18b235 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sat, 5 Oct 2024 20:13:03 -0300
+Subject: [PATCH 14/14] Add Spanish
+
+---
+ res/values-es/custom_strings.xml   |  87 ++++++++
+ res/values-es/superior_strings.xml | 338 +++++++++++++++++++++++++++++
+ res/values/superior_strings.xml    |   2 -
+ 3 files changed, 425 insertions(+), 2 deletions(-)
+ create mode 100644 res/values-es/custom_strings.xml
+ create mode 100644 res/values-es/superior_strings.xml
+
+diff --git a/res/values-es/custom_strings.xml b/res/values-es/custom_strings.xml
+new file mode 100644
+index 0000000..cda5791
+--- /dev/null
++++ b/res/values-es/custom_strings.xml
+@@ -0,0 +1,87 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++     Copyright (C)2020-2024 The SuperiorOS Project
++     SPDX-License-Identifier: Apache-2.0
++-->
++<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
++
++    <string name="qs_general">General</string>
++
++    <!-- Android P animation style -->
++    <string name="pie_animation_style_title">Animaciones estilo Android P</string>
++    <string name="pie_animation_style_summary">Habilita animación Android P</string>
++
++    <!-- Show clipboard overlay -->
++    <string name="show_clipboard_overlay_title">Flotante del portapapeles</string>
++    <string name="show_clipboard_overlay_summary">Mostrar una ventaba flotante en la esquina inferior izquierda de la pantalla cuando se copia algo en el portapapeles</string>
++    
++    <!-- Compact QS Media Player-->
++    <string name="qs_media_player">Media Player</string>
++    <string name="qs_compact_media_player_mode_title">Reproductor multimedia compacto</string>
++    <string name="qs_compact_media_player_mode_summary">Habilita el modo compacto para el reproductor multimedia</string>
++
++    <!-- Squiggle animation -->
++    <string name="show_squiggle_animation_title">Mostar animación squiggle</string>
++    <string name="show_squiggle_animation_summary">Muestra la animación squiggle en el reproductor multimedia</string>
++
++    <!-- Spoof storage encryption status -->
++    <string name="spoof_storage_encryption_status_title">Simular estado encriptado</string>
++    <string name="spoof_storage_encryption_status_summary">Simula la encriptación del almacenamiento interno.</string>
++
++    <!-- No storage restrict -->
++    <string name="no_storage_restrict_title">Almacenamiento sin restricciones</string>
++    <string name="no_storage_restrict_summary">Remueve las restricciones al seleccionar carpetas mediante el framework de acceso al almacenamiento.</string>
++
++    <!-- Quick settings styles -->
++    <string name="qs_ui_title">Interfaz de usuario</string>
++    <string name="qs_styles_title">Estilo de mosaicos</string>
++    <string name="default_string">Por defecto</string>
++    <string name="qs_rounded">Redondeado</string>
++    <string name="qs_rounded_rect">Rectángulo redondeado</string>
++    <string name="qs_translucent_round">Redondeado translúcido</string>
++    <string name="qs_translucent_rect">Rectángulo translúcido</string>
++
++    <!-- Quick settings A11 -->
++    <string name="qs_tile_ui_style_title">Estilo del panel</string>
++    <string name="qs_tile_ui_style_a11_circle">Circular</string>
++    <string name="qs_tile_ui_style_a11_square">Cuadrado Redondeado</string>
++    <string name="qs_tile_ui_style_a11_mix">Squircle Mix</string>
++
++    <!-- Navigation Bar -->
++    <string name="navbar_layout_category_title">Botones de Navegación</string>
++    <string name="navbar_layout_title">Diseño</string>
++    <string name="navbar_layout_normal">Normal</string>
++    <string name="navbar_layout_compact">Compacto</string>
++    <string name="navbar_layout_leftleaning">Alinear a la izquierda</string>
++    <string name="navbar_layout_rightleaning">Alinear a la derecha</string>
++    <string name="navbar_invert_layout_title">Invertir diseño</string>
++    <string name="navbar_invert_layout_summary">Invertir el diseño de la barra de navegación</string>
++
++    <!-- Floating rotation button -->
++    <string name="floating_rotation_button_title">Botón flotante de rotación</string>
++    <string name="floating_rotation_button_summary">Mostrar un botón flotante al girar el dispositivo</string>
++
++    <!-- Gaming mode -->
++    <string name="gaming_mode_title">Espacio de Juegos</string>
++    <string name="gaming_mode_summary">Funciones adicionales para una experiencia de juego inmersiva</string>
++
++    <!-- Monet Engine -->
++    <string name="monet_engine_title">Monet</string>
++    <string name="monet_engine_summary">Personalizar parámetros de monet</string>
++    <string name="monet_engine_custom_color_title">Color de acento</string>
++    <string name="monet_engine_custom_color_summary">Selecciona un acento personalizado</string>
++    <string name="monet_engine_custom_bgcolor_title">Color de fondo</string>
++    <string name="monet_engine_custom_bgcolor_summary">Selecciona un fondo personalizado</string>
++    <string name="monet_engine_color_override_title">Color personalizado</string>
++    <string name="monet_engine_luminance_factor_title">Luminosidad</string>
++    <string name="monet_engine_luminance_factor_summary">Valores altos producen colores mas brillantes</string>
++    <string name="monet_engine_chroma_factor_title">Factor Chroma</string>
++    <string name="monet_engine_chroma_factor_summary">Valores altos producen colores mas fuertes</string>
++    <string name="monet_engine_tint_background_title">Tinte de fondo</string>
++    <string name="monet_engine_tint_background_summary">Luminosidad y Chroma afectan al color de fondo</string>
++
++    <!-- Bluetooth Dialog -->
++    <string name="qs_bluetooth_one_tap_title">Bluetooth en un toque</string>
++    <string name="qs_bluetooth_one_tap_summary">Habilitar el bluetooth con solo un toque (Mantener para abrir el panel)</string>
++
++</resources>
+diff --git a/res/values-es/superior_strings.xml b/res/values-es/superior_strings.xml
+new file mode 100644
+index 0000000..dfb2f43
+--- /dev/null
++++ b/res/values-es/superior_strings.xml
+@@ -0,0 +1,338 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++     Copyright (C)2020-2024 The SuperiorOS Project
++     SPDX-License-Identifier: Apache-2.0
++-->
++<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
++
++    <!-- App Title -->
++    <string name="superior_lab_title">Superior Lab</string>
++
++    <!-- Dev Info -->
++    <string name="devs_header">Core Team</string>
++    <string name="dev_1">Sipun Ku Mahanta</string>
++    <string name="dev1_description">Founder/Developer</string>
++    <string name="dev_2">Jayant Deshmukh</string>
++    <string name="dev2_description">Lead Developer</string>
++    <string name="dev_3">Nipin NA</string>
++    <string name="dev3_description">Developer</string>
++    <string name="dev_4">Adnan Faysal</string>
++    <string name="dev4_description">Graphic Designer</string>
++    <string name="dev_5">Arun</string>
++    <string name="dev5_description">Graphic Designer</string>
++
++    <!-- Mentions -->
++    <string name="mentions_header">Honorable Mentions</string>
++    <string name="mentions_sam">Sam Grande</string>
++    <string name="mentions_sam_description">Designer</string>
++    <string name="mentions_iacob">Ionut Iacob</string>
++    <string name="mentions_iacob_description">UI/UX Developer</string>
++    <string name="mentions_pavan">Pavan Patel</string>
++    <string name="mentions_pavan_description">Designer</string>
++    <string name="mentions_yash">Yash Kachave</string>
++    <string name="mentions_yash_description">Wallpaper Designer</string>
++
++    <!-- Team Title -->
++    <string name="superior_lab_team">Team SuperiorOS</string>
++
++    <!-- Maintainer Info -->
++    <string name="maintainers_header">Maintainers</string>
++    <string name="maintainers_header_summary">These are the Official Devices Maintainers...</string>
++    <string name="device_google">Google</string>
++    <string name="device_xiaomi">Xiaomi</string>
++    <string name="device_asus">Asus</string>
++    <string name="device_motorola">Motorola</string>
++    <string name="device_pantech">Pantech</string>
++    <string name="device_lenovo">Lenovo</string>
++    <string name="device_oneplus">Oneplus</string>
++    <string name="device_smartron">Smartron</string>
++    <string name="device_violet">Redmi Note 7 Pro</string>
++    <string name="device_violet_description">violet | Nipin NA</string>
++    <string name="device_avicii">Nord</string>
++    <string name="device_avicii_description">avicii | Sipun Ku Mahanta</string>
++    <string name="device_panther">Pixel 7</string>
++    <string name="device_panther_description">panther | Jayant Deshmukh</string>
++
++    <!-- Categories -->
++    <string name="team_title">About Team</string>
++    <string name="button_title">Botones</string>
++    <string name="gestures_title">Gestos</string>
++    <string name="lockscreen_title">Pantalla de bloqueo</string>
++    <string name="misc_title">Misceláneos</string>
++    <string name="navbar_title">Barra de Navegación</string>
++    <string name="powermenu_title">Menu de encendido</string>
++    <string name="quicksettings_title">Ajustes Rápidos</string>
++    <string name="themes_title">Temas</string>
++    <string name="statusbar_title">Barra de estado</string>
++    <string name="notifications_title">Notificaciones</string>
++
++    <!-- General strings -->
++    <string name="ok">OK</string>
++    <string name="reset">Reiniciar</string>
++    <string name="cancel">Cancelar</string>
++    <string name="save">Guardar</string>
++    <string name="default_string">Por defecto</string>
++    <string name="disabled">Deshabilitado</string>
++    <string name="enable">Habilitar</string>
++    <string name="disable">Deshabilitar</string>
++
++    <!-- Sub category -->
++    <string name="general_category">General</string>
++    <string name="power_category">Menu de encendido</string>
++    <string name="miscellaneous_spoofing_category">Simulación</string>
++
++    <!-- AOSP Gestures -->
++    <string name="aosp_gesture_preference">Ajustes del sistema</string>
++    <string name="aosp_gesture_summary">Gestos incluidos en AOSP</string>
++
++    <!-- Navigation -->
++    <string name="system_navigation_summary">Configurar barra de navegación</string>
++
++    <!-- Statusbar Items -->
++    <string name="sb_icons">Iconos de la barra de estado</string>
++    <string name="statusbar_items_category">Items de la barra de estado</string>
++
++    <!-- Weather -->
++    <string name="weather_category_title">Clima</string>
++    <string name="weather_settings_title">Ajustes del Clima</string>
++    <string name="weather_settings_summary">Seleccionar paquete de iconos y servicio del clima</string>
++    <string name="lockscreen_weather_title">Condición del clima</string>
++    <string name="lockscreen_weather_summary">Mostrar condición y temperatura actual</string>
++    <string name="lockscreen_weather_enabled_info">Requiere habilitar el servicio del clima</string>
++    <string name="lockscreen_weather_location_title">Ubicación actual</string>
++    <string name="lockscreen_weather_location_summary">Mostrar ubicación actual del clima</string>
++    <string name="lockscreen_weather_text_title">Condición actual</string>
++    <string name="lockscreen_weather_text_summary">Mostrar condición actual del clima</string>
++
++    <!-- Double tap status bar to sleep -->
++    <string name="dtts_category_header">Doble toque para dormir</string>
++    <string name="double_tap_to_sleep_title">Barra de estado</string>
++    <string name="double_tap_to_sleep_summary">Doble toque en cualquier lugar para dormir</string>
++
++    <!-- Double tap lockscreen to sleep -->
++    <string name="double_tap_to_sleep_lockscreen_title">Pantalla de bloqueo</string>
++    <string name="double_tap_to_sleep_lockscreen_summary">Doble toque en cualquier lugar para dormir</string>
++
++    <!--3-Finger
++     screenshot-->
++    <string name="three_finger_gesture">Gesto de 3 dedos</string>
++    <string name="three_finger_gesture_summary">Desliza 3 dedos para tomar una captura de pantalla</string>
++
++    <!-- Torch Power button gestures -->
++    <string name="torch_power_button_gesture_title">Linterna en botón de encendido</string>
++    <string name="torch_power_button_gesture_none">Deshabilitado</string>
++    <string name="torch_power_button_gesture_dt">Doble toque</string>
++    <string name="torch_power_button_gesture_lp">Mantener presionado</string>
++
++    <!-- Ignore window secure -->
++    <string name="laboratory_ignore_window_secure_title">Ignorar ventanas seguras</string>
++    <string name="laboratory_ignore_window_secure_summary">Remueve las limitaciones al grabar la pantalla o tomar capturas.</string>
++
++    <!-- Font style / Icon pack -->
++    <string name="theme_customization_font_title">Estilo de fuentes</string>
++    <string name="theme_customization_font_summary">Seleccionar estilo de fuente</string>
++    <string name="theme_customization_icon_pack_title">Paquete de iconos</string>
++    <string name="theme_customization_icon_pack_summary">Seleccionar paquete de iconos</string>
++    <string name="theme_customization_icon_shape_title">Forma de iconos</string>
++    <string name="theme_customization_icon_shape_summary">Seleccionar forma de iconos</string>
++    <string name="theme_customization_signal_icon_title">Icono de señal</string>
++    <string name="theme_customization_signal_icon_summary">Seleccionar icono de señal</string>
++    <string name="theme_customization_wifi_icon_title">Icono Wifi</string>
++    <string name="theme_customization_wifi_icon_summary">Seleccionar icono wifi</string>
++    <string name="theme_customization_navbar_title">Estilo de la barra de navegación</string>
++    <string name="theme_customization_navbar_summary">Seleccionar barra de navegación</string>
++    <string name="theme_customization_data_title">Icono de datos</string>
++    <string name="theme_customization_data_summary">Seleccionar icono de datos</string>
++
++    <!-- Power Menu -->
++    <string name="power_menu_title">Menu de encendido</string>
++    <string name="power_menu_title_summary">Ver o cambiar elementos del menú</string>
++    <string name="global_actions_title">Items del menú de encendido</string>
++    <string name="global_actions_screenshot">Captura de Pantalla</string>
++    <string name="global_actions_power">Encendido</string>
++    <string name="global_actions_advanced">Opciones avanzadas de reinicio</string>
++    <string name="global_actions_restart">Reiniciar</string>
++    <string name="global_actions_airplane">Modo Avión</string>
++    <string name="global_actions_settings">Ajustes</string>
++    <string name="global_actions_lockdown">Bloquear</string>
++    <string name="global_actions_users">Usuarios</string>
++    <string name="global_actions_logout">Cerrar Sesión</string>
++    <string name="global_actions_emergency">Emergencia</string>
++    <string name="global_actions_device_controls">Controles del dispositivo</string>
++
++    <!-- Power menu on secure lockscreen -->
++    <string name="lockscreen_enable_power_menu_title">Menú de encendido en la pantalla de bloqueo</string>
++    <string name="lockscreen_enable_power_menu_summary">Permitir acceder al menú de encendido en bloqueo seguro</string>
++
++    <!-- Data disabled icon -->
++    <string name="data_disabled_icon_title">Mostrar icono de datos deshabilitado</string>
++    <string name="data_disabled_icon_summary">Mostrar una cruz cuando los datos están deshabilitados</string>
++
++    <!-- 4G icon -->
++    <string name="show_fourg_icon_title">Icono 4G</string>
++    <string name="show_fourg_icon_summary">Mostrar icono 4G en lugar de LTE</string>
++
++    <!-- Network traffic -->
++    <string name="network_traffic_master_switch_title">Tráfico de datos</string>
++    <string name="network_traffic_state_title">Tráfico de datos</string>
++    <string name="network_traffic_state_summary">Habilitar indicador de velocidad en la barra de estado</string>
++    <string name="network_traffic_autohide_title">Ocultar indicador de tráfico si se encuentra inactivo</string>
++    <string name="network_traffic_autohide_summary">Se oculta cuando el tráfico es menor a 1KB/s</string>
++
++    <!-- Ambient Ticker -->
++    <string name="pulse_on_new_tracks_title">Etiquetas de música</string>
++    <string name="pulse_on_new_tracks_summary">Mostrar etiqueta de música en la pantalla ambiente al cambiar de canción</string>
++
++    <!-- Volume button music control -->
++    <string name="volume_button_music_control_title">Control de reproducción</string>
++    <string name="volume_button_music_control_summary">Con la pantalla apagada, mantener presionado los botones de volumen cambiará de tema</string>
++
++    <!-- Quick QS pulldown -->
++    <string name="status_bar_quick_qs_pulldown">Despliegue directo de los ajustes rápidos</string>
++    <string name="quick_pulldown_none">Deshabilitado</string>
++    <string name="quick_pulldown_right">Desde el lado derecho</string>
++    <string name="quick_pulldown_left">Desde el lado izquierdo</string>
++    <string name="quick_pulldown_always">Siempre desplegar los ajustes rápidos</string>
++
++    <!-- Quick Settings brightness slider -->
++    <string name="qs_show_brightness_slider_title">Barra de brillo</string>
++    <string name="qs_show_brightness_slider_never">Ocultar</string>
++    <string name="qs_show_brightness_slider_expanded">Mostrar al expandir</string>
++    <string name="qs_show_brightness_slider_always">Mostrar siempre</string>
++    <string name="qs_show_brightness_slider_not_expanded">Por defecto</string>
++    <string name="qs_brightness_slider_position_title">Posición</string>
++    <string name="qs_brightness_slider_position_top">Arriba</string>
++    <string name="qs_brightness_slider_position_bottom">Abajo</string>
++
++    <!-- Quick Settings brightness icon -->
++    <string name="qs_show_auto_brightness_title">Icono de brillo automático</string>
++    <string name="qs_show_auto_brightness_summary">Mostrar botón de brillo automático junto a la barra de brillo</string>
++
++    <!-- QS tiles layout  -->
++    <string name="qs_layout_category_title">Diseño de ajustes rápidos</string>
++    <string name="qs_tile_label_hide_title">Esconder etiqueta</string>
++    <string name="qs_tile_label_size_title">Tamaño de etiqueta</string>
++    <string name="qs_tile_label_hide_summary">Ocultar etiquetas de los ajustes rápidos</string>
++    <string name="qs_tile_layout_title">Estilo vertical</string>
++    <string name="qs_tile_layout_summary">Mostrar etiqueta debajo del icono en lugar de al lado</string>
++    <string name="qs_columns_portrait_title">Columnas (retrato)</string>
++    <string name="qs_columns_landscape_title">Columnas (apaisado)</string>
++    <string name="qqs_rows_portrait_title">Filas ajustes rápidos (retrato)</string>
++    <string name="qqs_rows_landscape_title">Filas ajustes rápidos (apaisado)</string>
++
++    <!-- Lockscreen battery info indicator  -->
++    <string name="lockscreen_battery_info_title">Información de carga</string>
++    <string name="lockscreen_battery_info_summary">Mostrar valor de carga constante, voltaje y temperatura de batería en la pantalla de bloqueo.</string>
++
++    <!-- Status bar - Battery -->
++    <string name="status_bar_battery_category_title">Personalización del icono de batería</string>
++    <string name="status_bar_battery_style_title">Estilo de batería</string>
++    <string name="status_bar_battery_style_summary">Estilos de batería</string>
++    <string name="status_bar_battery_style_icon_portrait">Icono (Retrato)</string>
++    <string name="status_bar_battery_style_icon_rlandscape">Icono apaisado (Derecha)</string>
++    <string name="status_bar_battery_style_icon_landscape">Icono apaisado (Izquierda)</string>
++    <string name="status_bar_battery_style_circle">Circulo</string>
++    <string name="status_bar_battery_style_dotted_circle">Circulo punteado</string>
++    <string name="status_bar_battery_style_filled_circle">Circulo relleno</string>
++    <string name="status_bar_battery_style_big_circle">Circulo grande</string>
++    <string name="status_bar_battery_style_big_dotted_circle">Circulo punteado grande</string>
++    <string name="status_bar_battery_style_text">Solo Texto</string>
++    <string name="status_bar_battery_style_hidden">Ocultar</string>
++    <string name="status_bar_battery_percent_title">Porcentaje de Batería</string>
++    <string name="status_bar_battery_percent_hidden">Oculto</string>
++    <string name="status_bar_battery_percent_text_inside">Dentro del icono</string>
++    <string name="status_bar_battery_percent_text_next_right">Junto al icono (derecha)</string>
++    <string name="status_bar_battery_percent_text_next_left">Junto al icono (izquierda)</string>
++    <string name="status_bar_battery_text_charging_title">Porcentaje de batería al cargar</string>
++    <string name="status_bar_battery_text_charging_summary">Siempre mostrar el porcentaje de batería al cargar</string>
++
++    <!-- QS battery -->
++    <string name="qs_battery_category_title">Personalización de batería en ajustes rápidos</string>
++    <string name="qs_use_status_bar_battery_style">Igual a la barra de estado</string>
++
++    <!-- Miscellaneous/Spoofing -->
++    <string name="spoofing_title">Spoofing</string>
++    <string name="spoofing_summary">Evitar restricciones o habilitar beneficios de aplicaciones</string>
++    <string name="spoofing_system_wide_category">Todo el sistema</string>
++    <string name="spoofing_app_specific_category">Aplicaciones</string>
++    <string name="spoofing_games_title">Juegos</string>
++    <string name="spoofing_games_summary">Desbloquear mayor FPS en juegos específicos</string>
++    <string name="spoofing_snapchat_title">Snapchat</string>
++    <string name="spoofing_snapchat_summary">Permitir capturas de calidad original</string>
++
++    <!-- Annoying Notifications -->
++    <string name="notification_sound_vib_screen_on_title">Notificaciones molestas</string>
++    <string name="notification_sound_vib_screen_on_summary">Reproducir sonido y vibrar con la pantalla encendida</string>
++
++    <!-- Heads up options -->
++    <string name="less_boring_heads_up_title">Notificaciones silenciosas</string>
++    <string name="less_boring_heads_up_summary">Mostrar notificaciones solo para el marcador y aplicación de mensajería</string>
++
++    <!-- Alert Slider category (OnePlus devices) -->
++    <string name="alert_slider_cat_title">Alert slider</string>
++
++    <!-- Alert Slider Notifications (OnePlus devices) -->
++    <string name="alert_slider_notifications_title">Alert slider notifications</string>
++    <string name="alert_slider_notifications_summary">Display notification when changing alert slider position</string>
++
++    <!-- Depth Wallpaper -->
++    <string name="dw_file_header_select_title">Select Depth Wallpaper Subject</string>
++    <string name="dw_file_header_select_summary">Select depth wallpaper subject image from storage.</string>
++    <string name="dw_wallpaper_enabled_title">Depth Wallpaper</string>
++    <string name="dw_wallpaper_enabled_summary">Enable iOS-inspired depth wallpaper. Requires a
++          subject image.</string>
++    <string name="dw_wallpaper_opacity_title">Depth Wallpaper Opacity</string>
++    <string name="depth_wallpaper_offset_x_title">Depth Wallpaper Horizontal Offset</string>
++    <string name="depth_wallpaper_offset_y_title">Depth Wallpaper Vertical Offset</string>
++    <string name="dw_footer_text">
++          The depth wallpaper feature, inspired by iOS\'s Wallpaper Subject Segmentation, enables
++          overlaying of a subject above the lockscreen clock to show a wallpaper depth effect.\n\nTo
++          setup Depth Wallpaper Feature:\n1. Set a wallpaper with the subject or a background you
++          want the subject to be above of.\n2. Select a subject image to track, this image will be
++          overlaid above the lockscreen clock.\n3. Modify the offsets and opacity according to your
++          needs.
++    </string>
++
++    <!-- QS Header -->
++    <string name="qs_header_title">Cabecera</string>
++    <string name="qs_header_image_title">Cabecera de ajustes rápidos</string>
++    <string name="qs_header_image_summary">Seleccionar imagen de fondo</string>
++    <string name="qs_header_daylight_pack_title">Colección de imágenes</string>
++    <string name="qs_header_shadow_title">Sombreado</string>
++    <string name="qs_header_shadow_summary">Para mejor visibilidad en imágenes claras</string>
++    <string name="qs_header_static_provider_title">Imagen estática</string>
++    <string name="qs_header_daylight_provider_title">Colección de imágenes</string>
++    <string name="qs_header_file_provider_title">Imagen personalizada</string>
++    <string name="qs_header_provider_title">Proveedor de Cabecera</string>
++    <string name="qs_header_browse_title">Ver cabeceras instaladas</string>
++    <string name="qs_header_browse_summary">Busca todos las cabeceras disponibles</string>
++    <string name="qs_header_pick_title">Seleccionar imagen de cabecera</string>
++    <string name="qs_header_pick_summary">Selecciona una imagen para el modo estático</string>
++    <string name="qs_header_file_select_title">Seleccionar imagen</string>
++    <string name="qs_header_file_select_summary">Seleccionar imagen personalizada</string>
++    <string name="qs_header_needs_gallery">Debes instalar una aplicación de galería!</string>
++    <string name="qs_header_offset_title">Desplazamiento de la imagen</string>
++    <string name="qs_header_offset_summary">Ajusta el tamaño de la cabecera</string>
++
++    <!-- QS footer data usage -->
++    <string name="qs_show_data_usage_title">Mostrar uso de datos</string>
++    <string name="qs_show_data_usage_summary">Mostrar el uso diario de datos móviles/Wi-Fi en el pie de página</string>
++
++    <!-- Quick settings haptic feedback -->
++    <string name="quick_settings_vibrate_title">Vibrar al tocar</string>
++    <string name="quick_settings_vibrate_summary">Vibrar al tocar los ajustes rapidos</string>
++
++    <!-- Secure Quick settings -->
++    <string name="quick_settings_secure_lock_screen_title">Ocultar en la pantalla de bloqueo seguro</string>
++    <string name="quick_settings_secure_lock_screen_summary">Ocultar todas las configuraciones rápidas mientras el dispositivo está bloqueado</string>
++
++    <!-- Fingerprint -->
++    <string name="lock_screen_fingerprint_category">Huella</string>
++    <string name="lock_screen_fingerprint_ripple_title">Animación ondulada</string>
++    <string name="lock_screen_fingerprint_ripple_summary">Mostrar animación ondulada al desbloquear con la huella</string>
++    <string name="lock_screen_fingerprint_success_vibration_title">Vibración en autenticación</string>
++    <string name="lock_screen_fingerprint_success_vibration_summary">Vibrar al desbloquear con el lector de huellas</string>
++    <string name="lock_screen_fingerprint_error_vibration_title">Vibracion al fallar autenticación</string>
++    <string name="lock_screen_fingerprint_error_vibration_summary">Vibrar cuando falla el desbloqueo con el lector de huellas</string>
++
++</resources>
+diff --git a/res/values/superior_strings.xml b/res/values/superior_strings.xml
+index 5710bd1..93c043d 100644
+--- a/res/values/superior_strings.xml
++++ b/res/values/superior_strings.xml
+@@ -185,9 +185,7 @@
+      <string name="network_traffic_state_title">Network traffic indicator</string>
+      <string name="network_traffic_state_summary">Enable or disable network speed indicator in
+           status bar</string>
+-     <string name="network_traffic_title">Network traffic indicator</string>
+      <string name="network_traffic_master_switch_title">Use Network Traffic Indicator</string>
+-     <string name="network_options_title">Options</string>
+      <string name="network_traffic_autohide_title">Hide network traffic indicator if inactive</string>
+      <string name="network_traffic_autohide_summary">Hide when network traffic indicator is below 1
+           KB/s</string>
+diff --git a/res/values-es/custom_strings.xml b/res/values-es/custom_strings.xml
+index cda5791..2d8024e 100644
+--- a/res/values-es/custom_strings.xml
++++ b/res/values-es/custom_strings.xml
+@@ -13,7 +13,7 @@
+ 
+     <!-- Show clipboard overlay -->
+     <string name="show_clipboard_overlay_title">Flotante del portapapeles</string>
+-    <string name="show_clipboard_overlay_summary">Mostrar una ventaba flotante en la esquina inferior izquierda de la pantalla cuando se copia algo en el portapapeles</string>
++    <string name="show_clipboard_overlay_summary">Mostrar una ventana flotante en la esquina inferior izquierda de la pantalla cuando se copia algo en el portapapeles</string>
+     
+     <!-- Compact QS Media Player-->
+     <string name="qs_media_player">Media Player</string>
+-- 
+2.47.0
+

@@ -1,0 +1,149 @@
+From 67791de66675a396d56ac7d6c219b8bd40676621 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Fri, 30 Aug 2024 16:56:31 -0300
+Subject: [PATCH 08/14] A11 Panel Style
+
+---
+ res/values/custom_strings.xml                 | 20 +++++++++
+ res/xml/superior_lab_quicksettings.xml        |  9 +++-
+ .../superior/lab/fragments/QuickSettings.java | 41 +++++++++++++++++++
+ 3 files changed, 69 insertions(+), 1 deletion(-)
+
+diff --git a/res/values/custom_strings.xml b/res/values/custom_strings.xml
+index 680fb84..0f636a5 100644
+--- a/res/values/custom_strings.xml
++++ b/res/values/custom_strings.xml
+@@ -57,4 +57,24 @@
+         <item>4</item>
+     </string-array>
+ 
++    <!-- Quick settings A11 -->
++    <string name="qs_tile_ui_style_title">Panel Style</string>
++    <string name="qs_tile_ui_style_a11_circle">Circle</string>
++    <string name="qs_tile_ui_style_a11_square">Rounded Square</string>
++    <string name="qs_tile_ui_style_a11_mix">Squircle Mix</string>
++
++    <string-array name="qs_tile_ui_style_entries">
++        <item>@string/default_string</item>
++        <item>@string/qs_tile_ui_style_a11_circle</item>
++        <item>@string/qs_tile_ui_style_a11_square</item>
++        <item>@string/qs_tile_ui_style_a11_mix</item>
++    </string-array>
++
++    <string-array name="qs_tile_ui_style_values">
++        <item>0</item>
++        <item>1</item>
++        <item>2</item>
++        <item>3</item>
++    </string-array>
++
+ </resources>
+diff --git a/res/xml/superior_lab_quicksettings.xml b/res/xml/superior_lab_quicksettings.xml
+index 6f57330..919df05 100644
+--- a/res/xml/superior_lab_quicksettings.xml
++++ b/res/xml/superior_lab_quicksettings.xml
+@@ -60,6 +60,13 @@
+             android:summary="%s"
+             android:defaultValue="0" />
+ 
++        <ListPreference
++            android:key="qs_tile_ui_style"
++            android:title="@string/qs_tile_ui_style_title"
++            android:entries="@array/qs_tile_ui_style_entries"
++            android:entryValues="@array/qs_tile_ui_style_values"
++            android:defaultValue="0" />
++
+         <Preference
+             android:key="qs_header_image"
+             android:summary="@string/qs_header_image_summary"
+@@ -112,7 +119,7 @@
+             settings:min="10"
+             settings:interval="1"
+             settings:units="sp"
+-            android:defaultValue="14" />
++            android:defaultValue="13" />
+ 
+         <com.superior.support.preferences.SystemSettingSwitchPreference
+             android:key="qs_tile_vertical_layout"
+diff --git a/src/com/superior/lab/fragments/QuickSettings.java b/src/com/superior/lab/fragments/QuickSettings.java
+index b57daa1..bff0f7c 100644
+--- a/src/com/superior/lab/fragments/QuickSettings.java
++++ b/src/com/superior/lab/fragments/QuickSettings.java
+@@ -67,12 +67,14 @@ public class QuickSettings extends SettingsPreferenceFragment implements
+     private static final String QUICK_PULLDOWN = "status_bar_quick_qs_pulldown";
+     private static final String KEY_QS_COMPACT_PLAYER  = "qs_compact_media_player_mode";
+     private static final String KEY_QS_PANEL_STYLE  = "qs_panel_style";
++    private static final String KEY_QS_UI_STYLE  = "qs_tile_ui_style";
+ 
+     private Context mContext;
+     private Handler mHandler;
+     private IOverlayManager mOverlayManager;
+     private IOverlayManager mOverlayService;
+     private SystemSettingListPreference mQsPanelStyle;
++    private ListPreference mQsTilesUI;
+ 
+     private ListPreference mQuickPulldown;
+     private Preference mQsCompactPlayer;
+@@ -105,6 +107,14 @@ public class QuickSettings extends SettingsPreferenceFragment implements
+         .asInterface(ServiceManager.getService(Context.OVERLAY_SERVICE));
+         mQsPanelStyle = (SystemSettingListPreference) findPreference(KEY_QS_PANEL_STYLE);
+         mCustomSettingsObserver.observe();
++
++        String isA11Style = Integer.toString(Settings.System.getIntForUser(resolver,
++                Settings.System.QS_TILE_UI_STYLE , 0, UserHandle.USER_CURRENT));
++        mQsTilesUI = (ListPreference) findPreference(KEY_QS_UI_STYLE);
++        int index = mQsTilesUI.findIndexOfValue(isA11Style);
++        mQsTilesUI.setValue(isA11Style);
++        mQsTilesUI.setSummary(mQsTilesUI.getEntries()[index]);
++        mQsTilesUI.setOnPreferenceChangeListener(this);
+     }
+ 
+     @Override
+@@ -113,6 +123,15 @@ public class QuickSettings extends SettingsPreferenceFragment implements
+         if (preference == mQsPanelStyle) {
+            mCustomSettingsObserver.observe();
+            return true;
++        } else if (preference == mQsTilesUI) {
++            int value = Integer.parseInt((String) newValue);
++            int index = mQsTilesUI.findIndexOfValue((String) newValue);
++            mQsTilesUI.setValue((String) newValue);
++            mQsTilesUI.setSummary(mQsTilesUI.getEntries()[index]);
++            Settings.System.putIntForUser(resolver,
++                    Settings.System.QS_TILE_UI_STYLE, value, UserHandle.USER_CURRENT);
++            updateQsStyle(getActivity());
++            return true;
+         } else if (preference == mQuickPulldown) {
+             int value = Integer.parseInt((String) newValue);
+             Settings.System.putIntForUser(resolver,
+@@ -170,6 +189,28 @@ public class QuickSettings extends SettingsPreferenceFragment implements
+         }
+     }
+ 
++    private static void updateQsStyle(Context context) {
++        ContentResolver resolver = context.getContentResolver();
++
++        boolean isA11Style = Settings.System.getIntForUser(resolver,
++                Settings.System.QS_TILE_UI_STYLE , 0, UserHandle.USER_CURRENT) != 0;
++
++        String qsUIStyleCategory = "android.theme.customization.qs_ui";
++        String overlayThemeTarget  = "com.android.systemui";
++        String overlayThemePackage  = "com.android.system.qs.ui.A11";
++
++        if (mThemeUtils == null) {
++            mThemeUtils = new ThemeUtils(context);
++        }
++
++        // reset all overlays before applying
++        mThemeUtils.setOverlayEnabled(qsUIStyleCategory, overlayThemeTarget, overlayThemeTarget);
++
++        if (isA11Style) {
++            mThemeUtils.setOverlayEnabled(qsUIStyleCategory, overlayThemePackage, overlayThemeTarget);
++        }
++    }
++
+     private void updateQsPanelStyle() {
+         ContentResolver resolver = getActivity().getContentResolver();
+ 
+-- 
+2.47.0
+

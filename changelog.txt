@@ -1,3 +1,44 @@
+## 20241123
+
+HOTFIX
+
+| Bring back loop mapping code
+
+This should fix OTA/DSU on unencrypted devices
+
+*****
+
+| Added Face unlock
+| Added White on White Quick Settings
+| Added Quick Settings transparency
+| Added Quick Settings dual tone toggle
+| Allow to use VPN on tethering toggle
+| Launcher: Force Monochrome icons toggle
+| Fixup! status bar padding affecting all containers
+| Another bluetooth fixup
+
+TrebleApp
+| Allow to select render engine backend
+| Allow to select blur algorithm
+
+##### 20241114 #####
+
+| Hotfix: Fix Mediatek detection on TrebleApp
+
+Can be downloaded here too: https://github.com/ChonDoit/treble_app_own/releases/tag/20241114
+
+##### 20241112 #####
+
+| Allow to override SMSC
+| One more Bluetooth fix merged
+| Add Digital Wellbeign to Slim
+
+TrebleApp
+| SMSC and more Bluetooth settings
+| Expose current values for some options
+
+No need to update if you don't needs thems
+
 ##### 20241102 #####
 
 | Superior Sync (Changelog)

@@ -1,0 +1,22 @@
+From 38f32cbce5647a9e55e7379f028dd76f86a53287 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Tue, 1 Oct 2024 00:40:17 -0300
+Subject: [PATCH] Nuke priv keys call
+
+---
+ config/branding.mk | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/config/branding.mk b/config/branding.mk
+index 5aae8ce..cfb7738 100644
+--- a/config/branding.mk
++++ b/config/branding.mk
+@@ -71,5 +71,3 @@ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
+   ro.build.datetime=$(BUILD_DATE_TIME) \
+   ro.superior.edition=$(SUPERIOR_EDITION)
+ 
+-# Private keys for signing
+--include vendor/superior-priv/keys/keys.mk
+-- 
+2.25.1
+

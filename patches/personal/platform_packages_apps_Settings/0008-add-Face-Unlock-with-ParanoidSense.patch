@@ -1,0 +1,25 @@
+From c8bc7616ed24c6058670841230fcf83231dbc799 Mon Sep 17 00:00:00 2001
+From: Chris Crump <chriscrawford893@gmail.com>
+Date: Sat, 25 Nov 2023 11:56:05 +0000
+Subject: [PATCH] Add Face Unlock with ParanoidSense
+
+---
+ AndroidManifest.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/AndroidManifest.xml b/AndroidManifest.xml
+index 79f8f39..97433aa 100644
+--- a/AndroidManifest.xml
++++ b/AndroidManifest.xml
+@@ -2701,7 +2701,7 @@
+             android:screenOrientation="portrait"/>
+ 
+         <activity android:name=".biometrics.face.FaceEnrollFinish"
+-            android:exported="false"
++            android:exported="true"
+             android:screenOrientation="portrait"/>
+ 
+         <activity android:name=".biometrics.BiometricHandoffActivity"
+-- 
+2.25.1
+

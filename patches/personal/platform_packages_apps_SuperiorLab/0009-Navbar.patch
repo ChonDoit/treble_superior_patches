@@ -1,0 +1,75 @@
+From 7ac512c801c68267f039597ceb0de1e16fec073d Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Sun, 1 Sep 2024 18:55:59 -0300
+Subject: [PATCH 09/14] Navbar
+
+---
+ res/values/custom_strings.xml       | 24 ++++++++++++++++++++++++
+ res/xml/superior_lab_navigation.xml | 20 ++++++++++++++++++++
+ 2 files changed, 44 insertions(+)
+
+diff --git a/res/values/custom_strings.xml b/res/values/custom_strings.xml
+index 0f636a5..cc21a54 100644
+--- a/res/values/custom_strings.xml
++++ b/res/values/custom_strings.xml
+@@ -77,4 +77,28 @@
+         <item>3</item>
+     </string-array>
+ 
++    <!-- Navigation Bar -->
++    <string name="navbar_layout_category_title">Button navbar</string>
++    <string name="navbar_layout_title">Layout</string>
++    <string name="navbar_layout_normal">Normal</string>
++    <string name="navbar_layout_compact">Compact</string>
++    <string name="navbar_layout_leftleaning">Left-leaning</string>
++    <string name="navbar_layout_rightleaning">Right-leaning</string>
++    <string name="navbar_invert_layout_title">Invert layout</string>
++    <string name="navbar_invert_layout_summary">Inverts the layout of the navigation bar and other items, such as the IME switcher</string>
++
++    <string-array name="navbar_layout_entries">
++        <item>@string/navbar_layout_normal</item>
++        <item>@string/navbar_layout_compact</item>
++        <item>@string/navbar_layout_leftleaning</item>
++        <item>@string/navbar_layout_rightleaning</item>
++    </string-array>
++
++    <string-array name="navbar_layout_values" translatable="false">
++        <item>default</item>
++        <item>left;back,home,recent;right</item>
++        <item>left,back,home,recent,right;space;space</item>
++        <item>space;space;left,back,home,recent,right</item>
++    </string-array>
++
+ </resources>
+diff --git a/res/xml/superior_lab_navigation.xml b/res/xml/superior_lab_navigation.xml
+index 03bcaa9..7c5798c 100644
+--- a/res/xml/superior_lab_navigation.xml
++++ b/res/xml/superior_lab_navigation.xml
+@@ -20,4 +20,24 @@
+         settings:controller="com.android.settings.gestures.SystemNavigationPreferenceController" />
+ 
+     </PreferenceCategory>
++
++    <PreferenceCategory
++        android:key="buttons_navbar_layout_category"
++        android:title="@string/navbar_layout_category_title">
++
++        <com.superior.support.preferences.SecureSettingListPreference
++            android:key="navbar_layout_views"
++            android:title="@string/navbar_layout_title"
++            android:summary="%s"
++            android:entries="@array/navbar_layout_entries"
++            android:entryValues="@array/navbar_layout_values"
++            android:defaultValue="default" />
++
++        <com.superior.support.preferences.SecureSettingSwitchPreference
++            android:key="navbar_inverse_layout"
++            android:title="@string/navbar_invert_layout_title"
++            android:summary="@string/navbar_invert_layout_summary"
++            android:defaultValue="false" />
++    </PreferenceCategory>
++
+ </PreferenceScreen>
+-- 
+2.47.0
+

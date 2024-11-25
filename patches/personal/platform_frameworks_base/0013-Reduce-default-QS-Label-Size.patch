@@ -1,0 +1,39 @@
+From 90a1966178d2169b93ea45def9df8a663e2d8ca1 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Mon, 2 Sep 2024 00:05:03 -0300
+Subject: [PATCH 13/31] Reduce default QS Label Size
+
+---
+ packages/SystemUI/src/com/android/systemui/qs/TileUtils.java    | 2 +-
+ .../src/com/android/systemui/qs/tileimpl/QSTileViewImpl.kt      | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/qs/TileUtils.java b/packages/SystemUI/src/com/android/systemui/qs/TileUtils.java
+index 3a50c42b..c57b98c2 100644
+--- a/packages/SystemUI/src/com/android/systemui/qs/TileUtils.java
++++ b/packages/SystemUI/src/com/android/systemui/qs/TileUtils.java
+@@ -82,7 +82,7 @@ public class TileUtils {
+     public static float getQSTileLabelSize(Context context) {
+         return (float) Settings.System.getIntForUser(context.getContentResolver(),
+                 Settings.System.QS_TILE_LABEL_SIZE,
+-                14, UserHandle.USER_CURRENT);
++                13, UserHandle.USER_CURRENT);
+     }
+ 
+     public static boolean getQSTileVerticalLayout(Context context, int defaultValue) {
+diff --git a/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSTileViewImpl.kt b/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSTileViewImpl.kt
+index 9e6c5c37..df09514c 100644
+--- a/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSTileViewImpl.kt
++++ b/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSTileViewImpl.kt
+@@ -209,7 +209,7 @@ open class QSTileViewImpl @JvmOverloads constructor(
+     private var vertical = false
+     private val forceHideCheveron = true
+     private var labelHide = false
+-    private var labelSize = 14f
++    private var labelSize = 13f
+ 
+     init {
+         val typedValue = TypedValue()
+-- 
+2.47.0
+

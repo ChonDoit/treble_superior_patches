@@ -1,0 +1,1419 @@
+From 7290a0bc46473ae4cd8372e40205874c6778821f Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Wed, 24 Jun 2020 05:41:39 +0800
+Subject: [PATCH 31/31] Squashed: Expandable volume dialog
+
+Squash of:
+VolumeDialog: Display default row when active row is notification
+VolumeDialogImpl: Don't vibrate when volume dialog is not visible
+VolumeDialogImpl: Don't hide the default stream when adjusting the music stream
+VolumeDialogImpl: Fix cut layout when on setup or lock task mode
+VolumeDialogImpl: Drop unnecessary layout gravity defines and handle left
+VolumeDialogImpl: Set touchable region properly for left gravity
+VolumeDialogImpl: Respect left gravity in ringer drawer
+VolumeDialogImpl: Handle the outmost row with respect to left gravity
+SystemUI: Make the volume dialog expandable
+VolumeDialogImpl: Add STREAM_NOTIFICATION row
+VolumeDialogImpl: Ignore external layout direction changes
+VolumePanel: Change bg tint for inactive rows
+SystemUI: VolumeDialogImpl: Fix inactive rows tint
+Volume Dialog: Recolor inactive icons/slider
+Volume panel: avoid multiple animations on touch spam
+VolumeDialogImpl: Handle cases where media controller is not available
+---
+ .../values-night/colors_device_defaults.xml   |   1 +
+ core/res/res/values/attrs.xml                 |   3 +
+ .../res/res/values/colors_device_defaults.xml |   1 +
+ core/res/res/values/symbols.xml               |   1 +
+ .../res/res/values/themes_device_defaults.xml |  29 ++
+ .../res/drawable/ic_speaker_group_24dp.xml    |  22 +
+ .../res/drawable/volume_background.xml        |  12 +
+ .../res/layout-land/volume_dialog.xml         |  48 +-
+ .../SystemUI/res/layout/volume_dialog.xml     |  48 +-
+ .../systemui/volume/VolumeDialogImpl.java     | 457 +++++++++++++++---
+ 10 files changed, 543 insertions(+), 79 deletions(-)
+ create mode 100644 packages/SystemUI/res/drawable/ic_speaker_group_24dp.xml
+ create mode 100644 packages/SystemUI/res/drawable/volume_background.xml
+
+diff --git a/core/res/res/values-night/colors_device_defaults.xml b/core/res/res/values-night/colors_device_defaults.xml
+index 00b3c8d4..398cec6d 100644
+--- a/core/res/res/values-night/colors_device_defaults.xml
++++ b/core/res/res/values-night/colors_device_defaults.xml
+@@ -17,4 +17,5 @@
+ <resources>
+     <color name="accent_device_default">@color/accent_device_default_dark</color>
+     <color name="accent_primary_device_default">@color/system_accent2_50</color>
++    <color name="accent_device_default_custom">@color/system_accent2_600</color>
+ </resources>
+diff --git a/core/res/res/values/attrs.xml b/core/res/res/values/attrs.xml
+index 48cf09a8..663a34ae 100644
+--- a/core/res/res/values/attrs.xml
++++ b/core/res/res/values/attrs.xml
+@@ -1132,6 +1132,9 @@
+         <!-- Light accent color used on Material NEXT buttons. @hide -->
+         <attr name="colorAccentPrimary" format="color" />
+ 
++        <!-- Inverse accent color used on Material NEXT buttons. @hide -->
++        <attr name="colorAccentCustom" format="color" />
++
+         <!-- Secondary accent color used on Material NEXT buttons. @hide -->
+         <attr name="colorAccentSecondary" format="color" />
+ 
+diff --git a/core/res/res/values/colors_device_defaults.xml b/core/res/res/values/colors_device_defaults.xml
+index 5d3d6a31..58189382 100644
+--- a/core/res/res/values/colors_device_defaults.xml
++++ b/core/res/res/values/colors_device_defaults.xml
+@@ -81,4 +81,5 @@
+ 
+     <color name="edge_effect_device_default_light">@android:color/black</color>
+     <color name="edge_effect_device_default_dark">@android:color/white</color>
++    <color name="accent_device_default_custom">@color/system_accent1_600</color>
+ </resources>
+diff --git a/core/res/res/values/symbols.xml b/core/res/res/values/symbols.xml
+index 74bd0d09..aa6f275f 100644
+--- a/core/res/res/values/symbols.xml
++++ b/core/res/res/values/symbols.xml
+@@ -4774,6 +4774,7 @@
+   <java-symbol type="bool" name="config_voice_data_sms_auto_fallback" />
+ 
+   <java-symbol type="attr" name="colorAccentPrimary" />
++  <java-symbol type="attr" name="colorAccentCustom" />
+   <java-symbol type="attr" name="colorAccentSecondary" />
+   <java-symbol type="attr" name="colorAccentTertiary" />
+   <java-symbol type="attr" name="colorAccentPrimaryVariant" />
+diff --git a/core/res/res/values/themes_device_defaults.xml b/core/res/res/values/themes_device_defaults.xml
+index 60d9f64c..72060127 100644
+--- a/core/res/res/values/themes_device_defaults.xml
++++ b/core/res/res/values/themes_device_defaults.xml
+@@ -216,6 +216,7 @@ easier.
+         <item name="colorAccent">@color/accent_device_default_dark</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+         <item name="colorAccentPrimaryVariant">@color/accent_primary_variant_dark_device_default</item>
+         <item name="colorAccentSecondaryVariant">@color/accent_secondary_variant_dark_device_default</item>
+@@ -1652,6 +1653,7 @@ easier.
+         <item name="colorPrimary">@color/primary_device_default_light</item>
+         <item name="colorPrimaryDark">@color/primary_dark_device_default_light</item>
+         <item name="colorAccent">@color/accent_device_default_light</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+@@ -1747,6 +1749,7 @@ easier.
+         <item name="colorPrimary">@color/primary_device_default_light</item>
+         <item name="colorPrimaryDark">@color/primary_dark_device_default_light</item>
+         <item name="colorAccent">@color/accent_device_default_light</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+@@ -2283,6 +2286,7 @@ easier.
+         <item name="colorPrimary">@color/primary_device_default_light</item>
+         <item name="colorPrimaryDark">@color/primary_dark_device_default_light</item>
+         <item name="colorAccent">@color/accent_device_default_light</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+@@ -2362,6 +2366,7 @@ easier.
+         <item name="colorPrimary">@color/primary_device_default_dark</item>
+         <item name="colorPrimaryDark">@color/primary_dark_device_default_dark</item>
+         <item name="colorAccent">@color/accent_device_default_light</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+@@ -2456,6 +2461,7 @@ easier.
+         <item name="colorPrimary">@color/primary_device_default_light</item>
+         <item name="colorPrimaryDark">@color/primary_dark_device_default_light</item>
+         <item name="colorAccent">@color/accent_device_default_light</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+@@ -2551,6 +2557,7 @@ easier.
+         <item name="colorPrimary">@color/primary_device_default_light</item>
+         <item name="colorPrimaryDark">@color/primary_dark_device_default_light</item>
+         <item name="colorAccent">@color/accent_device_default_light</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+@@ -2648,6 +2655,7 @@ easier.
+         <item name="colorPrimary">@color/primary_device_default_light</item>
+         <item name="colorPrimaryDark">@color/primary_dark_device_default_light</item>
+         <item name="colorAccent">@color/accent_device_default_light</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+@@ -2744,6 +2752,7 @@ easier.
+         <item name="colorPrimary">@color/primary_device_default_light</item>
+         <item name="colorPrimaryDark">@color/primary_dark_device_default_light</item>
+         <item name="colorAccent">@color/accent_device_default_light</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+@@ -2857,6 +2866,7 @@ easier.
+         <item name="colorPrimary">@color/primary_device_default_light</item>
+         <item name="colorPrimaryDark">@color/primary_dark_device_default_light</item>
+         <item name="colorAccent">@color/accent_device_default_light</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+@@ -2944,6 +2954,7 @@ easier.
+         <item name="colorPrimary">@color/primary_device_default_light</item>
+         <item name="colorPrimaryDark">@color/primary_dark_device_default_light</item>
+         <item name="colorAccent">@color/accent_device_default_light</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+@@ -3041,6 +3052,7 @@ easier.
+         <item name="colorPrimary">@color/primary_device_default_light</item>
+         <item name="colorPrimaryDark">@color/primary_dark_device_default_light</item>
+         <item name="colorAccent">@color/accent_device_default_light</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+@@ -3139,6 +3151,7 @@ easier.
+         <item name="colorPrimary">@color/primary_device_default_light</item>
+         <item name="colorPrimaryDark">@color/primary_dark_device_default_light</item>
+         <item name="colorAccent">@color/accent_device_default_light</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+@@ -3238,6 +3251,7 @@ easier.
+         <item name="colorPrimary">@color/primary_device_default_light</item>
+         <item name="colorPrimaryDark">@color/primary_dark_device_default_light</item>
+         <item name="colorAccent">@color/accent_device_default_light</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+@@ -3317,6 +3331,7 @@ easier.
+         <item name="colorPrimary">@color/primary_device_default_light</item>
+         <item name="colorPrimaryDark">@color/primary_dark_device_default_light</item>
+         <item name="colorAccent">@color/accent_device_default_light</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+@@ -3395,6 +3410,7 @@ easier.
+         <item name="colorPrimary">@color/primary_device_default_light</item>
+         <item name="colorPrimaryDark">@color/primary_dark_device_default_light</item>
+         <item name="colorAccent">@color/accent_device_default_light</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+@@ -3494,6 +3510,7 @@ easier.
+         <item name="colorPrimary">@color/primary_device_default_light</item>
+         <item name="colorPrimaryDark">@color/primary_dark_device_default_light</item>
+         <item name="colorAccent">@color/accent_device_default_light</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+@@ -3591,6 +3608,7 @@ easier.
+         <item name="colorPrimary">@color/primary_device_default_light</item>
+         <item name="colorPrimaryDark">@color/primary_dark_device_default_light</item>
+         <item name="colorAccent">@color/accent_device_default_light</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+@@ -3687,6 +3705,7 @@ easier.
+         <item name="colorPrimary">@color/primary_device_default_light</item>
+         <item name="colorPrimaryDark">@color/primary_dark_device_default_light</item>
+         <item name="colorAccent">@color/accent_device_default_light</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+@@ -3782,6 +3801,7 @@ easier.
+         <item name="colorPrimary">@color/primary_device_default_light</item>
+         <item name="colorPrimaryDark">@color/primary_dark_device_default_light</item>
+         <item name="colorAccent">@color/accent_device_default_light</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+@@ -3878,6 +3898,7 @@ easier.
+         <item name="colorPrimary">@color/primary_device_default_light</item>
+         <item name="colorPrimaryDark">@color/primary_dark_device_default_light</item>
+         <item name="colorAccent">@color/accent_device_default_light</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+@@ -3971,6 +3992,7 @@ easier.
+         <item name="colorPrimary">@color/primary_device_default_light</item>
+         <item name="colorPrimaryDark">@color/primary_dark_device_default_light</item>
+         <item name="colorAccent">@color/accent_device_default_light</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+@@ -4081,6 +4103,7 @@ easier.
+         <item name="colorPrimaryDark">@color/primary_dark_device_default_settings_light</item>
+         <item name="colorSecondary">@color/secondary_device_default_settings_light</item>
+         <item name="colorAccent">@color/accent_device_default_light</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+@@ -4166,6 +4189,7 @@ easier.
+         <item name="colorPrimaryDark">@color/primary_dark_device_default_settings_light</item>
+         <item name="colorSecondary">@color/secondary_device_default_settings_light</item>
+         <item name="colorAccent">@color/accent_device_default_light</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+@@ -4248,6 +4272,7 @@ easier.
+         <item name="colorPrimaryDark">@color/primary_dark_device_default_settings_light</item>
+         <item name="colorSecondary">@color/secondary_device_default_settings_light</item>
+         <item name="colorAccent">@color/accent_device_default_light</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+@@ -4417,6 +4442,7 @@ easier.
+         <item name="colorPrimaryDark">@color/primary_dark_device_default_settings</item>
+         <item name="colorSecondary">@color/secondary_device_default_settings</item>
+         <item name="colorAccent">@color/accent_device_default_light</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+@@ -4521,6 +4547,7 @@ easier.
+         <item name="colorPrimaryDark">@color/primary_dark_device_default_settings</item>
+         <item name="colorSecondary">@color/secondary_device_default_settings</item>
+         <item name="colorAccent">@color/accent_device_default_light</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+@@ -4618,6 +4645,7 @@ easier.
+         <item name="colorPrimaryDark">@color/primary_dark_device_default_settings</item>
+         <item name="colorSecondary">@color/secondary_device_default_settings</item>
+         <item name="colorAccent">@color/accent_device_default_light</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+@@ -4831,6 +4859,7 @@ easier.
+ 
+     <style name="ThemeOverlay.DeviceDefault.Accent.Light">
+         <item name="colorAccent">@color/accent_device_default_light</item>
++        <item name="colorAccentCustom">@color/accent_device_default_custom</item>
+         <item name="colorAccentPrimary">@color/accent_primary_device_default</item>
+         <item name="colorAccentSecondary">@color/accent_secondary_device_default</item>
+         <item name="colorAccentTertiary">@color/accent_tertiary_device_default</item>
+diff --git a/packages/SystemUI/res/drawable/ic_speaker_group_24dp.xml b/packages/SystemUI/res/drawable/ic_speaker_group_24dp.xml
+new file mode 100644
+index 00000000..37475e52
+--- /dev/null
++++ b/packages/SystemUI/res/drawable/ic_speaker_group_24dp.xml
+@@ -0,0 +1,22 @@
++<!--
++  Copyright (C) 2020-2022 The Android Open Source Project
++
++  SPDX-License-Identifier: Apache-2.0
++-->
++
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++        android:width="24dp"
++        android:height="24dp"
++        android:viewportWidth="24"
++        android:viewportHeight="24"
++        android:tint="?android:attr/colorBackgroundFloating">
++    <path
++        android:pathData="M18.2,1L9.8,1C8.81,1 8,1.81 8,2.8v14.4c0,0.99 0.81,1.79 1.8,1.79l8.4,0.01c0.99,0 1.8,-0.81 1.8,-1.8L20,2.8c0,-0.99 -0.81,-1.8 -1.8,-1.8zM14,3c1.1,0 2,0.89 2,2s-0.9,2 -2,2 -2,-0.89 -2,-2 0.9,-2 2,-2zM14,16.5c-2.21,0 -4,-1.79 -4,-4s1.79,-4 4,-4 4,1.79 4,4 -1.79,4 -4,4z"
++        android:fillColor="@android:color/white"/>
++    <path
++        android:pathData="M14,12.5m-2.5,0a2.5,2.5 0,1 1,5 0a2.5,2.5 0,1 1,-5 0"
++        android:fillColor="@android:color/white"/>
++    <path
++        android:pathData="M6,5H4v16c0,1.1 0.89,2 2,2h10v-2H6V5z"
++        android:fillColor="@android:color/white"/>
++</vector>
+diff --git a/packages/SystemUI/res/drawable/volume_background.xml b/packages/SystemUI/res/drawable/volume_background.xml
+new file mode 100644
+index 00000000..671d45ce
+--- /dev/null
++++ b/packages/SystemUI/res/drawable/volume_background.xml
+@@ -0,0 +1,12 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  Copyright (C) 2022 The LineageOS Project
++
++  SPDX-License-Identifier: Apache-2.0
++-->
++
++<shape xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:androidprv="http://schemas.android.com/apk/prv/res/android">
++    <size android:width="@dimen/volume_dialog_panel_width" />
++    <solid android:color="?androidprv:attr/colorSurface" />
++</shape>
+diff --git a/packages/SystemUI/res/layout-land/volume_dialog.xml b/packages/SystemUI/res/layout-land/volume_dialog.xml
+index 5ce2601d..8d1ba2fd 100644
+--- a/packages/SystemUI/res/layout-land/volume_dialog.xml
++++ b/packages/SystemUI/res/layout-land/volume_dialog.xml
+@@ -21,17 +21,15 @@
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:gravity="right"
+-    android:layout_gravity="right"
+     android:background="@android:color/transparent"
+     android:theme="@style/volume_dialog_theme">
+ 
+     <!-- right-aligned to be physically near volume button -->
+-    <LinearLayout
++    <com.android.systemui.animation.view.LaunchableLinearLayout
+         android:id="@+id/volume_dialog"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:gravity="right"
+-        android:layout_gravity="right"
+         android:layout_marginRight="@dimen/volume_dialog_panel_transparent_padding_right"
+         android:orientation="vertical"
+         android:clipToPadding="false"
+@@ -55,7 +53,6 @@
+                 android:layout_height="@dimen/volume_dialog_ringer_size"
+                 android:layout_marginBottom="@dimen/volume_dialog_spacer"
+                 android:gravity="right"
+-                android:layout_gravity="right"
+                 android:translationZ="@dimen/volume_dialog_elevation"
+                 android:clipToPadding="false"
+                 android:background="@drawable/rounded_bg_full">
+@@ -77,7 +74,6 @@
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:gravity="right"
+-                android:layout_gravity="right"
+                 android:orientation="vertical"
+                 android:clipChildren="false"
+                 android:clipToPadding="false" >
+@@ -93,13 +89,12 @@
+                     android:id="@+id/settings_container"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+-                    android:background="@drawable/volume_background_bottom"
++                    android:background="@drawable/volume_background"
+                     android:paddingLeft="@dimen/volume_dialog_ringer_rows_padding"
+-                    android:paddingBottom="@dimen/volume_dialog_ringer_rows_padding"
+                     android:paddingRight="@dimen/volume_dialog_ringer_rows_padding">
+                     <com.android.keyguard.AlphaOptimizedImageButton
+                         android:id="@+id/settings"
+-                        android:src="@drawable/horizontal_ellipsis"
++                        android:src="@drawable/ic_speaker_group_24dp"
+                         android:layout_width="@dimen/volume_dialog_tap_target_size"
+                         android:layout_height="@dimen/volume_dialog_tap_target_size"
+                         android:layout_gravity="center"
+@@ -108,6 +103,38 @@
+                         android:tint="?androidprv:attr/colorAccent"
+                         android:soundEffectsEnabled="false" />
+                 </FrameLayout>
++                <FrameLayout
++                    android:id="@+id/expandable_indicator_container"
++                    android:layout_width="wrap_content"
++                    android:layout_height="wrap_content"
++                    android:background="@drawable/volume_background_bottom"
++                    android:paddingLeft="@dimen/volume_dialog_ringer_rows_padding"
++                    android:paddingBottom="@dimen/volume_dialog_ringer_rows_padding"
++                    android:paddingRight="@dimen/volume_dialog_ringer_rows_padding">
++                    <com.android.systemui.statusbar.phone.ExpandableIndicator
++                        android:id="@+id/expandable_indicator"
++                        android:layout_width="@dimen/volume_dialog_tap_target_size"
++                        android:layout_height="@dimen/volume_dialog_tap_target_size"
++                        android:layout_gravity="center"
++                        android:contentDescription="@string/accessibility_volume_settings"
++                        android:background="@drawable/ripple_drawable_20dp"
++                        android:tint="?androidprv:attr/colorAccent"
++                        android:soundEffectsEnabled="false"
++                        android:padding="10dp"
++                        android:rotation="90" />
++                </FrameLayout>
++                <FrameLayout
++                    android:id="@+id/rounded_border_bottom"
++                    android:layout_width="wrap_content"
++                    android:layout_height="wrap_content"
++                    android:background="@drawable/volume_background_bottom"
++                    android:paddingLeft="@dimen/volume_dialog_ringer_rows_padding"
++                    android:paddingRight="@dimen/volume_dialog_ringer_rows_padding">
++                    <View
++                        android:layout_width="0dp"
++                        android:layout_height="32dp"
++                        android:background="@drawable/ripple_drawable_20dp"/>
++                </FrameLayout>
+             </LinearLayout>
+ 
+         </LinearLayout>
+@@ -118,7 +145,6 @@
+             android:layout_height="@dimen/volume_dialog_caption_size"
+             android:layout_marginTop="@dimen/volume_dialog_row_margin_bottom"
+             android:gravity="right"
+-            android:layout_gravity="right"
+             android:clipToPadding="false"
+             android:clipToOutline="true"
+             android:background="@drawable/volume_row_rounded_background">
+@@ -132,7 +158,7 @@
+                 android:layout_gravity="center"
+                 android:soundEffectsEnabled="false" />
+         </FrameLayout>
+-    </LinearLayout>
++    </com.android.systemui.animation.view.LaunchableLinearLayout>
+ 
+     <ViewStub
+         android:id="@+id/odi_captions_tooltip_stub"
+@@ -140,7 +166,7 @@
+         android:layout="@layout/volume_tool_tip_view"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+-        android:layout_gravity="bottom | right"
++        android:layout_gravity="bottom"
+         android:layout_marginRight="@dimen/volume_tool_tip_right_margin"/>
+ 
+ </FrameLayout>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/layout/volume_dialog.xml b/packages/SystemUI/res/layout/volume_dialog.xml
+index 39a1f1f9..0d374651 100644
+--- a/packages/SystemUI/res/layout/volume_dialog.xml
++++ b/packages/SystemUI/res/layout/volume_dialog.xml
+@@ -21,17 +21,15 @@
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:gravity="right"
+-    android:layout_gravity="right"
+     android:clipToPadding="false"
+     android:theme="@style/volume_dialog_theme">
+ 
+     <!-- right-aligned to be physically near volume button -->
+-    <LinearLayout
++    <com.android.systemui.animation.view.LaunchableLinearLayout
+         android:id="@+id/volume_dialog"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:gravity="right"
+-        android:layout_gravity="right"
+         android:layout_marginRight="@dimen/volume_dialog_panel_transparent_padding_right"
+         android:orientation="vertical"
+         android:clipToPadding="false"
+@@ -54,7 +52,6 @@
+                 android:layout_height="@dimen/volume_dialog_ringer_size"
+                 android:layout_marginBottom="@dimen/volume_dialog_spacer"
+                 android:gravity="right"
+-                android:layout_gravity="right"
+                 android:translationZ="@dimen/volume_dialog_elevation"
+                 android:clipToPadding="false"
+                 android:background="@drawable/rounded_bg_full">
+@@ -76,7 +73,6 @@
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:gravity="right"
+-                android:layout_gravity="right"
+                 android:orientation="vertical"
+                 android:clipChildren="false"
+                 android:clipToPadding="false" >
+@@ -92,13 +88,12 @@
+                     android:id="@+id/settings_container"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+-                    android:background="@drawable/volume_background_bottom"
++                    android:background="@drawable/volume_background"
+                     android:paddingLeft="@dimen/volume_dialog_ringer_rows_padding"
+-                    android:paddingBottom="@dimen/volume_dialog_ringer_rows_padding"
+                     android:paddingRight="@dimen/volume_dialog_ringer_rows_padding">
+                     <com.android.keyguard.AlphaOptimizedImageButton
+                         android:id="@+id/settings"
+-                        android:src="@drawable/horizontal_ellipsis"
++                        android:src="@drawable/ic_speaker_group_24dp"
+                         android:layout_width="@dimen/volume_dialog_tap_target_size"
+                         android:layout_height="@dimen/volume_dialog_tap_target_size"
+                         android:layout_gravity="center"
+@@ -107,6 +102,38 @@
+                         android:tint="?androidprv:attr/colorAccent"
+                         android:soundEffectsEnabled="false" />
+                 </FrameLayout>
++                <FrameLayout
++                    android:id="@+id/expandable_indicator_container"
++                    android:layout_width="wrap_content"
++                    android:layout_height="wrap_content"
++                    android:background="@drawable/volume_background_bottom"
++                    android:paddingLeft="@dimen/volume_dialog_ringer_rows_padding"
++                    android:paddingBottom="@dimen/volume_dialog_ringer_rows_padding"
++                    android:paddingRight="@dimen/volume_dialog_ringer_rows_padding">
++                    <com.android.systemui.statusbar.phone.ExpandableIndicator
++                        android:id="@+id/expandable_indicator"
++                        android:layout_width="@dimen/volume_dialog_tap_target_size"
++                        android:layout_height="@dimen/volume_dialog_tap_target_size"
++                        android:layout_gravity="center"
++                        android:contentDescription="@string/accessibility_volume_settings"
++                        android:background="@drawable/ripple_drawable_20dp"
++                        android:tint="?androidprv:attr/colorAccent"
++                        android:soundEffectsEnabled="false"
++                        android:padding="10dp"
++                        android:rotation="90" />
++                </FrameLayout>
++                <FrameLayout
++                    android:id="@+id/rounded_border_bottom"
++                    android:layout_width="wrap_content"
++                    android:layout_height="wrap_content"
++                    android:background="@drawable/volume_background_bottom"
++                    android:paddingLeft="@dimen/volume_dialog_ringer_rows_padding"
++                    android:paddingRight="@dimen/volume_dialog_ringer_rows_padding">
++                    <View
++                        android:layout_width="0dp"
++                        android:layout_height="32dp"
++                        android:background="@drawable/ripple_drawable_20dp"/>
++                </FrameLayout>
+             </LinearLayout>
+ 
+         </LinearLayout>
+@@ -117,7 +144,6 @@
+             android:layout_height="@dimen/volume_dialog_caption_size"
+             android:layout_marginTop="@dimen/volume_dialog_row_margin_bottom"
+             android:gravity="right"
+-            android:layout_gravity="right"
+             android:clipToPadding="false"
+             android:clipToOutline="true"
+             android:background="@drawable/volume_row_rounded_background">
+@@ -131,7 +157,7 @@
+                 android:layout_gravity="center"
+                 android:soundEffectsEnabled="false"/>
+         </FrameLayout>
+-    </LinearLayout>
++    </com.android.systemui.animation.view.LaunchableLinearLayout>
+ 
+     <ViewStub
+         android:id="@+id/odi_captions_tooltip_stub"
+@@ -139,7 +165,7 @@
+         android:layout="@layout/volume_tool_tip_view"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+-        android:layout_gravity="bottom | right"
++        android:layout_gravity="bottom"
+         android:layout_marginRight="@dimen/volume_tool_tip_right_margin"/>
+ 
+ </FrameLayout>
+\ No newline at end of file
+diff --git a/packages/SystemUI/src/com/android/systemui/volume/VolumeDialogImpl.java b/packages/SystemUI/src/com/android/systemui/volume/VolumeDialogImpl.java
+index 65468ecd..978b60d5 100644
+--- a/packages/SystemUI/src/com/android/systemui/volume/VolumeDialogImpl.java
++++ b/packages/SystemUI/src/com/android/systemui/volume/VolumeDialogImpl.java
+@@ -23,11 +23,13 @@ import static android.media.AudioManager.RINGER_MODE_VIBRATE;
+ import static android.media.AudioManager.STREAM_ACCESSIBILITY;
+ import static android.media.AudioManager.STREAM_ALARM;
+ import static android.media.AudioManager.STREAM_MUSIC;
++import static android.media.AudioManager.STREAM_NOTIFICATION;
+ import static android.media.AudioManager.STREAM_RING;
+ import static android.media.AudioManager.STREAM_VOICE_CALL;
+ import static android.view.View.ACCESSIBILITY_LIVE_REGION_POLITE;
+ import static android.view.View.GONE;
+ import static android.view.View.INVISIBLE;
++import static android.view.View.LAYOUT_DIRECTION_LTR;
+ import static android.view.View.LAYOUT_DIRECTION_RTL;
+ import static android.view.View.VISIBLE;
+ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+@@ -47,6 +49,8 @@ import android.annotation.SuppressLint;
+ import android.app.ActivityManager;
+ import android.app.Dialog;
+ import android.app.KeyguardManager;
++import android.bluetooth.BluetoothAdapter;
++import android.bluetooth.BluetoothProfile;
+ import android.content.ContentResolver;
+ import android.content.Context;
+ import android.content.DialogInterface;
+@@ -66,6 +70,9 @@ import android.graphics.drawable.LayerDrawable;
+ import android.graphics.drawable.RotateDrawable;
+ import android.media.AudioManager;
+ import android.media.AudioSystem;
++import android.media.session.MediaController;
++import android.media.session.MediaSessionManager;
++import android.media.session.PlaybackState;
+ import android.os.Debug;
+ import android.os.Handler;
+ import android.os.Looper;
+@@ -76,6 +83,7 @@ import android.os.VibrationEffect;
+ import android.provider.Settings;
+ import android.provider.Settings.Global;
+ import android.text.InputFilter;
++import android.text.TextUtils;
+ import android.util.Log;
+ import android.util.Slog;
+ import android.util.SparseBooleanArray;
+@@ -96,6 +104,7 @@ import android.view.accessibility.AccessibilityEvent;
+ import android.view.accessibility.AccessibilityManager;
+ import android.view.accessibility.AccessibilityNodeInfo;
+ import android.view.animation.DecelerateInterpolator;
++import android.widget.FrameLayout;
+ import android.widget.ImageButton;
+ import android.widget.ImageView;
+ import android.widget.LinearLayout;
+@@ -113,6 +122,7 @@ import com.android.internal.annotations.VisibleForTesting;
+ import com.android.internal.graphics.drawable.BackgroundBlurDrawable;
+ import com.android.internal.jank.InteractionJankMonitor;
+ import com.android.internal.view.RotationPolicy;
++import com.android.settingslib.media.flags.Flags;
+ import com.android.settingslib.Utils;
+ import com.android.systemui.Dumpable;
+ import com.android.systemui.Prefs;
+@@ -126,11 +136,12 @@ import com.android.systemui.plugins.VolumeDialogController;
+ import com.android.systemui.plugins.VolumeDialogController.State;
+ import com.android.systemui.plugins.VolumeDialogController.StreamState;
+ import com.android.systemui.res.R;
+-import com.android.systemui.statusbar.VibratorHelper;
++import com.android.systemui.statusbar.phone.ExpandableIndicator;
+ import com.android.systemui.statusbar.policy.AccessibilityManagerWrapper;
+ import com.android.systemui.statusbar.policy.ConfigurationController;
+ import com.android.systemui.statusbar.policy.DevicePostureController;
+ import com.android.systemui.statusbar.policy.DeviceProvisionedController;
++import com.android.systemui.statusbar.VibratorHelper;
+ import com.android.systemui.util.AlphaTintDrawableWrapper;
+ import com.android.systemui.util.RoundedCornerProgressDrawable;
+ import com.android.systemui.util.settings.SecureSettings;
+@@ -256,6 +267,8 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+     private CaptionsToggleImageButton mODICaptionsIcon;
+     private View mSettingsView;
+     private ImageButton mSettingsIcon;
++    private View mExpandRowsView;
++    private ExpandableIndicator mExpandRows;
+     private final List<VolumeRow> mRows = new ArrayList<>();
+     private ConfigurableTexts mConfigurableTexts;
+     private final SparseBooleanArray mDynamic = new SparseBooleanArray();
+@@ -298,6 +311,17 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+ 
+     private int mWindowGravity;
+ 
++    // Variable to track the default row with which the panel is initially shown
++    private VolumeRow mDefaultRow = null;
++
++    private FrameLayout mRoundedBorderBottom;
++
++    // Volume panel expand state
++    private boolean mExpanded;
++
++    // Number of animating rows
++    private int mAnimatingRows = 0;
++
+     @VisibleForTesting
+     final int mVolumeRingerIconDrawableId = R.drawable.ic_speaker_on;
+     @VisibleForTesting
+@@ -470,27 +494,75 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+         final int[] locInWindow = new int[2];
+         view.getLocationInWindow(locInWindow);
+ 
+-        float x = locInWindow[0];
+-        float y = locInWindow[1];
++        float xExtraSize = 0;
++        float yExtraSize = 0;
+ 
+         // The ringer and rows container has extra height at the top to fit the expanded ringer
+         // drawer. This area should not be touchable unless the ringer drawer is open.
+         // In landscape the ringer expands to the left and it has to be ensured that if there
+         // are multiple rows they are touchable.
+-        if (view == mTopContainer && !mIsRingerDrawerOpen) {
++        // The invisible expandable rows reserve space if the panel is not expanded, this space
++        // needs to be touchable.
++        if (view == mTopContainer) {
+             if (!isLandscape()) {
+-                y += getRingerDrawerOpenExtraSize();
+-            } else if (getRingerDrawerOpenExtraSize() > getVisibleRowsExtraSize()) {
+-                x += (getRingerDrawerOpenExtraSize() - getVisibleRowsExtraSize());
++                if (!mIsRingerDrawerOpen) {
++                    yExtraSize = getRingerDrawerOpenExtraSize();
++                }
++                if (!mExpanded) {
++                    xExtraSize = getExpandableRowsExtraSize();
++                }
++            } else {
++                if (!mIsRingerDrawerOpen && !mExpanded) {
++                    xExtraSize =
++                            Math.max(getRingerDrawerOpenExtraSize(), getExpandableRowsExtraSize());
++                } else if (!mIsRingerDrawerOpen) {
++                    if (getRingerDrawerOpenExtraSize() > getVisibleRowsExtraSize()) {
++                        xExtraSize = getRingerDrawerOpenExtraSize() - getVisibleRowsExtraSize();
++                    }
++                } else if (!mExpanded) {
++                    if ((getVisibleRowsExtraSize() + getExpandableRowsExtraSize())
++                            > getRingerDrawerOpenExtraSize()) {
++                        xExtraSize = (getVisibleRowsExtraSize() + getExpandableRowsExtraSize())
++                                - getRingerDrawerOpenExtraSize();
++                    }
++                }
+             }
+         }
+ 
+-        mTouchableRegion.op(
+-                (int) x,
+-                (int) y,
+-                locInWindow[0] + view.getWidth(),
+-                locInWindow[1] + view.getHeight(),
+-                Region.Op.UNION);
++        if (isWindowGravityLeft()) {
++            mTouchableRegion.op(
++                    locInWindow[0],
++                    locInWindow[1] + (int) yExtraSize,
++                    locInWindow[0] + view.getWidth() - (int) xExtraSize,
++                    locInWindow[1] + view.getHeight(),
++                    Region.Op.UNION);
++        } else {
++            mTouchableRegion.op(
++                    locInWindow[0] + (int) xExtraSize,
++                    locInWindow[1] + (int) yExtraSize,
++                    locInWindow[0] + view.getWidth(),
++                    locInWindow[1] + view.getHeight(),
++                    Region.Op.UNION);
++        }
++    }
++
++    // Helper to set gravity.
++    private void setGravity(ViewGroup viewGroup, int gravity) {
++        if (viewGroup instanceof LinearLayout) {
++            ((LinearLayout) viewGroup).setGravity(gravity);
++        }
++    }
++
++    // Helper to set layout gravity.
++    private void setLayoutGravity(ViewGroup viewGroup, int gravity) {
++        if (viewGroup != null) {
++            Object obj = viewGroup.getLayoutParams();
++            if (obj instanceof FrameLayout.LayoutParams) {
++                ((FrameLayout.LayoutParams) obj).gravity = gravity;
++            } else if (obj instanceof LinearLayout.LayoutParams) {
++                ((LinearLayout.LayoutParams) obj).gravity = gravity;
++            }
++        }
+     }
+ 
+     private void initDialog(int lockTaskModeState) {
+@@ -501,6 +573,7 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+         mConfigurableTexts = new ConfigurableTexts(mContext);
+         mHovering = false;
+         mShowing = false;
++	mExpanded = false;
+         mWindow = mDialog.getWindow();
+         mWindow.requestFeature(Window.FEATURE_NO_TITLE);
+         mWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+@@ -534,6 +607,8 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+         mDialog.setContentView(R.layout.volume_dialog);
+         mDialogView = mDialog.findViewById(R.id.volume_dialog);
+         mDialogView.setAlpha(0);
++	mDialogView.setLayoutDirection(
++                mVolumePanelOnLeft ? LAYOUT_DIRECTION_LTR : LAYOUT_DIRECTION_RTL);
+         mDialogTimeoutMillis = mSecureSettings.get().getInt(
+                 Settings.Secure.VOLUME_DIALOG_DISMISS_TIMEOUT, DIALOG_TIMEOUT_MILLIS);
+         mDialog.setCanceledOnTouchOutside(true);
+@@ -637,6 +712,9 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+ 
+                     updateBackgroundForDrawerClosedAmount();
+                     setTopContainerBackgroundDrawable();
++
++		    // Rows need to be updated after mRingerAndDrawerContainerBackground is set
++                    updateRowsH(getActiveRow());
+                 }
+             });
+         }
+@@ -680,6 +758,32 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+         mSettingsView = mDialog.findViewById(R.id.settings_container);
+         mSettingsIcon = mDialog.findViewById(R.id.settings);
+ 
++        mRoundedBorderBottom = mDialog.findViewById(R.id.rounded_border_bottom);
++
++	mExpandRowsView = mDialog.findViewById(R.id.expandable_indicator_container);
++        mExpandRows = mDialog.findViewById(R.id.expandable_indicator);
++
++        if (isWindowGravityLeft()) {
++            ViewGroup container = mDialog.findViewById(R.id.volume_dialog_container);
++            setGravity(container, Gravity.LEFT);
++
++            setGravity(mDialogView, Gravity.LEFT);
++
++            setGravity((ViewGroup) mTopContainer, Gravity.LEFT);
++
++            setLayoutGravity(mRingerDrawerNewSelectionBg, Gravity.BOTTOM | Gravity.LEFT);
++
++            setLayoutGravity(mSelectedRingerContainer, Gravity.BOTTOM | Gravity.LEFT);
++
++            setGravity(mRinger, Gravity.LEFT);
++
++            setGravity(mDialogRowsViewContainer, Gravity.LEFT);
++
++            setGravity(mODICaptionsView, Gravity.LEFT);
++
++	    mExpandRows.setRotation(-90);
++        }
++
+         if (mRows.isEmpty()) {
+             if (!AudioSystem.isSingleVolume(mContext)) {
+                 addRow(STREAM_ACCESSIBILITY, R.drawable.ic_volume_accessibility,
+@@ -691,8 +795,8 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+ 
+                 addRow(AudioManager.STREAM_RING, R.drawable.ic_ring_volume,
+                         R.drawable.ic_ring_volume_off, true, false);
+-
+-
++		addRow(AudioManager.STREAM_NOTIFICATION, R.drawable.ic_notifications_alert,
++                        R.drawable.ic_notifications_silence, true, false);
+                 addRow(STREAM_ALARM,
+                         R.drawable.ic_alarm, R.drawable.ic_volume_alarm_mute, true, false);
+                 addRow(AudioManager.STREAM_VOICE_CALL,
+@@ -754,8 +858,7 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+     }
+ 
+     private boolean isRtl() {
+-        return mContext.getResources().getConfiguration().getLayoutDirection()
+-                == LAYOUT_DIRECTION_RTL;
++        return mDialogView.getLayoutDirection() == LAYOUT_DIRECTION_RTL;
+     }
+ 
+     public void setStreamImportant(int stream, boolean important) {
+@@ -950,6 +1053,12 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+                     mDialogView.getPaddingTop(),
+                     mDialogView.getPaddingRight(),
+                     mDialogView.getPaddingBottom() + getRingerDrawerOpenExtraSize());
++        } else if (isWindowGravityLeft()) {
++            mDialogView.setPadding(
++                    mDialogView.getPaddingLeft(),
++                    mDialogView.getPaddingTop(),
++                    mDialogView.getPaddingRight() + getRingerDrawerOpenExtraSize(),
++                    mDialogView.getPaddingBottom());
+         } else {
+             mDialogView.setPadding(
+                     mDialogView.getPaddingLeft() + getRingerDrawerOpenExtraSize(),
+@@ -1020,15 +1129,16 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+     }
+ 
+     /**
+-     * Translation to apply form the origin (either top or left) to overlap the selection background
+-     * with the given mode in the drawer.
++     * Translation to apply form the origin (either top or left/right) to overlap the selection
++     * background with the given mode in the drawer.
+      */
+     private float getTranslationInDrawerForRingerMode(int mode) {
+-        return mode == RINGER_MODE_VIBRATE
+-                ? -mRingerDrawerItemSize * 2
+-                : mode == RINGER_MODE_SILENT
+-                        ? -mRingerDrawerItemSize
+-                        : 0;
++        final int distantRinger = ((isLandscape() && isWindowGravityLeft()) ? RINGER_MODE_NORMAL
++                                                                            : RINGER_MODE_VIBRATE);
++        return (mode == distantRinger                       ? mRingerDrawerItemSize * 2
++                               : mode == RINGER_MODE_SILENT ? mRingerDrawerItemSize
++                                                            : 0)
++                * ((isLandscape() && isWindowGravityLeft()) ? 1 : -1);
+     }
+ 
+     @VisibleForTesting String getSelectedRingerContainerDescription() {
+@@ -1072,12 +1182,13 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+                     getTranslationInDrawerForRingerMode(mState.ringerModeInternal));
+         }
+ 
+-        // Move the drawer so that the top/rightmost ringer choice overlaps with the selected ringer
++        // Move the drawer so that the top/outmost ringer choice overlaps with the selected ringer
+         // icon.
+         if (!isLandscape()) {
+             mRingerDrawerContainer.setTranslationY(mRingerDrawerItemSize * (mRingerCount - 1));
+         } else {
+-            mRingerDrawerContainer.setTranslationX(mRingerDrawerItemSize * (mRingerCount - 1));
++            mRingerDrawerContainer.setTranslationX(
++                    (isWindowGravityLeft() ? -1 : 1) * mRingerDrawerItemSize * (mRingerCount - 1));
+         }
+         mRingerDrawerContainer.setAlpha(0f);
+         mRingerDrawerContainer.setVisibility(VISIBLE);
+@@ -1154,7 +1265,7 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+                     .start();
+         } else {
+             mRingerDrawerContainer.animate()
+-                    .translationX(mRingerDrawerItemSize * 2)
++                    .translationX((isWindowGravityLeft() ? -1 : 1) * mRingerDrawerItemSize * 2)
+                     .start();
+         }
+ 
+@@ -1199,19 +1310,103 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+         mSelectedRingerContainer.setContentDescription(currentMode + tapToSelect);
+     }
+ 
++    /**
++     *  Returns a {@link MediaController} that state is playing and type is local playback,
++     *  and also have active sessions.
++     */
++    @Nullable
++    private MediaController getActiveLocalMediaController() {
++        MediaSessionManager mediaSessionManager =
++                mContext.getSystemService(MediaSessionManager.class);
++        MediaController localController = null;
++        final List<String> remoteMediaSessionLists = new ArrayList<>();
++        for (MediaController controller : mediaSessionManager.getActiveSessions(null)) {
++            final MediaController.PlaybackInfo pi = controller.getPlaybackInfo();
++            if (pi == null) {
++                // do nothing
++                continue;
++            }
++            final PlaybackState playbackState = controller.getPlaybackState();
++            if (playbackState == null) {
++                // do nothing
++                continue;
++            }
++            if (D.BUG) {
++                Log.d(TAG,
++                        "getActiveLocalMediaController() package name : "
++                                + controller.getPackageName()
++                                + ", play back type : " + pi.getPlaybackType()
++                                + ", play back state : " + playbackState.getState());
++            }
++            if (playbackState.getState() != PlaybackState.STATE_PLAYING) {
++                // do nothing
++                continue;
++            }
++            if (pi.getPlaybackType() == MediaController.PlaybackInfo.PLAYBACK_TYPE_REMOTE) {
++                if (localController != null
++                        && TextUtils.equals(
++                                localController.getPackageName(), controller.getPackageName())) {
++                    localController = null;
++                }
++                if (!remoteMediaSessionLists.contains(controller.getPackageName())) {
++                    remoteMediaSessionLists.add(controller.getPackageName());
++                }
++                continue;
++            }
++            if (pi.getPlaybackType() == MediaController.PlaybackInfo.PLAYBACK_TYPE_LOCAL) {
++                if (localController == null
++                        && !remoteMediaSessionLists.contains(controller.getPackageName())) {
++                    localController = controller;
++                }
++            }
++        }
++        return localController;
++    }
++
++    private boolean isBluetoothA2dpConnected() {
++        final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
++        return mBluetoothAdapter != null && mBluetoothAdapter.isEnabled()
++                && mBluetoothAdapter.getProfileConnectionState(BluetoothProfile.A2DP)
++                == BluetoothProfile.STATE_CONNECTED;
++    }
++
++    private boolean isMediaControllerAvailable() {
++        final MediaController mediaController = getActiveLocalMediaController();
++        return mediaController != null && !TextUtils.isEmpty(mediaController.getPackageName());
++    }
++
+     private void initSettingsH(int lockTaskModeState) {
++        final boolean showSettings = mDeviceProvisionedController.isCurrentUserSetup()
++                && lockTaskModeState == LOCK_TASK_MODE_NONE;
++        if (mRoundedBorderBottom != null) {
++            mRoundedBorderBottom.setVisibility(!showSettings ? VISIBLE : GONE);
++        }
+         if (mSettingsView != null) {
+-            mSettingsView.setVisibility(
+-                    mDeviceProvisionedController.isCurrentUserSetup() &&
+-                            lockTaskModeState == LOCK_TASK_MODE_NONE ? VISIBLE : GONE);
++            mSettingsView.setVisibility(showSettings && (isMediaControllerAvailable() ||
++                    (Flags.useMediaRouter2ForInfoMediaManager() && isBluetoothA2dpConnected()))
++                            ? VISIBLE
++                            : GONE);
+         }
+         if (mSettingsIcon != null) {
+             mSettingsIcon.setOnClickListener(v -> {
+                 Events.writeEvent(Events.EVENT_SETTINGS_CLICK);
++		String packageName = isMediaControllerAvailable()
++                        ? getActiveLocalMediaController().getPackageName()
++                        : null;
++                mMediaOutputDialogFactory.create(packageName, true, mDialogView);
+                 dismissH(DISMISS_REASON_SETTINGS_CLICKED);
+-                mMediaOutputDialogFactory.dismiss();
+                 mVolumeNavigator.openVolumePanel(
+                         mVolumePanelNavigationInteractor.getVolumePanelRoute());
++		});
++        }
++        if (mExpandRowsView != null) {
++            mExpandRowsView.setVisibility(showSettings ? VISIBLE : GONE);
++        }
++        if (mExpandRows != null) {
++            mExpandRows.setOnClickListener(v -> {
++                mExpanded = !mExpanded;
++                updateRowsH(mDefaultRow, true);
++                mExpandRows.setExpanded(mExpanded);
+             });
+         }
+     }
+@@ -1489,6 +1684,10 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+             mConfigChanged = false;
+         }
+ 
++        if (mDefaultRow == null) {
++            mDefaultRow = getActiveRow();
++        }
++
+         initSettingsH(lockTaskModeState);
+         mShowing = true;
+         mIsAnimatingDismiss = false;
+@@ -1556,9 +1755,15 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+ 
+     protected void dismissH(int reason) {
+         Trace.beginSection("VolumeDialogImpl#dismissH");
++	// Avoid multiple animation calls on touch spams.
++        if (!mShowing) {
++            return;
++        }
++
+         for (int i = 0; i < mRows.size(); i++) {
+             mRows.get(i).removeHaptics();
+         }
++
+         Log.i(TAG, "mDialog.dismiss() reason: " + Events.DISMISS_REASONS[reason]
+                 + " from: " + Debug.getCaller());
+ 
+@@ -1598,6 +1803,12 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+                         mDialog.dismiss();
+                     }
+                     tryToRemoveCaptionsTooltip();
++                    mExpanded = false;
++                    if (mExpandRows != null) {
++                        mExpandRows.setExpanded(mExpanded);
++                    }
++                    mAnimatingRows = 0;
++                    mDefaultRow = null;
+                     mIsAnimatingDismiss = false;
+ 
+                     hideRingerDrawer();
+@@ -1625,6 +1836,14 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+                 || mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_TELEVISION);
+     }
+ 
++    private boolean isExpandableRowH(VolumeRow row) {
++        return row != null && row != mDefaultRow && !row.defaultStream
++                && (row.stream == STREAM_RING
++			|| row.stream == STREAM_NOTIFICATION
++                        || row.stream == STREAM_ALARM
++                        || row.stream == STREAM_MUSIC);
++    }
++
+     private boolean shouldBeVisibleH(VolumeRow row, VolumeRow activeRow) {
+         boolean isActive = row.stream == activeRow.stream;
+ 
+@@ -1644,10 +1863,18 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+                 return true;
+             }
+ 
+-            if (row.defaultStream) {
++	    if (mExpanded && isExpandableRowH(row)) {
++                return true;
++            }
++
++            // if the row is the default stream or the row with which this panel was created,
++            // show it additonally to the active row if it is one of the following streams
++            if (row.defaultStream || mDefaultRow == row) {
+                 return activeRow.stream == STREAM_RING
++                        || activeRow.stream == STREAM_NOTIFICATION
+                         || activeRow.stream == STREAM_ALARM
+                         || activeRow.stream == STREAM_VOICE_CALL
++                        || activeRow.stream == STREAM_MUSIC
+                         || activeRow.stream == STREAM_ACCESSIBILITY
+                         || mDynamic.get(activeRow.stream);
+             }
+@@ -1663,29 +1890,38 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+ 
+     private void updateRowsH(final VolumeRow activeRow) {
+         Trace.beginSection("VolumeDialogImpl#updateRowsH");
++	updateRowsH(activeRow, false);
++    }
++
++    private void updateRowsH(final VolumeRow activeRow, boolean animate) {
+         if (D.BUG) Log.d(TAG, "updateRowsH");
+         if (!mShowing) {
+             trimObsoleteH();
+         }
+ 
++        boolean isOutmostIndexMax = isWindowGravityLeft() ? isRtl() : !isRtl();
++
+         // Index of the last row that is actually visible.
+-        int rightmostVisibleRowIndex = !isRtl() ? -1 : Short.MAX_VALUE;
++        int outmostVisibleRowIndex = isOutmostIndexMax ? -1 : Short.MAX_VALUE;
+ 
+         // apply changes to all rows
+         for (final VolumeRow row : mRows) {
+             final boolean isActive = row == activeRow;
++	    final boolean isExpandableRow = isExpandableRowH(row);
+             final boolean shouldBeVisible = shouldBeVisibleH(row, activeRow);
+-            Util.setVisOrGone(row.view, shouldBeVisible);
+ 
+-            if (shouldBeVisible && mRingerAndDrawerContainerBackground != null) {
+-                // For RTL, the rightmost row has the lowest index since child views are laid out
++	    if (!isExpandableRow) {
++                Util.setVisOrGone(row.view, shouldBeVisible);
++            } else if (!mExpanded) {
++                row.view.setVisibility(View.INVISIBLE);
++            }
++            if ((shouldBeVisible || isExpandableRow)
++                    && mRingerAndDrawerContainerBackground != null) {
++                // For RTL, the outmost row has the lowest index since child views are laid out
+                 // from right to left.
+-                rightmostVisibleRowIndex =
+-                        !isRtl()
+-                                ? Math.max(rightmostVisibleRowIndex,
+-                                mDialogRowsView.indexOfChild(row.view))
+-                                : Math.min(rightmostVisibleRowIndex,
+-                                        mDialogRowsView.indexOfChild(row.view));
++                outmostVisibleRowIndex = isOutmostIndexMax
++                        ? Math.max(outmostVisibleRowIndex, mDialogRowsView.indexOfChild(row.view))
++                        : Math.min(outmostVisibleRowIndex, mDialogRowsView.indexOfChild(row.view));
+ 
+                 // Add spacing between each of the visible rows - we'll remove the spacing from the
+                 // last row after the loop.
+@@ -1693,12 +1929,13 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+                 if (layoutParams instanceof LinearLayout.LayoutParams) {
+                     final LinearLayout.LayoutParams linearLayoutParams =
+                             ((LinearLayout.LayoutParams) layoutParams);
+-                    if (!isRtl()) {
++                    if (isOutmostIndexMax) {
+                         linearLayoutParams.setMarginEnd(mRingerRowsPadding);
+                     } else {
+                         linearLayoutParams.setMarginStart(mRingerRowsPadding);
+                     }
+                 }
++		row.view.setLayoutParams(layoutParams);
+ 
+                 // Set the background on each of the rows. We'll remove this from the last row after
+                 // the loop, since the last row's background is drawn by the main volume container.
+@@ -1706,13 +1943,13 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+                         mContext.getDrawable(R.drawable.volume_row_rounded_background));
+             }
+ 
+-            if (row.view.isShown()) {
++            if (row.view.isShown() || isExpandableRow) {
+                 updateVolumeRowTintH(row, isActive);
+             }
+         }
+ 
+-        if (rightmostVisibleRowIndex > -1 && rightmostVisibleRowIndex < Short.MAX_VALUE) {
+-            final View lastVisibleChild = mDialogRowsView.getChildAt(rightmostVisibleRowIndex);
++        if (outmostVisibleRowIndex > -1 && outmostVisibleRowIndex < Short.MAX_VALUE) {
++            final View lastVisibleChild = mDialogRowsView.getChildAt(outmostVisibleRowIndex);
+             final ViewGroup.LayoutParams layoutParams = lastVisibleChild.getLayoutParams();
+             // Remove the spacing on the last row, and remove its background since the container is
+             // drawing a background for this row.
+@@ -1721,8 +1958,93 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+                         ((LinearLayout.LayoutParams) layoutParams);
+                 linearLayoutParams.setMarginStart(0);
+                 linearLayoutParams.setMarginEnd(0);
++		lastVisibleChild.setLayoutParams(linearLayoutParams);
+                 lastVisibleChild.setBackgroundColor(Color.TRANSPARENT);
+             }
++
++	    int elevationCount = 0;
++            if (animate) {
++                // Increase the elevation of the outmost row so that other rows animate behind it.
++                lastVisibleChild.setElevation(1f / ++elevationCount);
++                // Add a solid background to the outmost row temporary so that other rows animate
++                // behind it
++                lastVisibleChild.setBackgroundDrawable(
++                        mContext.getDrawable(R.drawable.volume_background));
++            }
++            int[] lastVisibleChildLocation = new int[2];
++            lastVisibleChild.getLocationInWindow(lastVisibleChildLocation);
++            // Track previous rows to calculate translations
++            int visibleRowsCount = 0;
++            int hiddenRowsCount = 0;
++            int rowWidth = mDialogWidth + mRingerRowsPadding;
++            for (final VolumeRow row : mRows) {
++                final boolean isExpandableRow = isExpandableRowH(row);
++                final boolean shouldBeVisible = shouldBeVisibleH(row, activeRow);
++                if (shouldBeVisible) {
++                    visibleRowsCount++;
++                } else if (isExpandableRow) {
++                    hiddenRowsCount++;
++                }
++                // Only move rows that are either expandable or visible and not the default stream
++                if ((!isExpandableRow && !shouldBeVisible) || row.defaultStream) {
++                    continue;
++                }
++                // Cancel any ongoing animations
++                row.view.animate().cancel();
++                // Expandable rows need to animate behind the last visible row, an additional
++                // always visible stream animates next to the default stream
++                float translationX = (isWindowGravityLeft() ? -1 : 1) * hiddenRowsCount * rowWidth;
++                if (animate) {
++                    // If the translation is not set and the panel is expanding start the
++                    // animation behind the main row
++                    if (isExpandableRow && mExpanded && row.view.getTranslationX() == 0f) {
++                        row.view.setTranslationX(
++                                (isWindowGravityLeft() ? -1 : 1) * visibleRowsCount * rowWidth);
++                    }
++                    // The elevation should decrease from the outmost row to the inner rows, so that
++                    // every row animates behind the outer rows
++                    row.view.setElevation(1f / ++elevationCount);
++                    row.view.setVisibility(View.VISIBLE);
++                    // Track how many rows are animating to avoid running animation end actions
++                    // if there is still a row animating
++                    mAnimatingRows++;
++                    row.view.animate()
++                            .translationX(translationX)
++                            .setDuration(mExpanded ? mDialogShowAnimationDurationMs
++                                                   : mDialogHideAnimationDurationMs)
++                            .setInterpolator(mExpanded
++                                            ? new SystemUIInterpolators.LogDecelerateInterpolator()
++                                            : new SystemUIInterpolators.LogAccelerateInterpolator())
++                            .setListener(new AnimatorListenerAdapter() {
++                                @Override
++                                public void onAnimationCancel(Animator animation) {
++                                    mAnimatingRows--;
++                                    animation.removeAllListeners();
++                                }
++                                @Override
++                                public void onAnimationEnd(Animator animation) {
++                                    row.view.setElevation(0);
++                                    if (!shouldBeVisible) {
++                                        row.view.setVisibility(View.INVISIBLE);
++                                    }
++                                    mAnimatingRows--;
++                                    if (mAnimatingRows == 0) {
++                                        // Restore the elevation and background
++                                        lastVisibleChild.setElevation(0);
++                                        lastVisibleChild.setBackgroundColor(Color.TRANSPARENT);
++                                        // Set the active stream to ensure the volume keys change
++                                        // the volume of the tinted row. The tint was set before
++                                        // already, but setting the active row cancels ongoing
++                                        // animations.
++                                        mController.setActiveStream(activeRow.stream);
++                                    }
++                                }
++                            });
++                } else {
++                    row.view.setTranslationX(translationX);
++                    row.view.setVisibility(shouldBeVisible ? View.VISIBLE : View.INVISIBLE);
++                }
++            }
+         }
+ 
+         updateBackgroundForDrawerClosedAmount();
+@@ -1831,7 +2153,7 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+ 
+     protected void onStateChangedH(State state) {
+         if (D.BUG) Log.d(TAG, "onStateChangedH() state: " + state.toString());
+-        if (mState != null && state != null
++        if (mShowing && mState != null && state != null
+                 && mState.ringerModeInternal != -1
+                 && mState.ringerModeInternal != state.ringerModeInternal
+                 && state.ringerModeInternal == AudioManager.RINGER_MODE_VIBRATE) {
+@@ -1887,6 +2209,7 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+         final boolean isVoiceCallStream = row.stream == AudioManager.STREAM_VOICE_CALL;
+         final boolean isA11yStream = row.stream == STREAM_ACCESSIBILITY;
+         final boolean isRingStream = row.stream == AudioManager.STREAM_RING;
++	final boolean isNotificationStream = row.stream == AudioManager.STREAM_NOTIFICATION;
+         final boolean isSystemStream = row.stream == AudioManager.STREAM_SYSTEM;
+         final boolean isAlarmStream = row.stream == STREAM_ALARM;
+         final boolean isMusicStream = row.stream == AudioManager.STREAM_MUSIC;
+@@ -1894,6 +2217,7 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+                 && mState.ringerModeInternal == AudioManager.RINGER_MODE_VIBRATE;
+         final boolean isRingSilent = isRingStream
+                 && mState.ringerModeInternal == AudioManager.RINGER_MODE_SILENT;
++	final boolean isNotificationMuted = isNotificationStream && ss.muted;
+         final boolean isZenPriorityOnly = mState.zenMode == Global.ZEN_MODE_IMPORTANT_INTERRUPTIONS;
+         final boolean isZenAlarms = mState.zenMode == Global.ZEN_MODE_ALARMS;
+         final boolean isZenNone = mState.zenMode == Global.ZEN_MODE_NO_INTERRUPTIONS;
+@@ -1928,7 +2252,7 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+             iconRes = com.android.internal.R.drawable.ic_qs_dnd;
+         } else if (isRingVibrate) {
+             iconRes = R.drawable.ic_volume_ringer_vibrate;
+-        } else if (isRingSilent) {
++        } else if (isRingSilent || isNotificationMuted || zenMuted) {
+             iconRes = row.iconMuteRes;
+         } else if (ss.routedToBluetooth) {
+             if (isVoiceCallStream) {
+@@ -2025,16 +2349,17 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+         }
+         final ColorStateList colorTint = useActiveColoring
+                 ? Utils.getColorAccent(mContext)
+-                : Utils.getColorAttr(mContext, com.android.internal.R.attr.colorAccentSecondary);
++                : Utils.getColorAttr(mContext, com.android.internal.R.attr.colorAccentPrimary);
+         final int alpha = useActiveColoring
+                 ? Color.alpha(colorTint.getDefaultColor())
+-                : getAlphaAttr(android.R.attr.secondaryContentAlpha);
++                : getAlphaAttr(android.R.attr.disabledAlpha);
+ 
+-        final ColorStateList bgTint = Utils.getColorAttr(
+-                mContext, android.R.attr.colorBackgroundFloating);
++        final ColorStateList bgTint = useActiveColoring
++                ? Utils.getColorAttr(mContext, android.R.attr.colorBackgroundFloating)
++                : Utils.getColorAttr(mContext, com.android.internal.R.attr.colorAccentCustom);
+ 
+         final ColorStateList inverseTextTint = Utils.getColorAttr(
+-                mContext, com.android.internal.R.attr.textColorOnAccent);
++                mContext, com.android.internal.R.attr.colorAccentCustom);
+ 
+         row.sliderProgressSolid.setTintList(colorTint);
+         if (row.sliderProgressIcon != null) {
+@@ -2231,6 +2556,21 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+         return (visibleRows - 1) * (mDialogWidth + mRingerRowsPadding);
+     }
+ 
++    /**
++     * Return the size of invisible rows.
++     * Expandable rows are invisible while the panel is not expanded.
++     */
++    private int getExpandableRowsExtraSize() {
++        VolumeRow activeRow = getActiveRow();
++        int expandableRows = 0;
++        for (final VolumeRow row : mRows) {
++            if (isExpandableRowH(row)) {
++                expandableRows++;
++            }
++        }
++        return expandableRows * (mDialogWidth + mRingerRowsPadding);
++    }
++
+     private void updateBackgroundForDrawerClosedAmount() {
+         if (mRingerAndDrawerContainerBackground == null) {
+             return;
+@@ -2239,6 +2579,9 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+         final Rect bounds = mRingerAndDrawerContainerBackground.copyBounds();
+         if (!isLandscape()) {
+             bounds.top = (int) (mRingerDrawerClosedAmount * getRingerDrawerOpenExtraSize());
++        } else if (isWindowGravityLeft()) {
++            bounds.right = (int) ((mDialogCornerRadius / 2) + mRingerDrawerItemSize
++                    + (1f - mRingerDrawerClosedAmount) * getRingerDrawerOpenExtraSize());
+         } else {
+             bounds.left = (int) (mRingerDrawerClosedAmount * getRingerDrawerOpenExtraSize());
+         }
+@@ -2246,7 +2589,7 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+     }
+ 
+     /*
+-     * The top container is responsible for drawing the solid color background behind the rightmost
++     * The top container is responsible for drawing the solid color background behind the outmost
+      * (primary) volume row. This is because the volume drawer animates in from below, initially
+      * overlapping the primary row. We need the drawer to draw below the row's SeekBar, since it
+      * looks strange to overlap it, but above the row's background color, since otherwise it will be
+@@ -2280,8 +2623,9 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+                         ? mDialogRowsViewContainer.getTop()
+                         : mDialogRowsViewContainer.getTop() - mDialogCornerRadius);
+ 
+-        // Set gravity to top-right, since additional rows will be added on the left.
+-        background.setLayerGravity(0, Gravity.TOP | Gravity.RIGHT);
++        // Set gravity to top and opposite side where additional rows will be added.
++        background.setLayerGravity(0,
++                isWindowGravityLeft() ? Gravity.TOP | Gravity.LEFT : Gravity.TOP | Gravity.RIGHT);
+ 
+         // In landscape, the ringer drawer animates out to the left (instead of down). Since the
+         // drawer comes from the right (beyond the bounds of the dialog), we should clip it so it
+@@ -2330,7 +2674,6 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+ 
+         @Override
+         public void onLayoutDirectionChanged(int layoutDirection) {
+-            mDialogView.setLayoutDirection(layoutDirection);
+         }
+ 
+         @Override
+-- 
+2.47.0
+

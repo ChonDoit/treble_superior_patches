@@ -1,16 +1,16 @@
-From b0ebc135d9a2e33c3d3d31cbbb0d0840ab4f73b8 Mon Sep 17 00:00:00 2001
+From 23d4a72e28ae3a0055150ca9ff08b3ec4057954f Mon Sep 17 00:00:00 2001
 From: ChonDoit <thphantomblog@gmail.com>
 Date: Thu, 10 Aug 2023 00:24:43 +0000
-Subject: [PATCH] Make status bar paddings overridables
+Subject: [PATCH 01/31] Make status bar paddings overridables
 
 with
 persist.sys.phh.status_bar_padding_top
 persist.sys.phh.status_bar_padding_start
 persist.sys.phh.status_bar_padding_end
 ---
- .../phone/KeyguardStatusBarView.java          |  7 +++--
- .../statusbar/phone/PhoneStatusBarView.java   | 26 +++++++++++++------
- 2 files changed, 23 insertions(+), 10 deletions(-)
+ .../phone/KeyguardStatusBarView.java          |  7 ++++--
+ .../statusbar/phone/PhoneStatusBarView.java   | 22 ++++++++++++++-----
+ 2 files changed, 21 insertions(+), 8 deletions(-)
 
 diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/KeyguardStatusBarView.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/KeyguardStatusBarView.java
 index a9e17d13..3608bd1e 100644
@@ -45,7 +45,7 @@ index a9e17d13..3608bd1e 100644
          mMinDotWidth = res.getDimensionPixelSize(
                  R.dimen.ongoing_appops_dot_min_padding);
 diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBarView.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBarView.java
-index 1618a8f7..23c414b9 100644
+index 1618a8f7..a3783618 100644
 --- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBarView.java
 +++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBarView.java
 @@ -25,6 +25,7 @@ import android.content.res.Configuration;
@@ -56,7 +56,7 @@ index 1618a8f7..23c414b9 100644
  import android.util.AttributeSet;
  import android.util.Log;
  import android.view.DisplayCutout;
-@@ -270,22 +271,31 @@ public class PhoneStatusBarView extends FrameLayout {
+@@ -270,17 +271,26 @@ public class PhoneStatusBarView extends FrameLayout {
      }
  
      private void updatePaddings() {
@@ -84,18 +84,11 @@ index 1618a8f7..23c414b9 100644
                  0);
  
          findViewById(R.id.notification_lights_out)
-                 .setPaddingRelative(0, statusBarPaddingStart, 0, 0);
+-                .setPaddingRelative(0, statusBarPaddingStart, 0, 0);
++                .setPaddingRelative(0, (int) statusBarPaddingStart, 0, 0);
  
          findViewById(R.id.system_icons).setPaddingRelative(
--                getResources().getDimensionPixelSize(R.dimen.status_bar_icons_padding_start),
--                getResources().getDimensionPixelSize(R.dimen.status_bar_icons_padding_top),
--                getResources().getDimensionPixelSize(R.dimen.status_bar_icons_padding_end),
-+                (int) statusBarPaddingStart,
-+                (int) statusBarPaddingTop,
-+                (int) statusBarPaddingEnd,
-                 getResources().getDimensionPixelSize(R.dimen.status_bar_icons_padding_bottom)
-         );
-     }
+                 getResources().getDimensionPixelSize(R.dimen.status_bar_icons_padding_start),
 -- 
-2.46.0
+2.47.0
 

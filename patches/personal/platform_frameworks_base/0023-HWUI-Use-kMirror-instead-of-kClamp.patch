@@ -1,0 +1,91 @@
+From 6bdf965ac91e9fa2cd3dbc5d196bad06cbb2e7ef Mon Sep 17 00:00:00 2001
+From: minarypenguin <alexfinhart@gmail.com>
+Date: Wed, 6 Jul 2022 17:43:52 +0800
+Subject: [PATCH 23/31] HWUI: Use kMirror instead of kClamp
+
+* Clamping is kinda expensive imo
+
+grep -rl 'kClamp' ./ | xargs sed -i 's/kClamp/kMirror/g'
+
+Change-Id: I215f00b7c3236667a3d8196eea995d79cfc13150
+Signed-off-by: drkphnx <dark.phnx12@gmail.com>
+Signed-off-by: offender <divye.singh92@gmail.com>
+Signed-off-by: darkphnx <dark.phnx12@gmail.com>
+Signed-off-by: offender6969 <divye.singh92@gmail.com>
+Signed-off-by: darkphnx <dark.phnx12@gmail.com>
+Signed-off-by: Roxor-007 <koyande72@gmail.com>
+Signed-off-by: darkphnx <dark.phnx12@gmail.com>
+Signed-off-by: Roxor-007 <koyande72@gmail.com>
+Signed-off-by: darkphnx <dark.phnx12@gmail.com>
+Signed-off-by: revolwoc <imsakshisharma04@gmail.com>
+Signed-off-by: darkphnx <dark.phnx12@gmail.com>
+Signed-off-by: Ghosuto <clash.raja10@gmail.com>
+---
+ libs/hwui/effects/StretchEffect.cpp                          | 4 ++--
+ libs/hwui/tests/common/scenes/ListOfFadedTextAnimation.cpp   | 2 +-
+ libs/hwui/tests/common/scenes/SimpleColorMatrixAnimation.cpp | 2 +-
+ libs/hwui/tests/common/scenes/SimpleGradientAnimation.cpp    | 2 +-
+ 4 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/libs/hwui/effects/StretchEffect.cpp b/libs/hwui/effects/StretchEffect.cpp
+index 2757c395..a8fb9494 100644
+--- a/libs/hwui/effects/StretchEffect.cpp
++++ b/libs/hwui/effects/StretchEffect.cpp
+@@ -209,7 +209,7 @@ sk_sp<SkShader> StretchEffect::getShader(float width, float height,
+     }
+ 
+     mBuilder->child(CONTENT_TEXTURE) =
+-            snapshotImage->makeShader(SkTileMode::kClamp, SkTileMode::kClamp,
++            snapshotImage->makeShader(SkTileMode::kMirror, SkTileMode::kMirror,
+                                       SkSamplingOptions(SkFilterMode::kLinear), matrix);
+     mBuilder->uniform("uInterpolationStrength").set(&INTERPOLATION_STRENGTH_VALUE, 1);
+     mBuilder->uniform("uStretchAffectedDistX").set(&width, 1);
+@@ -313,4 +313,4 @@ float StretchEffect::computeStretchedPositionY(float normalizedY) const {
+   return computeReverseOverscroll(mStretchDirection.y(), normalizedY);
+ }
+ 
+-} // namespace android::uirenderer
+\ No newline at end of file
++} // namespace android::uirenderer
+diff --git a/libs/hwui/tests/common/scenes/ListOfFadedTextAnimation.cpp b/libs/hwui/tests/common/scenes/ListOfFadedTextAnimation.cpp
+index f669dbc9..99639ea0 100644
+--- a/libs/hwui/tests/common/scenes/ListOfFadedTextAnimation.cpp
++++ b/libs/hwui/tests/common/scenes/ListOfFadedTextAnimation.cpp
+@@ -45,7 +45,7 @@ class ListOfFadedTextAnimation : public TestListViewSceneBase {
+ 
+         SkColor colors[2] = {Color::Black, Color::Transparent};
+         sk_sp<SkShader> s(
+-                SkGradientShader::MakeLinear(pts, colors, NULL, 2, SkTileMode::kClamp));
++                SkGradientShader::MakeLinear(pts, colors, NULL, 2, SkTileMode::kMirror));
+ 
+         SkMatrix matrix;
+         matrix.setScale(1, length);
+diff --git a/libs/hwui/tests/common/scenes/SimpleColorMatrixAnimation.cpp b/libs/hwui/tests/common/scenes/SimpleColorMatrixAnimation.cpp
+index 40f2ed08..8724de6f 100644
+--- a/libs/hwui/tests/common/scenes/SimpleColorMatrixAnimation.cpp
++++ b/libs/hwui/tests/common/scenes/SimpleColorMatrixAnimation.cpp
+@@ -69,7 +69,7 @@ private:
+                     SkPoint pts[] = {SkPoint::Make(0, 0), SkPoint::Make(width, height)};
+                     SkColor colors[2] = {Color::DeepPurple_500, Color::DeepOrange_500};
+                     paint.setShader(SkGradientShader::MakeLinear(pts, colors, pos, 2,
+-                                                                 SkTileMode::kClamp));
++                                                                 SkTileMode::kMirror));
+ 
+                     // overdraw several times to emphasize shader cost
+                     for (int i = 0; i < 10; i++) {
+diff --git a/libs/hwui/tests/common/scenes/SimpleGradientAnimation.cpp b/libs/hwui/tests/common/scenes/SimpleGradientAnimation.cpp
+index a9e7a34b..47e357bf 100644
+--- a/libs/hwui/tests/common/scenes/SimpleGradientAnimation.cpp
++++ b/libs/hwui/tests/common/scenes/SimpleGradientAnimation.cpp
+@@ -58,7 +58,7 @@ private:
+                         // use i%2 start position to pick 2 color combo with black in it
+                         SkColor colors[3] = {Color::Transparent, Color::Black, Color::Cyan_500};
+                         paint.setShader(SkGradientShader::MakeLinear(pts, colors + (i % 2), pos, 2,
+-                                                                     SkTileMode::kClamp));
++                                                                     SkTileMode::kMirror));
+                         canvas.drawRect(i, i, width, height, paint);
+                     }
+                 });
+-- 
+2.47.0
+
