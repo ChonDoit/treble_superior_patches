@@ -1,3 +1,21 @@
+## 20250315
+| Updated spoof method
+| Fix su call on Securize and others
+
+## 20250304
+ALL BUILDS
+Added Secure builds
+
+A64 BUILDS
+| Fixed Gapps build
+| Fixed Keyboard on Vanilla
+
+TREBLE APP
+| Fix Bluetooth workarounds override unsupported commands on boot
+| Disable restricted networking mode by default
+| Move use alternate audio policy to Audio Settings
+| Check VNDK for Motorola IMS download
+
 ## 20250123
 
 | Sync with sources
