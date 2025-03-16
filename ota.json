@@ -1,23 +1,58 @@
 {
-  "version": "20250123",
-  "date": "1737674705",
+  "version": "20250315",
+  "date": "1742098383",
   "gsi": "SuperiorOS | by ChonDoe feat. TD",
   "changelog": "https://raw.githubusercontent.com/ChonDoit/treble_superior_patches/14/changelog.txt",
   "variants": [
     {
-      "name": "Gapps",
-      "size": "1530621328",
-      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14/SuperiorOS_A14-arm64-bgS_20250123.img.xz"
+      "name": "Vanilla",
+      "size": "959484808",
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14/SuperiorOS_A14-arm64-bvS_20250315.img.xz"
+    },
+    {
+      "name": "Vanilla-Secure",
+      "size": "917767092",
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14/SuperiorOS_A14-arm64-bvN-secure_20250315.img.xz"
     },
     {
       "name": "Slim",
-      "size": "1291112316",
-      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14/SuperiorOS_A14-arm64-bgS-slim_20250123.img.xz"
+      "size": "1291072080 ",
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14/SuperiorOS_A14-arm64-bgS-slim_20250315.img.xz"
     },
     {
-      "name": "Vanilla",
-      "size": "959527020",
-      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14/SuperiorOS_A14-arm64-bvS_20250123.img.xz"
+      "name": "Slim-Secure",
+      "size": "1238935360",
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14/SuperiorOS_A14-arm64-bgN-slim-secure_20250315.img.xz"
+    },
+    {
+      "name": "Gapps",
+      "size": "1530724160",
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14/SuperiorOS_A14-arm64-bgS_20250315.img.xz"
+    },
+    {
+      "name": "Gapps-Secure",
+      "size": "1467347160",
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14/SuperiorOS_A14-arm64-bgN-secure_20250315.img.xz"
+    },
+        {
+      "name": "A64-Vanilla",
+      "size": "747943492",
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14/SuperiorOS_A14-a64-bvS_20250315.img.xz"
+    },
+    {
+      "name": "A64-Vanilla-Secure",
+      "size": "719005976",
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14/SuperiorOS_A14-a64-bvN-secure_20250315.img.xz"
+    },
+    {
+      "name": "A64-Slim",
+      "size": "940108460",
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14/SuperiorOS_A14-a64-bgS-Slim_20250315.img.xz"
+    },
+    {
+      "name": "A64-Slim-Secure",
+      "size": "903514584",
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A14/SuperiorOS_A14-a64-bgN-Slim-secure_20250315.img.xz"
     }
   ]
 }
