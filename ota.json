@@ -1,0 +1,18 @@
+{
+  "version": "v20250619",
+  "date": "1751229317",
+  "gsi": "SuperiorOS | by ChonDoe feat. TD",
+  "changelog": "https://raw.githubusercontent.com/ChonDoit/treble_superior_patches/15/changelog.txt",
+  "variants": [
+    {
+      "name": "Gapps-Secure",
+      "size": "4210307072",
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/untagged-c5b1ad95571ffb77276b/SuperiorOS_A15-arm64-bgN_20250629.img.xz"
+    },
+    {
+      "name": "Slim-Secure",
+      "size": "3618066432",
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/untagged-c5b1ad95571ffb77276b/SuperiorOS_A15-arm64-bgN-slim_20250629.img.xz"
+    }
+  ]
+}

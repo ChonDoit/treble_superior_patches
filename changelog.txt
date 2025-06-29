@@ -1,0 +1,16 @@
+•••••••••• A15_v20250629 ••••••••••
+
+Initial Android 15 build (WITHOUT FOD)
+
+OWN CHANGES
+Move to own Gapps tree
+Use own Play Integrity Spoof
+Add option to load/replace keybox
+Added some miscellaneous options
+Re-order settings layout
+Refresh Rate settings
+Few things I don't remember
+
+TREBLE APP
+Adapt icon to Material You (Themed)
+Miscellaneous fixes
