@@ -7,12 +7,12 @@
     {
       "name": "Gapps-Secure",
       "size": "4210307072",
-      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/untagged-c5b1ad95571ffb77276b/SuperiorOS_A15-arm64-bgN_20250629.img.xz"
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A15/SuperiorOS_A15-arm64-bgN_20250629.img.xz"
     },
     {
       "name": "Slim-Secure",
       "size": "3618066432",
-      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/untagged-c5b1ad95571ffb77276b/SuperiorOS_A15-arm64-bgN-slim_20250629.img.xz"
+      "url": "https://github.com/ChonDoit/treble_superior_patches/releases/download/A15/SuperiorOS_A15-arm64-bgN-slim_20250629.img.xz"
     }
   ]
 }
