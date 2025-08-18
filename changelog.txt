@@ -1,75 +1,75 @@
-A13-v20240820
-| Fix Play Integrity
-| Add Spoof Settings into TrebleApp
-| Address an OTA denial
-| Allow to spoof encryption state
-| Allow to disable SAF restrictions
-| Allow to disable media player squiggle animation
-| Add Google Drive to system apps
+[Tile] v20240820
+[Summary] Fix Play Integrity
+[Summary] Add Spoof Settings into TrebleApp
+[Summary] Address an OTA denial
+[Summary] Allow to spoof encryption state
+[Summary] Allow to disable SAF restrictions
+[Summary] Allow to disable media player squiggle animation
+[Summary] Add Google Drive to system apps
 
-A13-v20240804
-| Allow to disable dual tone QS background
-| Allow to enable Media Player Compact Mode
-| Bring back OpenEUICC, Mulch WebView, Lineage Clock and others
-| Little TD Sync
+[Title] v20240804
+[Summary] Allow to disable dual tone QS background
+[Summary] Allow to enable Media Player Compact Mode
+[Summary] Bring back OpenEUICC, Mulch WebView, Lineage Clock and others
+[Summary] Little TD Sync
 
-A13-v20240617
-| Signed builds
-| Minor fixes
+[Title] v20240617
+[Summary] Signed builds
+[Summary] Minor fixes
 
-Wipe Data/Factory Reset recommended
+[Summary] Wipe Data/Factory Reset recommended
 
-A13-v20240401
-| Merge missing FOD Fixes
-| SMSC fix for Samsung
+[Title] v20240401
+[Summary] Merge missing FOD Fixes
+[Summary] SMSC fix for Samsung
 
-A13-v20240318
-| More TD Sync
-| Add QQS Rows option
-| Slightly fix A11 QS UI
-| QS Themes also apply rounded corners now
-| Fix Safety Net/Play Integrity and made overridable with props
-| Fix missing Transsition Settings
+[Title] v20240318
+[Summary] More TD Sync
+[Summary] Add QQS Rows option
+[Summary] Slightly fix A11 QS UI
+[Summary] QS Themes also apply rounded corners now
+[Summary] Fix Safety Net/Play Integrity and made overridable with props
+[Summary] Fix missing Transsition Settings
 
-A13-v20240217
-| Fix Play Integrity
-| Add A11 QS Style
-| Add compatible patches from A14
-| Add another toggle for High Pitched Voice issue
+[Title] v20240217
+[Summary] Fix Play Integrity
+[Summary] Add A11 QS Style
+[Summary] Add compatible patches from A14
+[Summary] Add another toggle for High Pitched Voice issue
 
-A13-v20231103
-| Blind shot at adding Samsung AIDL Fingerprint support
-| Add a prop to use linear backlight control
-| Add a prop to disable AUDIO_OUTPUT_FLAG_FAST from audio policies
-| Change AOD while Charging implemetation
+[Title] v20231103
+[Summary] Blind shot at adding Samsung AIDL Fingerprint support
+[Summary] Add a prop to use linear backlight control
+[Summary] Add a prop to disable AUDIO_OUTPUT_FLAG_FAST from audio policies
+[Summary] Change AOD while Charging implemetation
 
-A13-v20230906
-| Bring back Xiaomi FOD
-| Fix Battery Status Chip Text
+[Title] v20230906
+[Summary] Bring back Xiaomi FOD
+[Summary] Fix Battery Status Chip Text
 
-A13-v20230905
-| Re-implement TD patches from scratch
-| Drop Xiaomi FOD
-| Add Bluetooth timeout
-| Add White on White theme
+[Title] v20230905
+[Summary] Re-implement TD patches from scratch
+[Summary] Drop Xiaomi FOD
+[Summary] Add Bluetooth timeout
+[Summary] Add White on White theme
 
-A13-v20230819
-| Samsung should boot now
-| Add A-GPS toggle
-| Add AoD while charging only
-| Bring Back Device Health Services
-| Calculate battery estimates with Device Health Services
-| Settings > Accent search button
-| PHH Settings > Nuke Customization. Breaks Monet settings and maybe more
+[Title] v20230819
+[Summary] Samsung should boot now
+[Summary] Add A-GPS toggle
+[Summary] Add AoD while charging only
+[Summary] Bring Back Device Health Services
+[Summary] Calculate battery estimates with Device Health Services
+[Summary] Settings > Accent search button
+[Summary] PHH Settings > Nuke Customization. Breaks Monet settings and maybe more
 
-SAMSUNG USERS
-Thanks for don't share a fucking log.
+[Summary] SAMSUNG USERS
+[Summary] Thanks for don't share a fucking log.
 
-A13-v20230816
-| Add own Quick Settings styles (Superior Lab > Quick Settings)
-| Bring back ThemePicker (for Launcher3)
+[Title] v20230816
+[Summary] Add own Quick Settings styles (Superior Lab > Quick Settings)
+[Summary] Bring back ThemePicker (for Launcher3)
 
-A13-v20230812
-| Sync with August sources
-| Bring back rounded corner diameter
-| Allow to override status bar padding
+[Title] v20230812
+[Summary] Sync with August sources
+[Summary] Bring back rounded corner diameter
+[Summary] Allow to override status bar padding
