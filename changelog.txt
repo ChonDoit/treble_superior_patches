@@ -1,4 +1,4 @@
-[Tile] v20240820
+[Title] v20240820
 [Summary] Fix Play Integrity
 [Summary] Add Spoof Settings into TrebleApp
 [Summary] Address an OTA denial
